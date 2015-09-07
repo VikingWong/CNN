@@ -1,2 +1,2 @@
 ## CNN
-CNN implementation using Theano. 
+CNN implementation using Theano.
