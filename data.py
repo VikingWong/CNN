@@ -4,13 +4,15 @@ import gzip
 import theano
 import theano.tensor as T
 
+#TODO: Probably make it a tad bit more general. IE loading datasets not a stored in same format as mnist, and
+#formatting the dataset propertly
 class Dataset(object):
 
     def __init__(self):
         self.set = {
-            'train': {'x': None, 'y': None},
-            'validation': {'x': None, 'y': None},
-            'test': {'x': None, 'y': None},
+            'train': None,
+            'validation': None,
+            'test': None,
         }
 
     def load(self, dataset):
@@ -22,9 +24,10 @@ class Dataset(object):
         f.close()
 
         #All the shared variables in a simple datastructure for easier access.
-        self.set['test']['x'],  self.set['test']['y'] = self._shared_dataset(train_set)
-        self.set['validation']['x'],  self.set['validation']['y'] = self._shared_dataset(train_set)
-        self.set['train']['x'],  self.set['train']['y'] = self._shared_dataset(train_set)
+        self.set['test'] = self._shared_dataset(train_set)
+        self.set['validation'] = self._shared_dataset(train_set)
+        self.set['train'] = self._shared_dataset(train_set)
+        print(self.set)
 
         return True #TODO: Implement boolean for whether everything went ok or not
 
@@ -32,14 +35,14 @@ class Dataset(object):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
-        shared_y = theano.shared(self._floatX(data_x), borrow=borrow)
+        shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
         #Shared_y is therefore cast to int.
         return shared_x, T.cast(shared_y, 'int32')
 
-    def _floatX(self, X):
+    def _floatX(self, d):
         #Creates a data representation suitable for GPU
-        return np.asarray(X, dtype=theano.config.floatX)
+        return np.asarray(d, dtype=theano.config.floatX)
 
     def _get_file_path(self, dataset):
         data_dir, data_file = os.path.split(dataset)
