@@ -22,7 +22,7 @@ class Evaluator(object):
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
-        y = T.ivector('y')
+        y = T.matrix('y')
 
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
