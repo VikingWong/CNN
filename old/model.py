@@ -5,6 +5,7 @@ import theano.tensor as T
 from elements import LogisticRegression, HiddenLayer, ConvPoolLayer
 import numpy as np
 
+#TODO: Old stuff, here if i need it. And in case I want to generalize it further
 class Model(object):
 
     def __init__(self, nkerns):
@@ -26,7 +27,7 @@ class Model(object):
     #TODO: temp
     def build(self, x, batch_size):
         print('... building the model')
-        layer0_input = x.reshape((batch_size, 1, 256, 256))
+        layer0_input = x.reshape((batch_size, 1, 28, 28))
 
         # Construct the first convolutional pooling layer:
         # filtering reduces the image size to (28-5+1 , 28-5+1) = (24, 24)
@@ -35,8 +36,8 @@ class Model(object):
         layer0 = ConvPoolLayer(
             self.rng,
             input=layer0_input,
-            image_shape=(batch_size, 3, 256, 256),
-            filter_shape=(self.nkerns[0], 3, 11, 11),
+            image_shape=(batch_size, 1, 28, 28),
+            filter_shape=(self.nkerns[0], 1, 5, 5),
             poolsize=(2, 2)
         )
 
@@ -47,7 +48,7 @@ class Model(object):
         layer1 = ConvPoolLayer(
             self.rng,
             input=layer0.output,
-            image_shape=(batch_size, self.nkerns[0], 123, 123),
+            image_shape=(batch_size, self.nkerns[0], 12, 12),
             filter_shape=(self.nkerns[1], self.nkerns[0], 5, 5),
             poolsize=(2, 2)
         )
@@ -71,3 +72,4 @@ class Model(object):
         layer3 = LogisticRegression(input=layer2.output, n_in=500, n_out=10)
         self.layer = [layer0, layer1, layer2, layer3]
         self.params = layer3.params + layer2.params + layer1.params + layer0.params
+__author__ = 'Olav'

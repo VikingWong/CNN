@@ -12,7 +12,7 @@ class Evaluator(object):
     PATIENCE = 10000        # look as this many examples regardless
     PATIENCE_INCREASE = 2   # wait this much longer when a new best is found
     IMPROVEMENT_THRESHOLD = 0.995 # a relative improvement of this much is considered significant
-    NUMBER_OF_KERNELS = [20, 50]
+    NUMBER_OF_KERNELS = [64, 256]
 
     def __init__(self, model, dataset):
         self.data = dataset
