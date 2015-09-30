@@ -47,8 +47,8 @@ class Model(object):
         layer1 = ConvPoolLayer(
             self.rng,
             input=layer0.output,
-            image_shape=(batch_size, self.nkerns[0], 123, 123),
-            filter_shape=(self.nkerns[1], self.nkerns[0], 5, 5),
+            image_shape=(batch_size, self.nkerns[0], 27, 27),
+            filter_shape=(self.nkerns[1], self.nkerns[0], 4, 4),
             poolsize=(2, 2)
         )
 
@@ -62,12 +62,12 @@ class Model(object):
         layer2 = HiddenLayer(
             self.rng,
             input=layer2_input,
-            n_in=self.nkerns[1] * 4 * 4,
+            n_in=self.nkerns[1] * 11 * 11,
             n_out=4096,
-            activation=T.tanh
+            activation=T.nnet.relu
         )
 
         # classify the values of the fully-connected sigmoidal layer
-        layer3 = LogisticRegression(input=layer2.output, n_in=500, n_out=10)
+        layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=4096)
         self.layer = [layer0, layer1, layer2, layer3]
         self.params = layer3.params + layer2.params + layer1.params + layer0.params

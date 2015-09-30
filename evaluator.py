@@ -22,7 +22,7 @@ class Evaluator(object):
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
-        y = T.matrix('y')
+        y = T.imatrix('y')
 
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
@@ -75,8 +75,10 @@ class Evaluator(object):
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
+                print(minibatch_index)
+                print(self.data.set['train'][0])
+                print(self.data.set['train'][1])
                 cost_ij = self.train_model(minibatch_index)
-
                 if (iter + 1) % validation_frequency == 0:
 
                     # compute zero-one loss on validation set
