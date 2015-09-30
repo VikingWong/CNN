@@ -75,9 +75,7 @@ class Evaluator(object):
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
-                print(minibatch_index)
-                print(self.data.set['train'][0].shape.eval())
-                print(self.data.set['train'][1].shape.eval())
+
                 cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:
 

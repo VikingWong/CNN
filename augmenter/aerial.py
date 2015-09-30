@@ -41,7 +41,14 @@ class Creator(object):
         0 : The class not present at pixel location.
         '''
         image = Image.open(path, 'r').convert('L')
-        label = np.array(image.getdata()) / 255
+        #label = np.array(image.getdata())
+        label = np.asarray(image) / 255
+        #TODO: Not that general you know
+
+        label = label[24:24+16, 24:24+16 ]
+        label = label.reshape(16*16)
+
+        label = label / 255
         label = np.floor(label)
         label = label.astype(int)
         label = 1 - label
@@ -61,7 +68,6 @@ class Creator(object):
 
         tiles = self._get_image_files(tile_path)
         vectors = self._get_image_files(label_path)
-
         data = []
         label = []
 

@@ -68,6 +68,6 @@ class Model(object):
         )
 
         # classify the values of the fully-connected sigmoidal layer
-        layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=4096)
+        layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
         self.layer = [layer0, layer1, layer2, layer3]
         self.params = layer3.params + layer2.params + layer1.params + layer0.params
