@@ -5,6 +5,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import timeit
+import msvcrt
 
 #TODO: Generalized evaluator. Contains basic SGD, and utilize a model object where
 #TODO: model specific things recide.
@@ -18,11 +19,12 @@ class Evaluator(object):
         self.data = dataset
         self.model = model
 
-    def evaluate(self, learning_rate=0.1, epochs=200, batch_size=64):
+    def evaluate(self, learning_rate=0.1, epochs=100, batch_size=64):
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
         y = T.imatrix('y')
+
 
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
@@ -39,9 +41,11 @@ class Evaluator(object):
         for param_i, grad_i in zip(self.model.params, grads)
         ]
 
-        self.train_model = self._create_training_function(x, y, batch_size, index, cost, updates)
 
+        self.train_model = self._create_training_function(x, y, batch_size, index, cost, updates)
         self._train(batch_size, epochs)
+
+        #TODO: Restructure
 
 
 

@@ -25,6 +25,7 @@ class Model(object):
 
     #TODO: temp
     def build(self, x, batch_size):
+
         print('... building the model')
         layer0_input = x.reshape((batch_size, 3, 64, 64))
 
@@ -63,11 +64,14 @@ class Model(object):
             self.rng,
             input=layer2_input,
             n_in=self.nkerns[1] * 12 * 12,
-            n_out=4096,
-            activation=T.nnet.relu
+            n_out=576,
+            activation=T.tanh
         )
 
         # classify the values of the fully-connected sigmoidal layer
-        layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
-        self.layer = [layer0, layer1, layer2, layer3]
-        self.params = layer3.params + layer2.params + layer1.params + layer0.params
+        #layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
+        #self.layer = [layer0, layer1, layer2, layer3]
+        #self.params = layer3.params + layer2.params + layer1.params + layer0.params
+        self.layer = [layer0, layer1, layer2]
+        self.predict = theano.function([x], layer2.output, allow_input_downcast=True)
+        self.params =  layer2.params + layer1.params + layer0.params

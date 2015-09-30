@@ -40,13 +40,15 @@ class Creator(object):
         Convert label matrix to integers and invert the matrix. 1: indicate class being present at that place
         0 : The class not present at pixel location.
         '''
+        y_size = 24
+        padding = 20
         image = Image.open(path, 'r').convert('L')
         #label = np.array(image.getdata())
         label = np.asarray(image) / 255
         #TODO: Not that general you know
 
-        label = label[24:24+16, 24:24+16 ]
-        label = label.reshape(16*16)
+        label = label[padding : padding+y_size, padding : padding+y_size ]
+        label = label.reshape(y_size*y_size)
 
         label = label / 255
         label = np.floor(label)
