@@ -43,7 +43,7 @@ class LogisticRegression(object):
         self.probabilities = T.log(self.p_y_given_x)
 
     def negative_log_likelihood(self, y):
-        print(y)
+        #TODO: adapt cost function to 2D data.
         return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
 
     def errors(self, y):

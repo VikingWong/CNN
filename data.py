@@ -31,14 +31,19 @@ class AbstractDataset(metaclass=ABCMeta):
         assert os.path.isfile(dataset)
         return dataset
 
-    def _shared_dataset(self, data_xy, borrow=True, cast_to_int=False):
+    def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
+        print("CREATING SHARED DATASET =")
+        print(data_x.shape)
+        print(data_y.shape)
+        print("_____")
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
         #Shared_y is therefore cast to int.
         if cast_to_int:
+            print("Casted to int")
             return shared_x, T.cast(shared_y, 'int32')
         else:
             return shared_x, shared_y
@@ -81,8 +86,6 @@ class AerialDataset(AbstractDataset):
             f.close()
         else:
             train,valid,test = creator.dynamically_create(dataset_path, percentage, examples_dist)
-        print(type(train))
-        print(train.shape)
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)

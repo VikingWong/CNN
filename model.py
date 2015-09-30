@@ -26,7 +26,7 @@ class Model(object):
     #TODO: temp
     def build(self, x, batch_size):
         print('... building the model')
-        layer0_input = x.reshape((batch_size, 1, 256, 256))
+        layer0_input = x.reshape((batch_size, 3, 64, 64))
 
         # Construct the first convolutional pooling layer:
         # filtering reduces the image size to (28-5+1 , 28-5+1) = (24, 24)
@@ -35,7 +35,7 @@ class Model(object):
         layer0 = ConvPoolLayer(
             self.rng,
             input=layer0_input,
-            image_shape=(batch_size, 3, 256, 256),
+            image_shape=(batch_size, 3, 64, 64),
             filter_shape=(self.nkerns[0], 3, 11, 11),
             poolsize=(2, 2)
         )
@@ -63,7 +63,7 @@ class Model(object):
             self.rng,
             input=layer2_input,
             n_in=self.nkerns[1] * 4 * 4,
-            n_out=500,
+            n_out=4096,
             activation=T.tanh
         )
 

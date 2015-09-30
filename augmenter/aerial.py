@@ -28,14 +28,23 @@ class Creator(object):
         arr =  np.asarray(image, dtype=theano.config.floatX) / 255
         arr = np.rollaxis(arr, 2, 0)
         arr = arr.reshape(3, arr.shape[1]* arr.shape[2])
+
         image.close()
         return arr
 
     def create_image_label(self, path):
+        #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
+        '''
+        Opens greyscale image from path. Converts to numpy with new range (0,1).
+        Binary image so all values should be either 0 or 1, but edges might have values in between 0 and 255.
+        Convert label matrix to integers and invert the matrix. 1: indicate class being present at that place
+        0 : The class not present at pixel location.
+        '''
         image = Image.open(path, 'r').convert('L')
-        label = np.array(image.getdata())
-        #label = np.invert(label)
-        #label = np.divide(label, 255 , dtype=theano.config.floatX)
+        label = np.array(image.getdata()) / 255
+        label = np.floor(label)
+        label = label.astype(int)
+        label = 1 - label
         image.close()
         return label
 
