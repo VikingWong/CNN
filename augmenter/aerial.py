@@ -21,7 +21,7 @@ class Creator(object):
 
     def _create_xy(self, d, l, start, end):
         '''Return dataset in the form data, label'''
-        return (d[start:end], l[start:end])
+        return d[start:end], l[start:end]
 
     def create_image_data(self, path):
         image = Image.open(path, 'r')
@@ -82,4 +82,4 @@ class Creator(object):
         train = self._create_xy(data, label, 0, nr_train)
         valid = self._create_xy(data, label, nr_train,nr_train + nr_valid)
         test  = self._create_xy(data, label, nr_train + nr_valid, nr_examples)
-        return (train, valid, test)
+        return train, valid, test

@@ -75,16 +75,19 @@ class AerialDataset(AbstractDataset):
         creator = Creator()
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
+            raise NotImplementedError('Not tested yet')
             f = open(dataset_path, 'rb')
             train, valid, test = pickle.load(f , encoding='latin1')
             f.close()
         else:
             train,valid,test = creator.dynamically_create(dataset_path, percentage, examples_dist)
-
+        print(type(train))
+        print(train.shape)
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
         print(self.set)
+        print(type(self.set['train']))
         return True
 
 
