@@ -62,7 +62,7 @@ class Model(object):
         layer2 = HiddenLayer(
             self.rng,
             input=layer2_input,
-            n_in=self.nkerns[1] * 11 * 11,
+            n_in=self.nkerns[1] * 12 * 12,
             n_out=4096,
             activation=T.nnet.relu
         )
