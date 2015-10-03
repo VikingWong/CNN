@@ -1,8 +1,9 @@
-__author__ = 'olav'
 from evaluator import Evaluator
 from model import Model
 from data import MnistDataset, AerialDataset
-from visualize.aerial import Visualizer
+from storage.store import ParamStorage
+
+import pickle
 
 #Where the magic happens
 d = AerialDataset()
@@ -11,6 +12,8 @@ m = Model([32, 128]) #Create network stage
 e = Evaluator(m, d)
 e.evaluate(epochs=1)
 
-#Test on image
-v = Visualizer(m)
-v.temp_test()
+#TODO: Move to storeEngine class or similar
+#Stores the model params. Model can later be restored.
+p = ParamStorage(path='./storage/params')
+p.store_params(m.params)
+

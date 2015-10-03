@@ -21,21 +21,22 @@ class HiddenLayer(object):
             if activation == T.nnet.sigmoid:
                 W.values *= 4
 
-            W = theano.shared(value=w_values, name='W', borrow=True)
+            self.W = theano.shared(value=w_values, name='W', borrow=True)
+        else:
             self.W = W
 
-            if b is None:
-                self.b = Util.create_bias(n_out)
-            else:
-                self.b = b
+        if b is None:
+            self.b = Util.create_bias(n_out)
+        else:
+            self.b = b
 
-            lin_output = T.dot(input, self.W) + self.b
-            self.output = (
-                lin_output if activation is None
-                else activation(lin_output)
-            )
+        lin_output = T.dot(input, self.W) + self.b
+        self.output = (
+            lin_output if activation is None
+            else activation(lin_output)
+        )
 
-            self.params = [self.W, self.b]
+        self.params = [self.W, self.b]
 
     def negative_log_likelihood(self, y):
         #TODO: Wrong name for it.

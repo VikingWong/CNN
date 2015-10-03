@@ -1,4 +1,4 @@
-__author__ = 'olav'
+
 
 from model import Model
 import numpy as np
@@ -19,7 +19,7 @@ class Evaluator(object):
         self.data = dataset
         self.model = model
 
-    def evaluate(self, learning_rate=0.1, epochs=100, batch_size=64):
+    def evaluate(self, learning_rate=0.1, epochs=10, batch_size=64):
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images

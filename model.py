@@ -1,4 +1,4 @@
-__author__ = 'olav'
+
 
 import theano
 import theano.tensor as T
@@ -23,8 +23,12 @@ class Model(object):
     def get_errors(self, y):
         self.get_output_layer().errors(y)
 
+    def _weight(self, params, idx):
+        if not params:
+            return None
+        return params[idx]
     #TODO: temp
-    def build(self, x, batch_size):
+    def build(self, x, batch_size, init_params=None):
 
         print('... building the model')
         layer0_input = x.reshape((batch_size, 3, 64, 64))
@@ -38,7 +42,10 @@ class Model(object):
             input=layer0_input,
             image_shape=(batch_size, 3, 64, 64),
             filter_shape=(self.nkerns[0], 3, 11, 11),
-            poolsize=(2, 2)
+            poolsize=(2, 2),
+            W=self._weight(init_params, 4),
+            b=self._weight(init_params, 5)
+
         )
 
         # Construct the second convolutional pooling layer
@@ -50,7 +57,10 @@ class Model(object):
             input=layer0.output,
             image_shape=(batch_size, self.nkerns[0], 27, 27),
             filter_shape=(self.nkerns[1], self.nkerns[0], 4, 4),
-            poolsize=(2, 2)
+            poolsize=(2, 2),
+            W=self._weight(init_params, 2),
+            b=self._weight(init_params, 3)
+
         )
 
         # the HiddenLayer being fully-connected, it operates on 2D matrices of
@@ -65,7 +75,10 @@ class Model(object):
             input=layer2_input,
             n_in=self.nkerns[1] * 12 * 12,
             n_out=576,
-            activation=T.tanh
+            activation=T.tanh,
+            W=self._weight(init_params, 0),
+            b=self._weight(init_params, 1)
+
         )
 
         # classify the values of the fully-connected sigmoidal layer
@@ -73,5 +86,9 @@ class Model(object):
         #self.layer = [layer0, layer1, layer2, layer3]
         #self.params = layer3.params + layer2.params + layer1.params + layer0.params
         self.layer = [layer0, layer1, layer2]
-        self.predict = theano.function([x], layer2.output, allow_input_downcast=True)
         self.params =  layer2.params + layer1.params + layer0.params
+        print('Model created!')
+
+    def create_predict_function(self, x, data):
+        return theano.function([], self.get_output_layer().output,
+                   givens={x: data})
