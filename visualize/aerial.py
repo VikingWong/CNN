@@ -1,10 +1,12 @@
 from PIL import Image
-from model import Model
-from storage.store import ParamStorage
 import theano.tensor as T
 import numpy as np
-from augmenter.aerial import Creator
 import theano
+
+from model import Model
+from storage.store import ParamStorage
+from augmenter.old.aerial import Creator
+
 
 class Visualizer(object):
     LABEL_SIZE = 16

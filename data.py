@@ -1,11 +1,14 @@
-import numpy as np
 from abc import ABCMeta, abstractmethod
 import os
 import gzip
+import pickle
+
+import numpy as np
 import theano
 import theano.tensor as T
-import pickle
+
 from augmenter.aerial import Creator
+
 
 class AbstractDataset(metaclass=ABCMeta):
 
@@ -71,12 +74,9 @@ class MnistDataset(AbstractDataset):
 class AerialDataset(AbstractDataset):
 
     def load(self, dataset_path,params):
-        percentage = params.percentage
-        examples_dist = params.data_dist
-        '''
-        Percentage to specify how much of the dataset to use. 10 percent for good performance when dev
-        '''
-        #TODO: Use context, smaller output than input. Need to see how this fits in first.
+        samples_per_image = params.samples_per_image
+        use_rotation = params.use_rotation
+
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
         #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
         creator = Creator()
@@ -87,7 +87,8 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f , encoding='latin1')
             f.close()
         else:
-            train,valid,test = creator.dynamically_create(dataset_path, percentage, examples_dist)
+            train,valid,test = creator.dynamically_create(dataset_path, samples_per_image)
+        raise Exception("AT THE END")
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)

@@ -9,13 +9,14 @@ import theano.tensor as T
 from PIL import Image
 import math
 
+#Old creator from premade 64x64 tiles and labels.
 class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
     def _get_dataset(self, path):
         content = os.listdir(path)
-        if not all(x in ['train', 'valid', 'test'] for x in content):
+        if 'data' not in content or 'label' not in content:
             raise Exception('Folder does not contain image or label folder. Path probably not correct')
         return content
 
@@ -59,66 +60,44 @@ class Creator(object):
 
     def _get_image_files(self, path):
         print("Retrieving", path)
-        included_extenstions = ['jpg','png', 'tiff', 'tif'];
+        included_extenstions = ['jpg','png'];
         return [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
 
-    def _merge_to_examples(self, path):
-        '''
-        Each path should contain a data and labels folder containing images.
-        Creates a list of tuples containing path name for data and label.
-        '''
-        tiles = self._get_image_files(os.path.join(path, 'data'))
-        labels = self._get_image_files(os.path.join(path, 'labels'))
 
-        if len(tiles) == 0 or len(labels) == 0:
-            raise Exception('Data or labels folder does not contain any images')
+    def dynamically_create(self, dataset_path, percentage, examples_dist):
+        folder = self._get_dataset(dataset_path)
+        tile_path = os.path.join(dataset_path, folder[0])
+        label_path = os.path.join(dataset_path, folder[1])
 
-        if len(tiles) != len(labels):
-            raise Exception('Not the same number of tiles and labels')
-
-        for i in range(len(tiles)):
-            if os.path.splitext(tiles[i])[0] != os.path.splitext(labels[i])[0]:
-                raise Exception('tile', tiles[i], 'does not match label', labels[i])
-        return list(zip(tiles, labels))
-
-
-    def _sample_data(self, base, paths, samples_per_images, rotation=False):
+        tiles = self._get_image_files(tile_path)
+        vectors = self._get_image_files(label_path)
         data = []
         label = []
-        print("Sampling examples for", base)
-        for i in range(len(paths)):
-            d, v = paths[i]
-            image = self.create_image_data(os.path.join(base, 'data',  d))
-            vector = self.create_image_label(os.path.join(base,'labels', v))
+
+        nr_examples = math.floor(len(tiles) * percentage)
+        print('Input folder contains', len(tiles), 'examples, and only',
+              percentage*100, '% is used')
+        print('Dataset consists of a total of', nr_examples, 'examples')
+
+        for i in range(nr_examples):
+            vector = self.create_image_label(os.path.join(label_path, vectors[i]))
+            image = self.create_image_data(os.path.join(tile_path, tiles[i]))
             data.append(image)
             label.append(vector)
 
             if i % 200 == 0:
-                print("Tile: ", i, '/', len(paths))
+                print("Tile: ", i, '/', nr_examples)
 
         data = np.array(data)
         label = np.array(label)
         ddim = data.shape
         data = data.reshape(ddim[0], ddim[1]*ddim[2])
-        return data, label
+        print(data.shape)
+        print(label.shape)
+        nr_train = int(nr_examples*examples_dist[0])
+        nr_valid = int(nr_examples*examples_dist[1])
 
-    def dynamically_create(self, dataset_path):
-        #TODO: Make a small util program that create the dataset structure
-        test_path, train_path, valid_path = self._get_dataset(dataset_path)
-
-        base_test = os.path.join(dataset_path, test_path)
-        base_train = os.path.join(dataset_path, train_path)
-        base_valid = os.path.join(dataset_path, valid_path)
-
-        test_img_paths = self._merge_to_examples(base_test)
-        train_img_paths = self._merge_to_examples(base_train)
-        valid_img_paths = self._merge_to_examples(base_valid)
-
-        print(len(test_img_paths), '# test img', len(train_img_paths), "# train img", len(valid_img_paths), "# valid img")
-
-        samples_per_image = 10
-        train = self._sample_data(base_test, train_img_paths, samples_per_image)
-        test = self._sample_data(base_test, test_img_paths, samples_per_image)
-        valid = self._sample_data(base_valid, valid_img_paths, samples_per_image)
-
+        train = self._create_xy(data, label, 0, nr_train)
+        valid = self._create_xy(data, label, nr_train,nr_train + nr_valid)
+        test  = self._create_xy(data, label, nr_train + nr_valid, nr_examples)
         return train, valid, test

@@ -21,7 +21,6 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     p = ParamStorage(path=filename_params.network_save_name)
     p.store_params(m.params)
 
-#TODO: Move to a util file or similar
 verbose = True
 number_of_epochs = 30
 filename_params = Params({
@@ -45,8 +44,8 @@ optimization_params =  Params({
     })
 
 dataset_params = Params({
-    "percentage": 0.1,
-    "data_dist": (0.8, 0.1, 0.1)
+    "samples_per_image": 20,
+    "use_rotation": True
 })
 
 model_params =  Params({
@@ -59,7 +58,7 @@ model_params =  Params({
 run_cnn(
     model_params            = model_params,
     optimization_params     = optimization_params,
-    dataset                 = 'C:/Users/olav/Pictures/dataset2',
+    dataset                 = 'C:\\Users\Olav\\Pictures\\Mass_roads',
     dataset_params          = dataset_params,
     filename_params         = filename_params,
     visual_params           = visual_params,
