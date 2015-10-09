@@ -19,7 +19,7 @@ class HiddenLayer(object):
             )
 
             if activation == T.nnet.sigmoid:
-                W.values *= 4
+                w_values = w_values * 4
 
             self.W = theano.shared(value=w_values, name='W', borrow=True)
         else:

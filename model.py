@@ -7,11 +7,12 @@ import numpy as np
 
 class Model(object):
 
-    def __init__(self, nkerns):
+    def __init__(self, params, verbose=False):
         #Every layer appended to this variable. layer 0= input, layer N = output
         self.layer = []
-        self.rng = np.random.RandomState(23455)
-        self.nkerns = nkerns
+        self.rng = np.random.RandomState(params.random_seed)
+        self.nkerns = params.nr_kernels
+        self.input_data_dim = params.input_data_dim
 
     def get_output_layer(self):
         assert len(self.layer) >0
@@ -31,7 +32,8 @@ class Model(object):
     def build(self, x, batch_size, init_params=None):
 
         print('... building the model')
-        layer0_input = x.reshape((batch_size, 3, 64, 64))
+        channels, width, height = self.input_data_dim
+        layer0_input = x.reshape((batch_size, channels, width, height))
 
         # Construct the first convolutional pooling layer:
         # filtering reduces the image size to (28-5+1 , 28-5+1) = (24, 24)
@@ -40,11 +42,12 @@ class Model(object):
         layer0 = ConvPoolLayer(
             self.rng,
             input=layer0_input,
-            image_shape=(batch_size, 3, 64, 64),
-            filter_shape=(self.nkerns[0], 3, 11, 11),
+            image_shape=(batch_size, channels, width, height),
+            filter_shape=(self.nkerns[0], 3, 16, 16),
+            strides=(4,4),
             poolsize=(2, 2),
-            W=self._weight(init_params, 4),
-            b=self._weight(init_params, 5)
+            W=self._weight(init_params, 6),
+            b=self._weight(init_params, 7)
 
         )
 
@@ -55,11 +58,11 @@ class Model(object):
         layer1 = ConvPoolLayer(
             self.rng,
             input=layer0.output,
-            image_shape=(batch_size, self.nkerns[0], 27, 27),
+            image_shape=(batch_size, self.nkerns[0], 6, 6),
             filter_shape=(self.nkerns[1], self.nkerns[0], 4, 4),
-            poolsize=(2, 2),
-            W=self._weight(init_params, 2),
-            b=self._weight(init_params, 3)
+            poolsize=(1, 1),
+            W=self._weight(init_params, 4),
+            b=self._weight(init_params, 5)
 
         )
 
@@ -73,20 +76,29 @@ class Model(object):
         layer2 = HiddenLayer(
             self.rng,
             input=layer2_input,
-            n_in=self.nkerns[1] * 12 * 12,
-            n_out=576,
-            activation=T.tanh,
-            W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
+            n_in=self.nkerns[1] * 3 * 3,
+            n_out=4096,
+            activation=T.nnet.relu,
+            W=self._weight(init_params, 2),
+            b=self._weight(init_params, 3)
 
         )
 
+        layer3 = HiddenLayer(
+            self.rng,
+            input=layer2.output,
+            n_in=4096,
+            n_out=256,
+            activation=T.nnet.sigmoid,
+            W=self._weight(init_params, 0),
+            b=self._weight(init_params, 1),
+        )
         # classify the values of the fully-connected sigmoidal layer
         #layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
         #self.layer = [layer0, layer1, layer2, layer3]
         #self.params = layer3.params + layer2.params + layer1.params + layer0.params
-        self.layer = [layer0, layer1, layer2]
-        self.params =  layer2.params + layer1.params + layer0.params
+        self.layer = [layer0, layer1, layer2, layer3]
+        self.params =  layer3.params + layer2.params + layer1.params + layer0.params
         print('Model created!')
 
     def create_predict_function(self, x, data):

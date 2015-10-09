@@ -6,7 +6,7 @@ import numpy as np
 from elements.util import Util
 
 class ConvPoolLayer(object):
-    def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2),
+    def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
                  activation=T.tanh, W = None, b = None, verbose = True):
         '''
         :param rng: random number generator used to initialize weights
@@ -21,7 +21,7 @@ class ConvPoolLayer(object):
         :return:
         '''
         assert image_shape[1] == filter_shape[1]
-        self._verbose_print(verbose, filter_shape, poolsize, image_shape)
+        self._verbose_print(verbose, filter_shape, poolsize, image_shape, strides)
         self.input = input
         datatype = theano.config.floatX
 
@@ -51,7 +51,8 @@ class ConvPoolLayer(object):
             input=input,
             filters=self.W,
             filter_shape=filter_shape,
-            image_shape=image_shape
+            image_shape=image_shape,
+            subsample=strides
         )
 
         pooled_out = downsample.max_pool_2d(
@@ -66,11 +67,12 @@ class ConvPoolLayer(object):
 
         self.input = input
 
-    def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape):
+    def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
         if is_verbose:
             print('Initializing convolutional layer with ', filter_shape[0], ' kernels')
             print('----Kernel size ', filter_shape[2], ' X ', filter_shape[3])
             print('----Pooling size ', poolsize[0], ' X ', poolsize[1])
             print('----Input size ',  image_shape[2], ' X ', image_shape[3])
             print('----Input number of feature maps is ',  image_shape[1])
+            print('----Stride ',  strides[0], ' ', strides[1])
             print('')

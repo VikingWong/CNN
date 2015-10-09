@@ -7,7 +7,7 @@ from augmenter.aerial import Creator
 import theano
 
 class Visualizer(object):
-    LABEL_SIZE = 24
+    LABEL_SIZE = 16
     IMAGE_SIZE = 64
     def __init__(self, model, params):
         self.model = model
@@ -27,7 +27,7 @@ class Visualizer(object):
         for i in range(0, image.shape[0], label_size):
             if(i+Visualizer.IMAGE_SIZE > 256):
                 break
-            t = image[i: i+Visualizer.IMAGE_SIZE, 0:Visualizer.IMAGE_SIZE]
+            t = image[i: i+Visualizer.IMAGE_SIZE, 50:50+Visualizer.IMAGE_SIZE]
             print(i+Visualizer.IMAGE_SIZE)
             inp = self.to_data(t)
             imgs.append(inp)
@@ -42,7 +42,7 @@ class Visualizer(object):
         #TODO: SO MESSY ITS NOT FUNNY
         predict = self.model.create_predict_function(x, shared_x)
         p = predict()
-        output = p.reshape(number, 24, 24)
+        output = p.reshape(number, 16, 16)
 
         fullImage = output[0]
         for i in range(1, number):
@@ -73,6 +73,6 @@ class Visualizer(object):
 
 store = ParamStorage()
 params = store.load_params(path="../storage/params")
-m = Model([32, 128])
+m = Model([64, 112])
 v = Visualizer(m, params)
 v.temp_test()

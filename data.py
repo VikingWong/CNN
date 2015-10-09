@@ -70,7 +70,9 @@ class MnistDataset(AbstractDataset):
 
 class AerialDataset(AbstractDataset):
 
-    def load(self, dataset_path, percentage=0.003, examples_dist=(0.8, 0.1, 0.1)):
+    def load(self, dataset_path,params):
+        percentage = params.percentage
+        examples_dist = params.data_dist
         '''
         Percentage to specify how much of the dataset to use. 10 percent for good performance when dev
         '''

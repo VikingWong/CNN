@@ -3,7 +3,7 @@ import pickle
 
 class ParamStorage(object):
 
-    def __init__(self, path='./storage/params'):
+    def __init__(self, path='./storage/params.pkl'):
         self.path = path
 
     def load_params(self, path=None):

@@ -13,13 +13,15 @@ class Evaluator(object):
     PATIENCE = 10000        # look as this many examples regardless
     PATIENCE_INCREASE = 2   # wait this much longer when a new best is found
     IMPROVEMENT_THRESHOLD = 0.995 # a relative improvement of this much is considered significant
-    NUMBER_OF_KERNELS = [64, 256]
 
     def __init__(self, model, dataset):
         self.data = dataset
         self.model = model
 
-    def evaluate(self, learning_rate=0.1, epochs=10, batch_size=64):
+    def evaluate(self, params, epochs=10, verbose=False):
+
+        learning_rate = params.initial_learning_rate
+        batch_size = params.batch_size
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
@@ -43,22 +45,25 @@ class Evaluator(object):
 
 
         self.train_model = self._create_training_function(x, y, batch_size, index, cost, updates)
-        self._train(batch_size, epochs)
+        self._train(batch_size, epochs, params)
 
         #TODO: Restructure
 
 
 
-    def _train(self, batch_size, max_epochs):
+    def _train(self, batch_size, max_epochs, params):
         print('... training')
+
 
         n_train_batches = self._get_number_of_batches('train', batch_size)
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
         n_test_batches = self._get_number_of_batches('test', batch_size)
 
-        patience = Evaluator.PATIENCE
-        patience_increase = Evaluator.PATIENCE_INCREASE
-        improvement_threshold = Evaluator.IMPROVEMENT_THRESHOLD
+        L2_reg = params.L2_reg
+        patience = params.initial_patience # look as this many examples regardless
+        patience_increase = params.patience_increase  # wait this much longer when a new best is found
+        improvement_threshold = params.improvement_threshold # a relative improvement of this much is considered significant
+
         # go through this many minibatche before checking the network on the validation set
         validation_frequency = min(n_train_batches, patience / 2)
 
