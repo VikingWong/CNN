@@ -76,10 +76,11 @@ class AerialDataset(AbstractDataset):
     def load(self, dataset_path,params):
         samples_per_image = params.samples_per_image
         use_rotation = params.use_rotation
+        reduce = params.reduce
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
         #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
-        creator = Creator()
+        creator = Creator(rotation=use_rotation)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')
@@ -87,7 +88,7 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f , encoding='latin1')
             f.close()
         else:
-            train,valid,test = creator.dynamically_create(dataset_path, samples_per_image)
+            train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
         raise Exception("AT THE END")
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)

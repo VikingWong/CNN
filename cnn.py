@@ -43,9 +43,11 @@ optimization_params =  Params({
 
     })
 
+#Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
     "samples_per_image": 20,
-    "use_rotation": True
+    "use_rotation": True,
+    "reduce": 0.3
 })
 
 model_params =  Params({
