@@ -59,7 +59,7 @@ class Evaluator(object):
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
         n_test_batches = self._get_number_of_batches('test', batch_size)
 
-        L2_reg = params.L2_reg
+        L2_reg = params.l2_reg
         patience = params.initial_patience # look as this many examples regardless
         patience_increase = params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = params.improvement_threshold # a relative improvement of this much is considered significant
