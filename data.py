@@ -89,12 +89,11 @@ class AerialDataset(AbstractDataset):
             f.close()
         else:
             train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
-        raise Exception("AT THE END")
+
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
-        print(self.set)
-        print(type(self.set['train']))
+
         return True
 
 

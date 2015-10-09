@@ -47,7 +47,7 @@ optimization_params =  Params({
 dataset_params = Params({
     "samples_per_image": 20,
     "use_rotation": True,
-    "reduce": 0.3
+    "reduce": 0.1
 })
 
 model_params =  Params({
