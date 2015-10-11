@@ -13,7 +13,6 @@ class Creator(object):
     Dynamically load and convert data to appropriate format for theano.
     '''
     def __init__(self, dim=(64, 16), rotation=False):
-        #TODO: Put in params
         self.dim_data = dim[0]
         self.dim_label = dim[1]
         self.rotation = rotation
@@ -37,6 +36,19 @@ class Creator(object):
         train = self._sample_data(base_train, train_img_paths, samples_per_image)
         valid = self._sample_data(base_valid, valid_img_paths, samples_per_image)
 
+
+        n = 0
+        length = train[0].shape[0]
+        for i in range(length):
+            d = train[0][i]
+            l = train[1][i]
+
+            m = l.max(0).max(0)
+            if(m > 0):
+                n = n + 1
+                #debug_input_data(d, l, self.dim_data, self.dim_label)
+        print('Total:' , train[0].shape[0], ' over', n)
+
         return train, valid, test
 
 
@@ -50,29 +62,21 @@ class Creator(object):
     def create_image_data(self, image):
         arr =  np.asarray(image, dtype=theano.config.floatX) / 255
         arr = np.rollaxis(arr, 2, 0)
-        arr = arr.reshape(3, arr.shape[1]* arr.shape[2])
+        arr = arr.reshape(3, arr.shape[1] * arr.shape[2])
         return arr
 
 
     def create_image_label(self, image):
         #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
-        '''
-         Converts to numpy with new range (0,1).
-        Binary image so all values should be either 0 or 1, but edges might have values in between 0 and 255.
-        Convert label matrix to integers and invert the matrix. 1: indicate class being present at that place
-        0 : The class not present at pixel location.
-        '''
         y_size = self.dim_label
         padding = (self.dim_data - y_size)/2
         #label = np.array(image.getdata())
-        label = np.asarray(image) / 255
+
+        label = np.asarray(image, dtype=theano.config.floatX)
         label = label[padding : padding+y_size, padding : padding+y_size ]
         label = label.reshape(y_size*y_size)
 
         label = label / 255
-        label = np.floor(label)
-        label = label.astype(int)
-        #label = 1 - label #No need for mass dataset
         return label
 
 
@@ -115,6 +119,8 @@ class Creator(object):
             la = Image.open(os.path.join(base, 'labels',  v), 'r').convert('L')
 
             width, height = im.size
+            width = width -dim_data
+            height = height - dim_data
             rot = 0
             if use_rotation:
                 rot = random.uniform(0.0, 360.0)
@@ -123,10 +129,12 @@ class Creator(object):
             label_img = np.asarray(la.rotate(rot))
 
             for s in range(samples_per_images):
-                x = (width-dim_data)
-                y = ( height-dim_data)
+                x = random.randint(0, width)
+                y = random.randint( 0, height)
+
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data,]
+
                 data_sample =   self.create_image_data(data_temp)
                 label_sample =  self.create_image_label(label_temp)
 
@@ -140,14 +148,9 @@ class Creator(object):
             im.close()
             la.close()
 
-
         data = np.array(data)
         label = np.array(label)
-        data = data.reshape(data.shape[0], data.shape[1]*data.shape[2])
-        return data, label
 
-#creator = Creator()
-#import cProfile
-#import re
-#path = 'C:\\Users\Olav\\Pictures\\Mass_roads'
-#cProfile.runctx('creator.dynamically_create(path, 20, rotation=False)', globals(), locals())
+        #print(data.shape)
+        #data = data.reshape(data.shape[0], data.shape[1]*data.shape[1])
+        return data, label

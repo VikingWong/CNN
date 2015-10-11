@@ -38,25 +38,25 @@ optimization_params =  Params({
         "initial_learning_rate"             : 0.1,
         "l2_reg"                            : 0.0001,
         "initial_patience"                  : 10000,
-        "patience_increase"                : 2,
+        "patience_increase"                 : 2,
         "improvement_threshold"             : 0.995
 
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
-    "samples_per_image": 10,
-    "use_rotation": True,
-    "reduce": 0.01,
-    "input_dim": 64,
-    "output_dim": 16
+    "samples_per_image"     : 1,
+    "use_rotation"          : True,
+    "reduce"                : 0.1,
+    "input_dim"             : 64,
+    "output_dim"            : 32
 })
 
 model_params =  Params({
 
-    "nr_kernels": [ 64, 112 ],
-    "random_seed": 23455,
-    "input_data_dim": (3, 64, 64)
+    "nr_kernels"            : [ 64, 112 ],
+    "random_seed"           : 23455,
+"input_data_dim"            : (3, 64, 64)
      })
 
 run_cnn(

@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import theano
 import theano.tensor as T
+from util import debug_input_data
 
 from augmenter.aerial import Creator
 
@@ -60,9 +61,9 @@ class MnistDataset(AbstractDataset):
         f.close()
 
         #All the shared variables in a simple datastructure for easier access.
-        self.set['test'] = self._shared_dataset(test_set, cast_to_int=False)
-        self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=False)
-        self.set['train'] = self._shared_dataset(train_set, cast_to_int=False)
+        self.set['test'] = self._shared_dataset(test_set, cast_to_int=True)
+        self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=True)
+        self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
         print(self.set)
 
         return True #TODO: Implement boolean for whether everything went ok or not
