@@ -1,23 +1,21 @@
 __author__ = 'Olav'
 
 import numpy as np
-from abc import ABCMeta, abstractmethod
 import os
-import gzip
 import theano
-import theano.tensor as T
 from PIL import Image
 import math
 import random
+from util import get_image_files, debug_input_data
 
 class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
-    def __init__(self, rotation=False):
+    def __init__(self, dim=(64, 16), rotation=False):
         #TODO: Put in params
-        self.dim_label = 16
-        self.dim_data = 64
+        self.dim_data = dim[0]
+        self.dim_label = dim[1]
         self.rotation = rotation
 
 
@@ -48,11 +46,13 @@ class Creator(object):
             raise Exception('Folder does not contain image or label folder. Path probably not correct')
         return content
 
+
     def create_image_data(self, image):
         arr =  np.asarray(image, dtype=theano.config.floatX) / 255
         arr = np.rollaxis(arr, 2, 0)
         arr = arr.reshape(3, arr.shape[1]* arr.shape[2])
         return arr
+
 
     def create_image_label(self, image):
         #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
@@ -76,19 +76,13 @@ class Creator(object):
         return label
 
 
-    def _get_image_files(self, path):
-        print("Retrieving", path)
-        included_extenstions = ['jpg','png', 'tiff', 'tif'];
-        return [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
-
-
     def _merge_to_examples(self, path, reduce):
         '''
         Each path should contain a data and labels folder containing images.
         Creates a list of tuples containing path name for data and label.
         '''
-        tiles = self._get_image_files(os.path.join(path, 'data'))
-        labels = self._get_image_files(os.path.join(path, 'labels'))
+        tiles = get_image_files(os.path.join(path, 'data'))
+        labels = get_image_files(os.path.join(path, 'labels'))
 
         if len(tiles) == 0 or len(labels) == 0:
             raise Exception('Data or labels folder does not contain any images')

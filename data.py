@@ -37,10 +37,7 @@ class AbstractDataset(metaclass=ABCMeta):
     def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
-        print("CREATING SHARED DATASET =")
-        print(data_x.shape)
-        print(data_y.shape)
-        print("_____")
+        print("CREATING SHARED DATASET")
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
@@ -63,9 +60,9 @@ class MnistDataset(AbstractDataset):
         f.close()
 
         #All the shared variables in a simple datastructure for easier access.
-        self.set['test'] = self._shared_dataset(test_set, cast_to_int=True)
-        self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=True)
-        self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
+        self.set['test'] = self._shared_dataset(test_set, cast_to_int=False)
+        self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=False)
+        self.set['train'] = self._shared_dataset(train_set, cast_to_int=False)
         print(self.set)
 
         return True #TODO: Implement boolean for whether everything went ok or not
@@ -77,10 +74,11 @@ class AerialDataset(AbstractDataset):
         samples_per_image = params.samples_per_image
         use_rotation = params.use_rotation
         reduce = params.reduce
+        dim = (params.input_dim, params.output_dim)
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
         #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
-        creator = Creator(rotation=use_rotation)
+        creator = Creator(dim=dim, rotation=use_rotation)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')

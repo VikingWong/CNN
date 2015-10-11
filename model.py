@@ -28,7 +28,7 @@ class Model(object):
         if not params:
             return None
         return params[idx]
-    #TODO: temp
+
     def build(self, x, batch_size, init_params=None):
 
         print('... building the model')

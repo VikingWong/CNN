@@ -22,10 +22,10 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     p.store_params(m.params)
 
 verbose = True
-number_of_epochs = 30
+number_of_epochs = 3
 filename_params = Params({
         "results"               : "./results",
-        "network_save_name"     : "/params.pkl"
+        "network_save_name"     : "./storage/params.pkl"
 
     })
 #TODO: Use this for something
@@ -45,9 +45,11 @@ optimization_params =  Params({
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
-    "samples_per_image": 20,
+    "samples_per_image": 10,
     "use_rotation": True,
-    "reduce": 0.1
+    "reduce": 0.01,
+    "input_dim": 64,
+    "output_dim": 16
 })
 
 model_params =  Params({
@@ -60,7 +62,7 @@ model_params =  Params({
 run_cnn(
     model_params            = model_params,
     optimization_params     = optimization_params,
-    dataset                 = 'C:\\Users\Olav\\Pictures\\Mass_roads',
+    dataset                 = 'C:\\Users\\olav\\Pictures\\Mass_roads',
     dataset_params          = dataset_params,
     filename_params         = filename_params,
     visual_params           = visual_params,

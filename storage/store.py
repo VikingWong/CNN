@@ -21,6 +21,7 @@ class ParamStorage(object):
         if not path:
             path = self.path
 
+        print(path)
         f = open(path, 'wb')
         pickle.dump(params, f, protocol=pickle.HIGHEST_PROTOCOL)
         f.close()

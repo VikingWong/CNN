@@ -82,7 +82,7 @@ class Evaluator(object):
 
                 iter = (epoch - 1) * n_train_batches + minibatch_index
 
-                if iter % 100 == 0:
+                if iter % 20 == 0:
                     print('training @ iter = ', iter)
 
                 cost_ij = self.train_model(minibatch_index)
@@ -130,6 +130,7 @@ class Evaluator(object):
               (best_validation_loss * 100., best_iter + 1, test_score * 100.))
         print('The code ran for %.2fm' % ((end_time - start_time) / 60.))
 
+
     def _create_training_function(self, x,y, batch_size, index, cost, updates):
         train_set_x, train_set_y = self.data.set['train']
         return theano.function(
@@ -142,6 +143,7 @@ class Evaluator(object):
             }
         )
 
+
     def _create_test_function(self, x,y, batch_size, index, cost, errors):
         test_set_x, test_set_y = self.data.set['test']
         return theano.function(
@@ -152,6 +154,7 @@ class Evaluator(object):
                 y: test_set_y[index * batch_size: (index + 1) * batch_size]
             }
         )
+
 
     def _create_validation_function(self, x,y, batch_size, index, cost, errors):
         valid_set_x, valid_set_y = self.data.set['validation']
