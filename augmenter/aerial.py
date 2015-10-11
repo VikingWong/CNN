@@ -72,7 +72,8 @@ class Creator(object):
         padding = (self.dim_data - y_size)/2
         #label = np.array(image.getdata())
 
-        label = np.asarray(image, dtype=theano.config.floatX)
+        #label = np.asarray(image, dtype=theano.config.floatX)
+        label = np.asarray(image)
         label = label[padding : padding+y_size, padding : padding+y_size ]
         label = label.reshape(y_size*y_size)
 
@@ -151,6 +152,6 @@ class Creator(object):
         data = np.array(data)
         label = np.array(label)
 
-        #print(data.shape)
-        #data = data.reshape(data.shape[0], data.shape[1]*data.shape[1])
+        print(data.shape)
+        data = data.reshape(data.shape[0], data.shape[1]*data.shape[2])
         return data, label
