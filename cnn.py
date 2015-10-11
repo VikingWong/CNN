@@ -38,7 +38,7 @@ optimization_params =  Params({
         "initial_learning_rate"             : 0.1,
         "l2_reg"                            : 0.0001,
         "initial_patience"                  : 10000,
-        "patiencec_increase"                : 2,
+        "patience_increase"                : 2,
         "improvement_threshold"             : 0.995
 
     })

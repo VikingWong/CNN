@@ -113,6 +113,7 @@ class Creator(object):
         label = []
         dim_data = self.dim_data
         use_rotation = self.rotation
+        print("")
         print("Sampling examples for", base)
         for i in range(len(paths)):
             d, v = paths[i]
