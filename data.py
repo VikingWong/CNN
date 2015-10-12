@@ -38,7 +38,6 @@ class AbstractDataset(metaclass=ABCMeta):
     def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
-
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
@@ -64,7 +63,8 @@ class MnistDataset(AbstractDataset):
         self.set['test'] = self._shared_dataset(test_set, cast_to_int=True)
         self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=True)
         self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
-        print(self.set)
+
+
 
         return True #TODO: Implement boolean for whether everything went ok or not
 

@@ -2,7 +2,7 @@
 
 import theano
 import theano.tensor as T
-from elements import LogisticRegression, HiddenLayer, ConvPoolLayer
+from elements import LogisticRegression, HiddenLayer, ConvPoolLayer, OutputLayer
 import numpy as np
 
 class Model(object):
@@ -84,7 +84,7 @@ class Model(object):
 
         )
 
-        layer3 = HiddenLayer(
+        '''layer3 = HiddenLayer(
             self.rng,
             input=layer2.output,
             n_in=4096,
@@ -92,7 +92,9 @@ class Model(object):
             activation=T.nnet.sigmoid,
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1),
-        )
+        )'''
+        #layer3 = LogisticRegression(input=layer2.output, n_in=4096, n_out=256)
+        layer3 = OutputLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
         # classify the values of the fully-connected sigmoidal layer
         #layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
         #self.layer = [layer0, layer1, layer2, layer3]
