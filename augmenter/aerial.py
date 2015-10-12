@@ -6,7 +6,7 @@ import theano
 from PIL import Image
 import math
 import random
-from util import get_image_files, debug_input_data
+from util import get_image_files, from_rgb_to_arr
 
 class Creator(object):
     '''
@@ -57,14 +57,6 @@ class Creator(object):
         if not all(x in ['train', 'valid', 'test'] for x in content):
             raise Exception('Folder does not contain image or label folder. Path probably not correct')
         return content
-
-
-    def create_image_data(self, image):
-        arr =  np.asarray(image, dtype=theano.config.floatX) / 255
-        arr = np.rollaxis(arr, 2, 0)
-        arr = arr.reshape(3*  arr.shape[1] * arr.shape[2])
-        return arr
-
 
     def create_image_label(self, image):
         #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
@@ -136,7 +128,7 @@ class Creator(object):
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
-                data_sample =   self.create_image_data(data_temp)
+                data_sample =   from_rgb_to_arr(data_temp)
                 label_sample =  self.create_image_label(label_temp)
 
                 data.append(data_sample)

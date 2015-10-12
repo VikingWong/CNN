@@ -28,6 +28,12 @@ def from_arr_to_data(data, data_dim):
     data_arr = np.array(data_arr, dtype=np.uint8)
     return Image.fromarray(data_arr)
 
+def from_rgb_to_arr(image):
+    arr =  np.asarray(image, dtype='float32') / 255
+    arr = np.rollaxis(arr, 2, 0)
+    arr = arr.reshape(3*  arr.shape[1] * arr.shape[2])
+    return arr
+
 def debug_input_data(data, label, data_dim, label_dim):
     label_image = from_arr_to_label(label, label_dim)
     data_image= from_arr_to_data(data, data_dim)
