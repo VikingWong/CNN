@@ -1,7 +1,7 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 3
+number_of_epochs = 20
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
@@ -24,7 +24,7 @@ optimization_params =  Params({
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
-    "samples_per_image"     : 10,
+    "samples_per_image"     : 5,
     "use_rotation"          : True,
     "reduce"                : 0.1,
     "input_dim"             : 64,

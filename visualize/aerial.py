@@ -25,8 +25,8 @@ class Visualizer(object):
         x, shared_x = self.build_model(data, data.shape[0])
         predict = self.model.create_predict_function(x, shared_x)
         output = predict()
-        print(output.max())
-        print(output.min())
+        print("INPUT =========", data.max(), data.min(), data.mean(), np.median(data))
+        print("OUTPUT ========", output.max(), output.min())
         image = self.combine_to_image(output)
         return image
 
