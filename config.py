@@ -2,6 +2,7 @@ from util import Params
 
 verbose = True
 number_of_epochs = 20
+dataset_path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
@@ -13,7 +14,7 @@ visual_params =  Params({
     })
 
 optimization_params =  Params({
-        "batch_size"                        : 64,
+        "batch_size"                        : 1,
         "initial_learning_rate"             : 0.1,
         "l2_reg"                            : 0.0001,
         "initial_patience"                  : 10000,
@@ -24,9 +25,9 @@ optimization_params =  Params({
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
-    "samples_per_image"     : 5,
+    "samples_per_image"     : 200,
     "use_rotation"          : True,
-    "reduce"                : 0.1,
+    "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16
 })

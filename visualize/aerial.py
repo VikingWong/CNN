@@ -8,7 +8,7 @@ from model import Model
 from storage.store import ParamStorage
 from augmenter.aerial import Creator
 from config import model_params
-from util import from_rgb_to_arr
+from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label
 
 class Visualizer(object):
     LABEL_SIZE = 16
@@ -28,6 +28,7 @@ class Visualizer(object):
         print("INPUT =========", data.max(), data.min(), data.mean(), np.median(data))
         print("OUTPUT ========", output.max(), output.min())
         image = self.combine_to_image(output)
+        self.show_individual_predictions(data, output)
         return image
 
 
@@ -36,6 +37,23 @@ class Visualizer(object):
         shared_x = theano.shared(np.asarray(data, dtype=theano.config.floatX), borrow=True)
         self.model.build(x,number, init_params=self.params)
         return x, shared_x
+
+
+    def show_individual_predictions(self, images, predictions):
+        print(images.shape)
+        for i in range(images.shape[0]):
+            img =from_arr_to_data(images[i], 64)
+            print(img)
+            lab = from_arr_to_label(predictions[i], 16)
+            img.paste(lab, (24, 24), lab)
+            img.show()
+            img.close()
+            lab.close()
+            user = input('Proceed?')
+            if user == 'no':
+                break
+
+
 
 
     def combine_to_image(self, output_data):
@@ -57,7 +75,6 @@ class Visualizer(object):
         d = (image.shape[0]- (2*padding), image.shape[1] - (2 * padding))
         for i in range(padding, image.shape[0]-padding, label_size):
             for j in range(padding, image.shape[1]-padding, label_size):
-
                 temp = image[i- padding: i+Visualizer.IMAGE_SIZE -padding, j-padding:j+Visualizer.IMAGE_SIZE-padding]
                 image_data = from_rgb_to_arr(temp)
                 data.append(image_data)

@@ -3,7 +3,9 @@ from model import Model
 from data import MnistDataset, AerialDataset
 from storage.store import ParamStorage
 import os
-from config import model_params, optimization_params, dataset_params, filename_params, visual_params, number_of_epochs, verbose
+from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
+    number_of_epochs, verbose, dataset_path
+
 def run_cnn(model_params, optimization_params, dataset, dataset_params, filename_params, visual_params, epochs, verbose=False):
     print(filename_params)
     if not os.path.exists(filename_params.results):
@@ -24,7 +26,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
 run_cnn(
     model_params            = model_params,
     optimization_params     = optimization_params,
-    dataset                 = 'C:\\Users\\olav\\Pictures\\Mass_roads',
+    dataset                 = dataset_path,
     dataset_params          = dataset_params,
     filename_params         = filename_params,
     visual_params           = visual_params,

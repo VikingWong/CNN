@@ -40,7 +40,7 @@ class HiddenLayer(object):
 
     def negative_log_likelihood(self, y):
         #TODO: Wrong name for it.
-        return -T.mean(T.nnet.binary_crossentropy(self.output, y))
+        return T.mean(T.nnet.binary_crossentropy(self.output, y))
 
     def errors(self, y):
         #TODO: only copy pasted!
