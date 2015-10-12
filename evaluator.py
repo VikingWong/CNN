@@ -10,9 +10,6 @@ import msvcrt
 #TODO: Generalized evaluator. Contains basic SGD, and utilize a model object where
 #TODO: model specific things recide.
 class Evaluator(object):
-    PATIENCE = 10000        # look as this many examples regardless
-    PATIENCE_INCREASE = 2   # wait this much longer when a new best is found
-    IMPROVEMENT_THRESHOLD = 0.995 # a relative improvement of this much is considered significant
 
     def __init__(self, model, dataset):
         self.data = dataset

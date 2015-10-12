@@ -25,7 +25,7 @@ verbose = True
 number_of_epochs = 3
 filename_params = Params({
         "results"               : "./results",
-        "network_save_name"     : "./storage/params.pkl"
+        "network_save_name"     : "./results/params.pkl"
 
     })
 #TODO: Use this for something
@@ -45,18 +45,18 @@ optimization_params =  Params({
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 dataset_params = Params({
-    "samples_per_image"     : 1,
+    "samples_per_image"     : 10,
     "use_rotation"          : True,
     "reduce"                : 0.1,
     "input_dim"             : 64,
-    "output_dim"            : 32
+    "output_dim"            : 16
 })
 
 model_params =  Params({
 
     "nr_kernels"            : [ 64, 112 ],
     "random_seed"           : 23455,
-"input_data_dim"            : (3, 64, 64)
+    "input_data_dim"            : (3, 64, 64)
      })
 
 run_cnn(

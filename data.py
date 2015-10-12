@@ -38,7 +38,7 @@ class AbstractDataset(metaclass=ABCMeta):
     def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
-        print("CREATING SHARED DATASET")
+
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
@@ -89,6 +89,10 @@ class AerialDataset(AbstractDataset):
         else:
             train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
 
+        print('')
+        print('Image data shape: ', train[0].shape, 'Label data shape', train[1].shape)
+        print('')
+        print('Creating shared dataset for train, valid and test')
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)

@@ -62,7 +62,7 @@ class Creator(object):
     def create_image_data(self, image):
         arr =  np.asarray(image, dtype=theano.config.floatX) / 255
         arr = np.rollaxis(arr, 2, 0)
-        arr = arr.reshape(3, arr.shape[1] * arr.shape[2])
+        arr = arr.reshape(3*  arr.shape[1] * arr.shape[2])
         return arr
 
 
@@ -134,7 +134,7 @@ class Creator(object):
                 y = random.randint( 0, height)
 
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
-                label_temp =    label_img[y : y+dim_data, x : x+dim_data,]
+                label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
                 data_sample =   self.create_image_data(data_temp)
                 label_sample =  self.create_image_label(label_temp)
@@ -143,7 +143,7 @@ class Creator(object):
                 label.append(label_sample)
 
 
-            if i % 20 == 0:
+            if i % 50 == 0:
                 print("Input image: ", i, '/', len(paths))
 
             im.close()
@@ -152,6 +152,4 @@ class Creator(object):
         data = np.array(data)
         label = np.array(label)
 
-        print(data.shape)
-        data = data.reshape(data.shape[0], data.shape[1]*data.shape[2])
         return data, label

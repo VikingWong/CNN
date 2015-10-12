@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 import time
+import pickle, gzip
 
 class Params:
      def __init__(self, dictionary):
@@ -38,3 +39,10 @@ def debug_input_data(data, label, data_dim, label_dim):
 
 
 
+def debug_mnist():
+    f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')
+    train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
+    print(train_set[0].shape)
+    f.close()
+
+debug_mnist()
