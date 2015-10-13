@@ -6,7 +6,7 @@ import theano
 from PIL import Image
 import math
 import random
-from util import get_image_files, from_rgb_to_arr
+from util import get_image_files, from_rgb_to_arr, input_debugger, get_std, normalize
 
 class Creator(object):
     '''
@@ -18,7 +18,7 @@ class Creator(object):
         self.rotation = rotation
 
 
-    def dynamically_create(self, dataset_path, samples_per_image, reduce=1):
+    def dynamically_create(self, dataset_path, samples_per_image, reduce=1, preprocessing=False):
         test_path, train_path, valid_path = self._get_dataset(dataset_path)
 
         base_test = os.path.join(dataset_path, test_path)
@@ -35,19 +35,16 @@ class Creator(object):
         test = self._sample_data(base_test, test_img_paths, samples_per_image)
         train = self._sample_data(base_train, train_img_paths, samples_per_image)
         valid = self._sample_data(base_valid, valid_img_paths, samples_per_image)
-
-
-        n = 0
-        length = train[0].shape[0]
-        for i in range(length):
-            d = train[0][i]
-            l = train[1][i]
-
-            m = l.max(0).max(0)
-            if(m > 0):
-                n = n + 1
-                #debug_input_data(d, l, self.dim_data, self.dim_label)
-        print('Total:' , train[0].shape[0], ' over', n)
+        #input_debugger(train, 64, 16)
+        if(preprocessing):
+            #TODO: BLÆH. Precalculate std and put in config. A lot of computation before even running.
+            std1 = get_std(test[0])
+            std2 = get_std(train[0])
+            std3 = get_std(valid[0])
+            std = (std1 + std2 + std3)/3
+            test = (normalize(test[0], std), test[1])
+            train = (normalize(train[0], std),train[1])
+            valid = (normalize(valid[0], std), valid[1])
 
         return train, valid, test
 

@@ -5,8 +5,8 @@ import numpy as np
 import theano
 import theano.tensor as T
 import timeit
-import msvcrt
-
+from util import debug_input_data
+import random
 #TODO: Generalized evaluator. Contains basic SGD, and utilize a model object where
 #TODO: model specific things recide.
 class Evaluator(object):
@@ -69,7 +69,7 @@ class Evaluator(object):
 
         self.tester =  theano.function(
             [index],
-            (self.model.layer[0].output, self.model.layer[0].input,  self.model.layer[0].temp, cost),
+            (self.model.layer[3].output, y, cost, self.model.layer[3].errors(y)),
             givens={
                 x: train_set_x[index * batch_size: (index + 1) * batch_size],
                 y: train_set_y[index * batch_size: (index + 1) * batch_size]
@@ -112,16 +112,30 @@ class Evaluator(object):
 
                 iter = (epoch - 1) * n_train_batches + minibatch_index
 
-                if iter % 20 == 0:
+                if iter % 100 == 0:
                     print('training @ iter = ', iter)
 
-                cost_ij = self.train_model(minibatch_index)
-                output, input, temp, cost = self.tester(minibatch_index)
+                #output, y, cost, errs = self.tester(minibatch_index)
+                #print("errors: ", errs)
                 #print("TEMP____________")
                 #print(cost)
-                #print("TEMP____________")
-                #print(temp)
-                #raise Exception('No more')
+                #print(output.shape)
+                #print(y.shape)
+                #print(output[0, 0: 16])
+                #print(y[0, 0: 16])
+                #print(T.sum(T.nnet.binary_crossentropy(output[0, 0: 256], y[0, 0: 256])).eval())
+                #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
+                # print("TEMP____________")
+                #raise Exception("NO MORE")
+                '''if epoch > 2 and (iter + 1) % validation_frequency == 0:
+                    for test in range(5):
+                        v = random.randint(0,n_train_batches)
+                        output, y, cost, errs = self.tester(v)
+                        print(errs)
+                        debug_input_data(self.data.set['train'][0][v].eval(), output, 64, 16)
+                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)'''
+
+                cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:
 
                     # compute zero-one loss on validation set

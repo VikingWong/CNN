@@ -86,21 +86,15 @@ class Model(object):
 
         )
 
-        '''layer3 = HiddenLayer(
+        layer3 = OutputLayer(
             self.rng,
             input=layer2.output,
             n_in=4096,
             n_out=256,
-            activation=T.nnet.sigmoid,
             W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1),
-        )'''
-        #layer3 = LogisticRegression(input=layer2.output, n_in=4096, n_out=256)
-        layer3 = OutputLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
-        # classify the values of the fully-connected sigmoidal layer
-        #layer3 = HiddenLayer(self.rng, input=layer2.output, n_in=4096, n_out=256)
-        #self.layer = [layer0, layer1, layer2, layer3]
-        #self.params = layer3.params + layer2.params + layer1.params + layer0.params
+            b=self._weight(init_params, 1)
+        )
+
         self.layer = [layer0, layer1, layer2, layer3]
         self.params =  layer3.params + layer2.params + layer1.params + layer0.params
         print('Model created!')

@@ -55,7 +55,6 @@ class ConvPoolLayer(object):
             subsample=strides
         )
 
-        self.temp = self.W
         pooled_out = downsample.max_pool_2d(
             input=conv_out,
             ds=poolsize,
