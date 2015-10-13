@@ -28,11 +28,26 @@ class Evaluator(object):
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
         cost = self.model.get_cost(y)
-        errors = self.model.get_errors(y)
-        #Maybe model methods. x and y kept in model?
-        self.test_model = self._create_test_function(x,y,batch_size, index,cost, output_layer.errors(y))
+        #errors = self.model.get_errors(y)
+        test_set_x, test_set_y = self.data.set['test']
+        self.test_model = theano.function(
+            [index],
+            output_layer.errors(y),
+            givens={
+                x: test_set_x[index * batch_size: (index + 1) * batch_size],
+                y: test_set_y[index * batch_size: (index + 1) * batch_size]
+            }
+        )
 
-        self.validate_model = self._create_validation_function(x,y,batch_size, index,cost,output_layer.errors(y))
+        valid_set_x, valid_set_y = self.data.set['validation']
+        self.validate_model =  theano.function(
+            [index],
+            output_layer.errors(y),
+            givens={
+                x: valid_set_x[index * batch_size: (index + 1) * batch_size],
+                y: valid_set_y[index * batch_size: (index + 1) * batch_size]
+            }
+        )
         grads = T.grad(cost, self.model.params)
 
         updates = [
@@ -41,10 +56,28 @@ class Evaluator(object):
         ]
 
 
-        self.train_model = self._create_training_function(x, y, batch_size, index, cost, updates)
-        self._train(batch_size, epochs, params)
+        train_set_x, train_set_y = self.data.set['train']
+        self.train_model =  theano.function(
+            [index],
+            cost,
+            updates=updates,
+            givens={
+                x: train_set_x[index * batch_size: (index + 1) * batch_size],
+                y: train_set_y[index * batch_size: (index + 1) * batch_size]
+            }
+        )
 
-        #TODO: Restructure
+        self.tester =  theano.function(
+            [index],
+            (self.model.layer[0].output, self.model.layer[0].input,  self.model.layer[0].temp, cost),
+            givens={
+                x: train_set_x[index * batch_size: (index + 1) * batch_size],
+                y: train_set_y[index * batch_size: (index + 1) * batch_size]
+            },
+            on_unused_input='ignore'
+        )
+
+        self._train(batch_size, epochs, params)
 
 
 
@@ -64,7 +97,6 @@ class Evaluator(object):
         # go through this many minibatche before checking the network on the validation set
         validation_frequency = min(n_train_batches, patience / 2)
 
-
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -72,6 +104,7 @@ class Evaluator(object):
 
         epoch = 0
         done_looping = False
+
 
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
@@ -83,6 +116,12 @@ class Evaluator(object):
                     print('training @ iter = ', iter)
 
                 cost_ij = self.train_model(minibatch_index)
+                output, input, temp, cost = self.tester(minibatch_index)
+                #print("TEMP____________")
+                #print(cost)
+                #print("TEMP____________")
+                #print(temp)
+                #raise Exception('No more')
                 if (iter + 1) % validation_frequency == 0:
 
                     # compute zero-one loss on validation set
@@ -128,41 +167,6 @@ class Evaluator(object):
         print('The code ran for %.2fm' % ((end_time - start_time) / 60.))
 
 
-    def _create_training_function(self, x,y, batch_size, index, cost, updates):
-        train_set_x, train_set_y = self.data.set['train']
-        return theano.function(
-            [index],
-            cost,
-            updates=updates,
-            givens={
-                x: train_set_x[index * batch_size: (index + 1) * batch_size],
-                y: train_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
-
-
-    def _create_test_function(self, x,y, batch_size, index, cost, errors):
-        test_set_x, test_set_y = self.data.set['test']
-        return theano.function(
-            [index],
-            errors,
-            givens={
-                x: test_set_x[index * batch_size: (index + 1) * batch_size],
-                y: test_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
-
-
-    def _create_validation_function(self, x,y, batch_size, index, cost, errors):
-        valid_set_x, valid_set_y = self.data.set['validation']
-        return theano.function(
-            [index],
-            errors,
-            givens={
-                x: valid_set_x[index * batch_size: (index + 1) * batch_size],
-                y: valid_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
 
     def _get_number_of_batches(self, set_name, batch_size):
         set_x, set_y = self.data.set[set_name]

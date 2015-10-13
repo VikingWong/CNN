@@ -46,6 +46,7 @@ class Model(object):
             filter_shape=(self.nkerns[0], 3, 16, 16),
             strides=(4,4),
             poolsize=(2, 2),
+            activation=T.nnet.relu,
             W=self._weight(init_params, 6),
             b=self._weight(init_params, 7)
 
@@ -61,6 +62,7 @@ class Model(object):
             image_shape=(batch_size, self.nkerns[0], 6, 6),
             filter_shape=(self.nkerns[1], self.nkerns[0], 4, 4),
             poolsize=(1, 1),
+            activation=T.nnet.relu,
             W=self._weight(init_params, 4),
             b=self._weight(init_params, 5)
 

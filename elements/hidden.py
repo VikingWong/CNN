@@ -38,24 +38,6 @@ class HiddenLayer(object):
 
         self.params = [self.W, self.b]
 
-    def negative_log_likelihood(self, y):
-        #TODO: Wrong name for it.
-        return T.mean(T.nnet.binary_crossentropy(self.output, y))
-
-    def errors(self, y):
-        #TODO: only copy pasted!
-        if y.ndim != self.output.ndim:
-            raise TypeError(
-                'y should have the same shape as self.y_pred',
-                ('y', y.type, 'y_pred', self.output.type)
-            )
-        # check if y is of the correct datatype
-        if y.dtype.startswith('int'):
-            # the T.neq operator returns a vector of 0s and 1s, where 1
-            # represents a mistake in prediction
-            return T.mean(T.neq(self.output, y))
-        else:
-            raise NotImplementedError()
 
     def _verbose_print(self, is_verbose,activation, n_in, n_out):
         #Add type of activation

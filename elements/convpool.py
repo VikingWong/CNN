@@ -55,17 +55,18 @@ class ConvPoolLayer(object):
             subsample=strides
         )
 
+        self.temp = self.W
         pooled_out = downsample.max_pool_2d(
             input=conv_out,
             ds=poolsize,
             ignore_border=True
         )
-
         self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 
         self.params = [self.W, self.b]
 
         self.input = input
+
 
     def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
         if is_verbose:
