@@ -35,10 +35,10 @@ class OutputLayer(object):
 
     def negative_log_likelihood(self, y):
         #return T.sum(T.nnet.binary_crossentropy(self.output, y));
-        return -T.mean((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
+        return -T.sum((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
 
     def errors(self, y):
-        #Mean squared error
+        #Mean squared error no percentage error at all!
        return T.sum(T.pow(self.output- y, 2))/self.n;
 
     def _verbose_print(self, is_verbose, n_in, n_out):

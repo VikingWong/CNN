@@ -15,6 +15,11 @@ def get_image_files(path):
         included_extenstions = ['jpg','png', 'tiff', 'tif']
         return [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
 
+def get_dataset(path):
+    content = os.listdir(path)
+    if not all(x in ['train', 'valid', 'test'] for x in content):
+        raise Exception('Folder does not contain image or label folder. Path probably not correct')
+    return content
 
 def from_arr_to_label(label, label_dim):
     label_arr = label.reshape(label_dim, label_dim)
@@ -51,6 +56,9 @@ def debug_input_data(data, label, data_dim, label_dim, delay=0):
     time.sleep(delay)
 
 
+
+
+
 def input_debugger(data, data_dim, label_dim):
     n = 0
     length = data[0].shape[0]
@@ -65,14 +73,9 @@ def input_debugger(data, data_dim, label_dim):
     print('Total:' , data[0].shape[0], ' over', n)
 
 
-def get_std(data):
-    return np.std(data)
-
-
 def normalize(data, std):
-    for i in range(data.shape[0]):
-        m = np.mean(data[i])
-        data[i] = (data[i] - m) / std
+    m = np.mean(data)
+    data = (data - m) / std
     return data
 
 

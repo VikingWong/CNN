@@ -141,6 +141,7 @@ class Evaluator(object):
                     # compute zero-one loss on validation set
                     validation_losses = [self.validate_model(i) for i
                                          in range(n_valid_batches)]
+                    print(validation_losses)
                     this_validation_loss = np.mean(validation_losses)
                     print('epoch %i, minibatch %i/%i, validation error %f %%' %
                           (epoch, minibatch_index + 1, n_train_batches,

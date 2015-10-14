@@ -15,5 +15,6 @@ def examine_label_dist(path):
     print("%.2f" % percent_pos, " Of area contains roads")
     print( "%.2f" % percent_neg, "area contains other stuff")
 
+
 path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test\\test\\labels\\17578915_15.tif'
 examine_label_dist(path)

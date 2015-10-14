@@ -6,20 +6,22 @@ import theano
 from PIL import Image
 import math
 import random
-from util import get_image_files, from_rgb_to_arr, input_debugger, get_std, normalize
+import util
 
 class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
-    def __init__(self, dim=(64, 16), rotation=False):
+    def __init__(self, dim=(64, 16), rotation=False, preproccessing=True, std=1):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
         self.rotation = rotation
+        self.preprocessing = preproccessing
+        self.std = std
 
 
-    def dynamically_create(self, dataset_path, samples_per_image, reduce=1, preprocessing=False):
-        test_path, train_path, valid_path = self._get_dataset(dataset_path)
+    def dynamically_create(self, dataset_path, samples_per_image, reduce=1):
+        test_path, train_path, valid_path = util.get_dataset(dataset_path)
 
         base_test = os.path.join(dataset_path, test_path)
         base_train = os.path.join(dataset_path, train_path)
@@ -36,24 +38,9 @@ class Creator(object):
         train = self._sample_data(base_train, train_img_paths, samples_per_image)
         valid = self._sample_data(base_valid, valid_img_paths, samples_per_image)
         #input_debugger(train, 64, 16)
-        if(preprocessing):
-            #TODO: BLÆH. Precalculate std and put in config. A lot of computation before even running.
-            std1 = get_std(test[0])
-            std2 = get_std(train[0])
-            std3 = get_std(valid[0])
-            std = (std1 + std2 + std3)/3
-            test = (normalize(test[0], std), test[1])
-            train = (normalize(train[0], std),train[1])
-            valid = (normalize(valid[0], std), valid[1])
 
         return train, valid, test
 
-
-    def _get_dataset(self, path):
-        content = os.listdir(path)
-        if not all(x in ['train', 'valid', 'test'] for x in content):
-            raise Exception('Folder does not contain image or label folder. Path probably not correct')
-        return content
 
     def create_image_label(self, image):
         #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
@@ -75,8 +62,8 @@ class Creator(object):
         Each path should contain a data and labels folder containing images.
         Creates a list of tuples containing path name for data and label.
         '''
-        tiles = get_image_files(os.path.join(path, 'data'))
-        labels = get_image_files(os.path.join(path, 'labels'))
+        tiles = util.get_image_files(os.path.join(path, 'data'))
+        labels = util.get_image_files(os.path.join(path, 'labels'))
 
         if len(tiles) == 0 or len(labels) == 0:
             raise Exception('Data or labels folder does not contain any images')
@@ -109,7 +96,7 @@ class Creator(object):
             la = Image.open(os.path.join(base, 'labels',  v), 'r').convert('L')
 
             width, height = im.size
-            width = width -dim_data
+            width = width - dim_data
             height = height - dim_data
             rot = 0
             if use_rotation:
@@ -125,8 +112,11 @@ class Creator(object):
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
-                data_sample =   from_rgb_to_arr(data_temp)
+                data_sample =   util.from_rgb_to_arr(data_temp)
                 label_sample =  self.create_image_label(label_temp)
+
+                if self.preprocessing:
+                    data_sample = util.normalize(data_sample, self.std)
 
                 data.append(data_sample)
                 label.append(label_sample)
