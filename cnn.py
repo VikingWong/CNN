@@ -19,7 +19,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
 
     #Stores the model params. Model can later be restored.
     p = ParamStorage(path=filename_params.network_save_name)
-    p.store_params(m.params)
+    p.store_params(m.params, model_params, dataset_params)
 
 
 

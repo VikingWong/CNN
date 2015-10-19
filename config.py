@@ -1,7 +1,7 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 5
+number_of_epochs = 10
 dataset_path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test'
 filename_params = Params({
         "results"               : "./results",
@@ -14,8 +14,8 @@ visual_params =  Params({
     })
 
 optimization_params =  Params({
-        "batch_size"                        : 16,
-        "initial_learning_rate"             : 0.009,
+        "batch_size"                        : 64,
+        "initial_learning_rate"             : 0.0005,
         "l2_reg"                            : 0.0001,
         "initial_patience"                  : 10000,
         "patience_increase"                 : 2,
@@ -26,7 +26,7 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 200,
+    "samples_per_image"     : 600,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "reduce"                : 1,
@@ -36,7 +36,7 @@ dataset_params = Params({
 
 model_params =  Params({
 
-    "nr_kernels"            : [ 64, 112 ],
+    "nr_kernels"            : [ 64, 112, 80 ],
     "random_seed"           : 23455,
     "input_data_dim"            : (3, 64, 64)
      })

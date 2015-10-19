@@ -69,7 +69,7 @@ class Evaluator(object):
 
         self.tester =  theano.function(
             [index],
-            (self.model.layer[3].output, y, cost, self.model.layer[3].errors(y)),
+            (output_layer.output, y, cost, output_layer.errors(y)),
             givens={
                 x: train_set_x[index * batch_size: (index + 1) * batch_size],
                 y: train_set_y[index * batch_size: (index + 1) * batch_size]
@@ -127,13 +127,14 @@ class Evaluator(object):
                 #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
                 # print("TEMP____________")
                 #raise Exception("NO MORE")
-                '''if epoch > 2 and (iter + 1) % validation_frequency == 0:
+                if epoch > 25  and (iter + 1) % validation_frequency == 0:
                     for test in range(5):
                         v = random.randint(0,n_train_batches)
                         output, y, cost, errs = self.tester(v)
                         print(errs)
+                        print(cost)
                         debug_input_data(self.data.set['train'][0][v].eval(), output, 64, 16)
-                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)'''
+                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)
 
                 cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:
@@ -141,7 +142,6 @@ class Evaluator(object):
                     # compute zero-one loss on validation set
                     validation_losses = [self.validate_model(i) for i
                                          in range(n_valid_batches)]
-                    print(validation_losses)
                     this_validation_loss = np.mean(validation_losses)
                     print('epoch %i, minibatch %i/%i, validation error %f %%' %
                           (epoch, minibatch_index + 1, n_train_batches,

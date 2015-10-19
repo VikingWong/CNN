@@ -35,7 +35,7 @@ class OutputLayer(object):
 
     def negative_log_likelihood(self, y):
         #return T.sum(T.nnet.binary_crossentropy(self.output, y));
-        return -T.sum((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
+        return -T.mean((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
 
     def errors(self, y):
         #Mean squared error no percentage error at all!

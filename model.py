@@ -47,8 +47,8 @@ class Model(object):
             strides=(4,4),
             poolsize=(2, 2),
             activation=T.nnet.relu,
-            W=self._weight(init_params, 6),
-            b=self._weight(init_params, 7)
+            W=self._weight(init_params, 8),
+            b=self._weight(init_params, 9)
 
         )
 
@@ -63,6 +63,18 @@ class Model(object):
             filter_shape=(self.nkerns[1], self.nkerns[0], 4, 4),
             poolsize=(1, 1),
             activation=T.nnet.relu,
+            W=self._weight(init_params, 6),
+            b=self._weight(init_params, 7)
+
+        )
+
+        layer2 = ConvPoolLayer(
+            self.rng,
+            input=layer1.output,
+            image_shape=(batch_size, self.nkerns[1], 3, 3),
+            filter_shape=(self.nkerns[2], self.nkerns[1], 3, 3),
+            poolsize=(1, 1),
+            activation=T.nnet.relu,
             W=self._weight(init_params, 4),
             b=self._weight(init_params, 5)
 
@@ -72,13 +84,13 @@ class Model(object):
         # shape (batch_size, num_pixels) (i.e matrix of rasterized images).
         # This will generate a matrix of shape (batch_size, nkerns[1] * 4 * 4),
         # or (500, 50 * 4 * 4) = (500, 800) with the default values.
-        layer2_input = layer1.output.flatten(2)
+        layer3_input = layer2.output.flatten(2)
 
         # construct a fully-connected sigmoidal layer
-        layer2 = HiddenLayer(
+        layer3 = HiddenLayer(
             self.rng,
-            input=layer2_input,
-            n_in=self.nkerns[1] * 3 * 3,
+            input=layer3_input,
+            n_in=self.nkerns[2] * 1 * 1,
             n_out=4096,
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),
@@ -86,17 +98,17 @@ class Model(object):
 
         )
 
-        layer3 = OutputLayer(
+        layer4 = OutputLayer(
             self.rng,
-            input=layer2.output,
+            input=layer3.output,
             n_in=4096,
             n_out=256,
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1)
         )
 
-        self.layer = [layer0, layer1, layer2, layer3]
-        self.params =  layer3.params + layer2.params + layer1.params + layer0.params
+        self.layer = [layer0, layer1, layer2, layer3, layer4]
+        self.params =  layer4.params + layer3.params + layer2.params + layer1.params + layer0.params
         print('Model created!')
 
     def create_predict_function(self, x, data):

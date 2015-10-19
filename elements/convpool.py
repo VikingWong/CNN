@@ -4,6 +4,7 @@ from theano.tensor.nnet import conv
 from theano.tensor.signal import downsample
 import numpy as np
 from elements.util import Util
+from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 
 class ConvPoolLayer(object):
     def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
@@ -60,12 +61,21 @@ class ConvPoolLayer(object):
             ds=poolsize,
             ignore_border=True
         )
+
+        self.srng = RandomStreams()
+        pooled_out = self.dropout(pooled_out, 0.0)
         self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 
         self.params = [self.W, self.b]
 
         self.input = input
 
+    def dropout(self, X, p=0.):
+        if p > 0:
+            retain_prob = 1 - p
+            X *= self.srng.binomial(X.shape, p=retain_prob, dtype=theano.config.floatX)
+            X /= retain_prob
+        return X
 
     def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
         if is_verbose:

@@ -84,5 +84,3 @@ def debug_mnist():
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
     print(train_set[0].shape)
     f.close()
-
-debug_mnist()

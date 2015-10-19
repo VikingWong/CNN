@@ -7,8 +7,6 @@ import math
 from model import Model
 from storage.store import ParamStorage
 from augmenter.aerial import Creator
-#TODO: These hyperparameters should be saved along with the weights and biases
-from config import model_params, dataset_params
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
 class Visualizer(object):
@@ -58,8 +56,6 @@ class Visualizer(object):
             user = input('Proceed?')
             if user == 'no':
                 break
-
-
 
 
     def combine_to_image(self, output_data, dim):
@@ -115,13 +111,13 @@ class Visualizer(object):
         image.close()
         return arr
 
-#TODO: Param file should also store model configuration.
+
 store = ParamStorage()
-params = store.load_params(path="../../results/params.pkl")
-m = Model(model_params)
-print(params)
-dataset_std = dataset_params.dataset_std
-v = Visualizer(m, params, std=dataset_std)
+data = store.load_params(path="../../results/params.pkl")
+print(data)
+m = Model(data['model'])
+dataset_std = data['dataset'].dataset_std
+v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()
 img.show()
 img.save('./tester.jpg')
