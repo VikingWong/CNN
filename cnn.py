@@ -1,5 +1,5 @@
 from evaluator import Evaluator
-from model import Model, ShallowModel
+from model import Model, ShallowModel, ConvModel
 from data import MnistDataset, AerialDataset
 from storage.store import ParamStorage
 import os
@@ -13,7 +13,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
 
     d = AerialDataset()
     d.load(dataset, dataset_params) #Input stage
-    m = ShallowModel(model_params, verbose=True) #Create network stage
+    m = ConvModel(model_params, verbose=True) #Create network stage
     e = Evaluator(m, d)
     e.evaluate(optimization_params, epochs=epochs,  verbose=verbose)
 

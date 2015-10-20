@@ -14,6 +14,8 @@ class AbstractModel(metaclass=ABCMeta):
         self.L2_layers = []
         self.rng = np.random.RandomState(params.random_seed)
         self.input_data_dim = params.input_data_dim
+        self.hidden = params.hidden_layer
+        self.output_label_dim = params.output_label_dim
 
     def get_output_layer(self):
         assert len(self.layer) >0
@@ -56,7 +58,7 @@ class ShallowModel(AbstractModel):
             self.rng,
             input=x,
             n_in=channels*width*height,
-            n_out=1024,
+            n_out=2048,
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3)
@@ -65,7 +67,7 @@ class ShallowModel(AbstractModel):
         layer1 = OutputLayer(
             self.rng,
             input=layer0.output,
-            n_in=1024,
+            n_in=2048,
             n_out=256,
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1)
@@ -75,95 +77,6 @@ class ShallowModel(AbstractModel):
         self.layer = [layer0, layer1]
         self.params =  layer1.params + layer0.params
         print('Model created!')
-
-
-
-class ConfigConvModel(AbstractModel):
-
-    def __init__(self, params, verbose=False):
-        super().__init__(params, verbose)
-        self.nr_kernels = params.nr_kernels
-        self.queue = deque([self.input_data_dim[0], -1]) #Because of for loop -1 will disappear, but keep queue len being 2.
-
-
-    def _get_filter(self, next_kernel, filter):
-        self.queue.appendleft(next_kernel)
-        self.queue.pop()
-        return list(self.queue, filter)
-
-
-    def build(self, x, batch_size, init_params=None):
-
-        print('... building the model')
-        channels, width, height = self.input_data_dim
-        layer_input = x.reshape((batch_size, channels, width, height))
-
-        #Convolutional pool linking rules.
-        #Output from convolutional layer is decided by image size, filter shape, strides and maxpooling
-        #Example: Input image 64x64, filter: 16x16, strides 2x2, max pooling: 2x2
-        #Output from this first layer is (64-16+1)/2 /2, (64-16+1)/2 /2
-        #So input size - filter size +1 / stride size / max pooling
-
-        inp_shape = (batch_size, channels, width, height)
-        conv = [
-                {"filter": (16,16), "stride": (4, 4), "pool": (2,2)},
-                {"filter": (4, 4), "stride": (1, 1), "pool": (1,1)},
-                {"filter": (3,3), "stride": (1, 1), "pool": (1,1)}
-                ]
-
-        for i in range(len(conv)):
-            init_idx = len(init_params) - (i*2)
-
-            filter = self._get_filter(self.nr_kernels[i], conv[i]["filter"])
-            print(filter)
-            layer = ConvPoolLayer(
-                self.rng,
-                input=layer_input,
-                image_shape=inp_shape,
-                filter_shape=filter,
-                strides=conv[i]["stride"],
-                poolsize=conv[i]["pool"],
-                activation=T.nnet.relu,
-                W=self._weight(init_params, init_idx-1),
-                b=self._weight(init_params, init_idx)
-            )
-
-            layer_input = layer.output
-            dim_x = math.floor(inp_shape[2] - conv[i]["filter"][0] +1) / (conv[i]["stride"][0] * conv[i]["pool"][0])
-            dim_y = math.floor(inp_shape[3] - conv[i]["filter"][1] +1) / (conv[i]["stride"][1] * conv[i]["pool"][1])
-
-            inp_shape = (batch_size, self.nr_kernels[i], dim_x, dim_y)
-            self.layer.append(layer)
-
-        layer3_input = self.layer[-1].output.flatten(2)
-
-        # construct a fully-connected sigmoidal layer
-        layer3 = HiddenLayer(
-            self.rng,
-            input=layer3_input,
-            n_in=self.nr_kernels[2] * 1 * 1,
-            n_out=4096,
-            activation=T.nnet.relu,
-            W=self._weight(init_params, 2),
-            b=self._weight(init_params, 3)
-
-        )
-
-        layer4 = OutputLayer(
-            self.rng,
-            input=layer3.output,
-            n_in=4096,
-            n_out=256,
-            W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
-        )
-
-        self.L2_layers = [layer3, layer4]
-        self.layer.extend(self.L2_layers)
-        self.params =  layer4.params + layer3.params +  self.layer[2].params +  self.layer[1].params +  self.layer[0].params
-        print('Model created!')
-
-
 
 class Model(AbstractModel):
 
@@ -259,3 +172,90 @@ class Model(AbstractModel):
 
     def getL2(self):
         return ((self.layer[3].W ** 2).sum() + (self.layer[2].W ** 2).sum())
+
+
+#TODO: print number of parameters
+class ConvModel(AbstractModel):
+
+    def __init__(self, params, verbose=False):
+        super().__init__(params, verbose)
+        self.nr_kernels = params.nr_kernels
+        self.conv = params.conv_layers
+        #Because of for loop -1 will disappear, but keep queue len being 2.
+        self.queue = deque([self.input_data_dim[0], -1])
+
+
+    def _get_filter(self, next_kernel, filter):
+        self.queue.appendleft(next_kernel)
+        self.queue.pop()
+        return list(self.queue) + list(filter)
+
+
+    def build(self, x, batch_size, init_params=None):
+
+        print('... building the model')
+        channels, width, height = self.input_data_dim
+        layer_input = x.reshape((batch_size, channels, width, height))
+
+        #See model for explanation
+        p_len = 0
+        if init_params:
+            p_len = len(init_params)
+
+        inp_shape = (batch_size, channels, width, height)
+
+        for i in range(len(self.conv)):
+            init_idx = p_len - (i*2)-1
+
+            filter = self._get_filter(self.nr_kernels[i], self.conv[i]["filter"])
+            print(filter)
+            layer = ConvPoolLayer(
+                self.rng,
+                input=layer_input,
+                image_shape=inp_shape,
+                filter_shape=filter,
+                strides=self.conv[i]["stride"],
+                poolsize=self.conv[i]["pool"],
+                activation=T.nnet.relu,
+                W=self._weight(init_params, init_idx-1),
+                b=self._weight(init_params, init_idx)
+            )
+
+            layer_input = layer.output
+            dim_x = math.floor((inp_shape[2] - self.conv[i]["filter"][0] +1) / (self.conv[i]["stride"][0] * self.conv[i]["pool"][0]))
+            dim_y = math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1]))
+
+            inp_shape = (batch_size, self.nr_kernels[i], dim_x, dim_y)
+            print(inp_shape)
+            self.layer.append(layer)
+
+        hidden_input = self.layer[-1].output.flatten(2)
+
+        # construct a fully-connected sigmoidal layer
+        hidden_layer = HiddenLayer(
+            self.rng,
+            input=hidden_input,
+            n_in=self.nr_kernels[2] * 1 * 1,
+            n_out=self.hidden,
+            activation=T.nnet.relu,
+            W=self._weight(init_params, 2),
+            b=self._weight(init_params, 3)
+
+        )
+
+        output_dim = self.output_label_dim[0] * self.output_label_dim[1]
+        output_layer = OutputLayer(
+            self.rng,
+            input=hidden_layer.output,
+            n_in=self.hidden,
+            n_out=output_dim,
+            W=self._weight(init_params, 0),
+            b=self._weight(init_params, 1)
+        )
+
+        self.L2_layers = [hidden_layer, output_layer]
+        self.layer.extend(self.L2_layers)
+        self.params = []
+        for layer in reversed(self.layer):
+            self.params += layer.params
+        print('Model created!')

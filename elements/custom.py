@@ -8,7 +8,6 @@ class OutputLayer(BaseLayer):
         super().__init__(rng, input)
         self._verbose_print(verbose, n_in, n_out)
         self.output_dim = n_out
-        #TODO: Clever way to use create_weights method
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4
         self.set_weight(W, -W_bound, W_bound, (n_in, n_out))

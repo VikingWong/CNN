@@ -128,14 +128,14 @@ class Evaluator(object):
                 #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
                 #print("TEMP____________")
                 #raise Exception("NO MORE")
-                '''if epoch > 39   and (iter + 1) % validation_frequency == 0:
+                if epoch > 1   and (iter + 1) % validation_frequency == 0:
                     for test in range(5):
                         v = random.randint(0,n_train_batches)
                         output, y, cost, errs = self.tester(v)
                         print(errs)
                         print(cost)
                         debug_input_data(self.data.set['train'][0][v].eval(), output, 64, 16)
-                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)'''
+                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)
 
                 cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:

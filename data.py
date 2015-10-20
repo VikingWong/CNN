@@ -73,6 +73,7 @@ class AerialDataset(AbstractDataset):
 
     def load(self, dataset_path,params):
         samples_per_image = params.samples_per_image
+        preprocessing = params.use_preprocessing
         use_rotation = params.use_rotation
         reduce = params.reduce
         dim = (params.input_dim, params.output_dim)
@@ -81,7 +82,7 @@ class AerialDataset(AbstractDataset):
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
         #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
-        creator = Creator(dim=dim, rotation=use_rotation, preproccessing=True, std=std, only_mixed=mixed)
+        creator = Creator(dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')

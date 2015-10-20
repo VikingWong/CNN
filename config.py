@@ -1,7 +1,7 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 40
+number_of_epochs = 2
 dataset_path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test'
 filename_params = Params({
         "results"               : "./results",
@@ -28,10 +28,11 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 2500,
+    "samples_per_image"     : 2048,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : False,
-    "only_mixed_labels"     : False,
+    "use_preprocessing"     : True,
+    "only_mixed_labels"     : True,
     "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16
@@ -39,7 +40,15 @@ dataset_params = Params({
 
 model_params =  Params({
 
-    "nr_kernels"            : [ 64, 112, 80 ],
-    "random_seed"           : 23455,
-    "input_data_dim"            : (3, 64, 64)
-     })
+    "nr_kernels"        : [ 64, 112, 80 ],
+    "random_seed"       : 23455,
+    "input_data_dim"    : (3, 64, 64),
+    "output_label_dim"  : (16,16),
+    "hidden_layer"      : 4096,
+    "conv_layers"       :
+        [
+            {"filter": (16,16), "stride": (4, 4), "pool": (2,2)},
+            {"filter": (4, 4), "stride": (1, 1), "pool": (1,1)},
+            {"filter": (3,3), "stride": (1, 1), "pool": (1,1)}
+        ],
+})

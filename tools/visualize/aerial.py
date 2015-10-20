@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import math
 
-from model import ShallowModel, Model
+from model import ShallowModel, Model, ConvModel
 from storage.store import ParamStorage
 from augmenter.aerial import Creator
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
@@ -95,8 +95,8 @@ class Visualizer(object):
                 temp = image[i- padding: i+Visualizer.IMAGE_SIZE -padding, j-padding:j+Visualizer.IMAGE_SIZE-padding]
                 image_data = from_rgb_to_arr(temp)
 
-                #TODO: If preprocessing!
-                if True:
+                #TODO: Store preprocessing in params file as well. Will have concequences if config is out of sync with stored values.
+                if self.params.use_preprocessing:
                     image_data = normalize(image_data, self.std)
                 data.append(image_data)
 
@@ -115,7 +115,7 @@ class Visualizer(object):
 store = ParamStorage()
 data = store.load_params(path="../../results/params.pkl")
 print(data)
-m = ShallowModel(data['model'])
+m = ConvModel(data['model'])
 dataset_std = data['dataset'].dataset_std
 v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()
