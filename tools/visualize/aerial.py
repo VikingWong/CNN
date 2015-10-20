@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import math
 
-from model import Model
+from model import ShallowModel, Model
 from storage.store import ParamStorage
 from augmenter.aerial import Creator
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
@@ -115,7 +115,7 @@ class Visualizer(object):
 store = ParamStorage()
 data = store.load_params(path="../../results/params.pkl")
 print(data)
-m = Model(data['model'])
+m = ShallowModel(data['model'])
 dataset_std = data['dataset'].dataset_std
 v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()

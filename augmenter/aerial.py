@@ -12,13 +12,15 @@ class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
-    def __init__(self, dim=(64, 16), rotation=False, preproccessing=True, std=1):
+    def __init__(self, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
+        self.only_mixed_labels = only_mixed #Only use labels containing positive label (roads etc)
         self.rotation = rotation
         self.preprocessing = preproccessing
         self.std = std
 
+        self.print_verbose()
 
     def dynamically_create(self, dataset_path, samples_per_image, reduce=1):
         test_path, train_path, valid_path = util.get_dataset(dataset_path)
@@ -65,6 +67,13 @@ class Creator(object):
         tiles = util.get_image_files(os.path.join(path, 'data'))
         labels = util.get_image_files(os.path.join(path, 'labels'))
 
+        self._is_valid_dataset(tiles, labels)
+
+        limit = math.floor(reduce * len(tiles))
+        return list(zip(tiles[0:limit], labels[0:limit]))
+
+
+    def _is_valid_dataset(self, tiles, labels):
         if len(tiles) == 0 or len(labels) == 0:
             raise Exception('Data or labels folder does not contain any images')
 
@@ -75,9 +84,6 @@ class Creator(object):
             if os.path.splitext(tiles[i])[0] != os.path.splitext(labels[i])[0]:
                 raise Exception('tile', tiles[i], 'does not match label', labels[i])
 
-        limit = math.floor(reduce * len(tiles))
-        return list(zip(tiles[0:limit], labels[0:limit]))
-
 
     def _sample_data(self, base, paths, samples_per_images):
         '''
@@ -87,9 +93,10 @@ class Creator(object):
         data = []
         label = []
         dim_data = self.dim_data
-        use_rotation = self.rotation
+
         print("")
         print("Sampling examples for", base)
+
         for i in range(len(paths)):
             d, v = paths[i]
             im = Image.open(os.path.join(base, 'data',  d), 'r')
@@ -98,14 +105,15 @@ class Creator(object):
             width, height = im.size
             width = width - dim_data
             height = height - dim_data
+
             rot = 0
-            if use_rotation:
+            if self.rotation:
                 rot = random.uniform(0.0, 360.0)
 
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
-
-            for s in range(samples_per_images):
+            s = samples_per_images
+            while s>0:
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
 
@@ -118,12 +126,16 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
+                if self.only_mixed_labels and label_sample.max() == 0:
+                    continue
+
                 data.append(data_sample)
                 label.append(label_sample)
 
+                s -= 1
 
             if i % 50 == 0:
-                print("Input image: ", i, '/', len(paths))
+                print('Input image: ', i, '/', len(paths))
 
             im.close()
             la.close()
@@ -132,3 +144,13 @@ class Creator(object):
         label = np.array(label)
 
         return data, label
+
+
+    def print_verbose(self):
+        print('Initializing dataset creator')
+        print('----Data size', self.dim_data, 'x', self.dim_data)
+        print('----Label size', self.dim_label, 'x', self.dim_label)
+        print('----Rotation:', self.rotation, ' Preprocessing:', self.preprocessing, 'with std:' , self.std)
+        if self.only_mixed_labels:
+            print('----CAUTION: will only include labels containing class of interest')
+        print('')

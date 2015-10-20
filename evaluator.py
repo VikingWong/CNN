@@ -16,7 +16,7 @@ class Evaluator(object):
         self.model = model
 
     def evaluate(self, params, epochs=10, verbose=False):
-
+        L2_reg = params.l2_reg
         learning_rate = params.initial_learning_rate
         batch_size = params.batch_size
 
@@ -27,7 +27,8 @@ class Evaluator(object):
 
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
-        cost = self.model.get_cost(y)
+        cost = self.model.get_cost(y) + L2_reg * self.model.getL2()
+
         #errors = self.model.get_errors(y)
         test_set_x, test_set_y = self.data.set['test']
         self.test_model = theano.function(
@@ -89,7 +90,6 @@ class Evaluator(object):
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
         n_test_batches = self._get_number_of_batches('test', batch_size)
 
-        L2_reg = params.l2_reg
         patience = params.initial_patience # look as this many examples regardless
         patience_increase = params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = params.improvement_threshold # a relative improvement of this much is considered significant
@@ -119,33 +119,35 @@ class Evaluator(object):
                 #print("errors: ", errs)
                 #print("TEMP____________")
                 #print(cost)
+                #print(errs)
                 #print(output.shape)
                 #print(y.shape)
                 #print(output[0, 0: 16])
                 #print(y[0, 0: 16])
                 #print(T.sum(T.nnet.binary_crossentropy(output[0, 0: 256], y[0, 0: 256])).eval())
                 #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
-                # print("TEMP____________")
+                #print("TEMP____________")
                 #raise Exception("NO MORE")
-                if epoch > 25  and (iter + 1) % validation_frequency == 0:
+                '''if epoch > 39   and (iter + 1) % validation_frequency == 0:
                     for test in range(5):
                         v = random.randint(0,n_train_batches)
                         output, y, cost, errs = self.tester(v)
                         print(errs)
                         print(cost)
                         debug_input_data(self.data.set['train'][0][v].eval(), output, 64, 16)
-                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)
+                        debug_input_data(self.data.set['train'][0][v].eval(), y, 64, 16)'''
 
                 cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:
-
+                    output, y, cost, errs = self.tester(minibatch_index)
+                    print(cost)
                     # compute zero-one loss on validation set
                     validation_losses = [self.validate_model(i) for i
                                          in range(n_valid_batches)]
                     this_validation_loss = np.mean(validation_losses)
-                    print('epoch %i, minibatch %i/%i, validation error %f %%' %
+                    print('epoch %i, minibatch %i/%i, validation error %f MSE' %
                           (epoch, minibatch_index + 1, n_train_batches,
-                           this_validation_loss * 100.))
+                           this_validation_loss/batch_size))
 
                     # if we got the best validation score until now
                     if this_validation_loss < best_validation_loss:
@@ -166,9 +168,9 @@ class Evaluator(object):
                         ]
                         test_score = np.mean(test_losses)
                         print(('     epoch %i, minibatch %i/%i, test error of '
-                               'best model %f %%') %
+                               'best model %f MSE') %
                               (epoch, minibatch_index + 1, n_train_batches,
-                               test_score * 100.))
+                               test_score/batch_size))
 
                 if patience <= iter:
                     done_looping = True
