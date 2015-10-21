@@ -6,10 +6,11 @@ from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 
 class BaseLayer(object):
 
-    def __init__(self, rng, input):
+    def __init__(self, rng, input, dropout_rate):
         self.stream = RandomStreams()
         self.input = input
         self.rng = rng
+        self.dropout_rate = dropout_rate
 
 
     def set_bias(self, b, n):

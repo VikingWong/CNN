@@ -180,6 +180,7 @@ class ConvModel(AbstractModel):
     def __init__(self, params, verbose=False):
         super().__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
+        self.dropout_rate = params.hidden_dropout
         self.conv = params.conv_layers
         #Because of for loop -1 will disappear, but keep queue len being 2.
         self.queue = deque([self.input_data_dim[0], -1])
@@ -239,7 +240,8 @@ class ConvModel(AbstractModel):
             n_out=self.hidden,
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),
-            b=self._weight(init_params, 3)
+            b=self._weight(init_params, 3),
+            dropout_rate=self.dropout_rate
 
         )
 

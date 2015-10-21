@@ -96,7 +96,7 @@ class Visualizer(object):
                 image_data = from_rgb_to_arr(temp)
 
                 #TODO: Store preprocessing in params file as well. Will have concequences if config is out of sync with stored values.
-                if self.params.use_preprocessing:
+                if True:
                     image_data = normalize(image_data, self.std)
                 data.append(image_data)
 

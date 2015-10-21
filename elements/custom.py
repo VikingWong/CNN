@@ -5,7 +5,7 @@ from elements.util import BaseLayer
 
 class OutputLayer(BaseLayer):
     def __init__(self, rng, input, n_in, n_out, W=None, b=None, verbose=True):
-        super().__init__(rng, input)
+        super().__init__(rng, input, 0.0)
         self._verbose_print(verbose, n_in, n_out)
         self.output_dim = n_out
 

@@ -7,7 +7,7 @@ from elements.util import BaseLayer
 
 class ConvPoolLayer(BaseLayer):
     def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
-                 activation=T.tanh, W = None, b = None, verbose = True):
+                 activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=0.0):
         '''
         :param rng: random number generator used to initialize weights
         :param input: symbolic image tensor
@@ -20,7 +20,7 @@ class ConvPoolLayer(BaseLayer):
         :param verbose:
         :return:
         '''
-        super().__init__(rng, input)
+        super().__init__(rng, input, dropout_rate)
         assert image_shape[1] == filter_shape[1]
         self._verbose_print(verbose, filter_shape, poolsize, image_shape, strides)
 
@@ -50,9 +50,9 @@ class ConvPoolLayer(BaseLayer):
             ignore_border=True
         )
 
-        #pooled_out = self.dropout(pooled_out, 0.0)
+        pooled_out = self.dropout(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'), dropout_rate)
 
-        self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        self.output = activation(pooled_out)
 
         self.params = [self.W, self.b]
 

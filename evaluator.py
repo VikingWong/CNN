@@ -114,7 +114,7 @@ class Evaluator(object):
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
-
+                print("IT")
                 #output, y, cost, errs = self.tester(minibatch_index)
                 #print("errors: ", errs)
                 #print("TEMP____________")
@@ -128,8 +128,9 @@ class Evaluator(object):
                 #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
                 #print("TEMP____________")
                 #raise Exception("NO MORE")
-                if epoch > 1   and (iter + 1) % validation_frequency == 0:
-                    for test in range(5):
+                if epoch > 150   and (iter + 1) % validation_frequency == 0:
+                    #TODO: Make a better debugger.
+                    for test in range(1):
                         v = random.randint(0,n_train_batches)
                         output, y, cost, errs = self.tester(v)
                         print(errs)
@@ -139,8 +140,8 @@ class Evaluator(object):
 
                 cost_ij = self.train_model(minibatch_index)
                 if (iter + 1) % validation_frequency == 0:
-                    output, y, cost, errs = self.tester(minibatch_index)
-                    print(cost)
+                    #output, y, cost, errs = self.tester(minibatch_index)
+                    #print(cost)
                     # compute zero-one loss on validation set
                     validation_losses = [self.validate_model(i) for i
                                          in range(n_valid_batches)]

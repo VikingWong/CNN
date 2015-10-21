@@ -4,8 +4,8 @@ import numpy as np
 from elements.util import BaseLayer
 
 class HiddenLayer(BaseLayer):
-    def __init__(self, rng, input, n_in, n_out, W=None, b=None, activation=T.tanh, verbose=True):
-        super().__init__(rng, input)
+    def __init__(self, rng, input, n_in, n_out, W=None, b=None, activation=T.tanh, verbose=True, dropout_rate=0.0):
+        super().__init__(rng, input, dropout_rate)
         self._verbose_print(verbose,activation, n_in, n_out)
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4
@@ -13,7 +13,7 @@ class HiddenLayer(BaseLayer):
         self.set_bias(b, n_out)
 
         lin_output = T.dot(input, self.W) + self.b
-        #lin_output = self.dropout(lin_output, 0.0)
+        lin_output = self.dropout(lin_output, dropout_rate)
         self.output = (
             lin_output if activation is None
             else activation(lin_output)

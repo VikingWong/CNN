@@ -1,7 +1,7 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 2
+number_of_epochs = 1
 dataset_path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test'
 filename_params = Params({
         "results"               : "./results",
@@ -15,11 +15,10 @@ visual_params =  Params({
 
 #TODO: Implement dropout_rate
 optimization_params =  Params({
-        "batch_size"                        : 64,
+        "batch_size"                        : 128,
         "initial_learning_rate"             : 0.001,
-        "dropout_rate"                      : 0.5,
         "l2_reg"                            : 0.001,
-        "initial_patience"                  : 10000,
+        "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.995
 
@@ -28,11 +27,11 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 2048,
+    "samples_per_image"     : 1000,
     "dataset_std"           : 0.233174571944,
-    "use_rotation"          : False,
+    "use_rotation"          : True,
     "use_preprocessing"     : True,
-    "only_mixed_labels"     : True,
+    "only_mixed_labels"     : False,
     "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16
@@ -45,10 +44,11 @@ model_params =  Params({
     "input_data_dim"    : (3, 64, 64),
     "output_label_dim"  : (16,16),
     "hidden_layer"      : 4096,
+    "hidden_dropout"    : 0.5,
     "conv_layers"       :
         [
-            {"filter": (16,16), "stride": (4, 4), "pool": (2,2)},
-            {"filter": (4, 4), "stride": (1, 1), "pool": (1,1)},
-            {"filter": (3,3), "stride": (1, 1), "pool": (1,1)}
+            {"filter": (13,13), "stride": (2, 2), "pool": (2,2)},
+            {"filter": (6, 6), "stride": (1, 1), "pool": (2,2)},
+            {"filter": (4,4), "stride": (1, 1), "pool": (1,1)}
         ],
 })

@@ -52,6 +52,7 @@ def debug_input_data(data, label, data_dim, label_dim, delay=0):
     data_image= from_arr_to_data(data, data_dim)
 
     data_image.paste(label_image, (24, 24), label_image)
+    data_image = data_image.resize( (512,512) )
     data_image.show()
     time.sleep(delay)
 
