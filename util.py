@@ -13,7 +13,9 @@ class Params:
 def get_image_files(path):
         print("Retrieving", path)
         included_extenstions = ['jpg','png', 'tiff', 'tif']
-        return [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
+        files = [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
+        files.sort()
+        return files
 
 def get_dataset(path):
     content = os.listdir(path)

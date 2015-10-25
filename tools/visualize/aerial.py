@@ -2,7 +2,9 @@ from PIL import Image
 import theano.tensor as T
 import numpy as np
 import theano
-import math
+import math, sys, os
+
+sys.path.append(os.path.abspath("./"))
 
 from model import ShallowModel, Model, ConvModel
 from storage.store import ParamStorage
@@ -23,6 +25,7 @@ class Visualizer(object):
 
     def visualize(self):
         data, dim = self.create_data_from_image()
+        print(data.nbytes / 1000000, "mb")
         x, shared_x = self.build_model(data, data.shape[0])
         predict = self.model.create_predict_function(x, shared_x)
         output = predict()
@@ -82,8 +85,8 @@ class Visualizer(object):
 
     def create_data_from_image(self):
         print("Create data patches for model")
-        image = self.open_image('test2.tiff')
-        image = image[0:1472, 0: 1472, :]
+        image = self.open_image('/home/olav/Pictures/Mass_roads/valid/data/25229230_15.tiff')
+        image = image[0:1024, 0: 1024, :]
         #Need to be a multiply of 2 for now.
         label_size = Visualizer.LABEL_SIZE
         padding = 24
@@ -108,16 +111,19 @@ class Visualizer(object):
     def open_image(self, path):
         image = Image.open(path, 'r')
         arr =  np.array(image)
-        image.close()
+        if image:
+            del image
         return arr
 
 
+
+print(sys.path)
 store = ParamStorage()
-data = store.load_params(path="../../results/params.pkl")
+data = store.load_params(path="./results/params.pkl")
 print(data)
 m = ConvModel(data['model'])
 dataset_std = data['dataset'].dataset_std
 v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()
 img.show()
-img.save('./tester.jpg')
+img.save('./tools/visualize/tester.jpg')

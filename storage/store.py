@@ -12,7 +12,7 @@ class ParamStorage(object):
             path = self.path
 
         f = open(path, 'rb');
-        params = pickle.load(f, encoding='latin1')
+        params = pickle.load(f)
         f.close()
         return params
 

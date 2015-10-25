@@ -2,7 +2,6 @@ import theano
 from theano import tensor as T
 from theano.tensor.nnet import conv
 from theano.tensor.signal import downsample
-from theano.sandbox.cuda.fftconv import conv2d_fft
 import numpy as np
 from elements.util import BaseLayer
 
@@ -37,7 +36,7 @@ class ConvPoolLayer(BaseLayer):
         self.set_weight(W, -W_bound, W_bound, filter_shape)
         self.set_bias(b, filter_shape[0])
 
-        conv_out = conv2d_fft(
+        conv_out = conv.conv2d(
             input=input,
             filters=self.W,
             filter_shape=filter_shape,

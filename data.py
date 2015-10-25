@@ -99,7 +99,7 @@ class AerialDataset(AbstractDataset):
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
-
+        print("SIZE:", (train[0].nbytes + valid[0].nbytes + test[0].nbytes)/1000000, " mb at least..." )
         return True
 
 

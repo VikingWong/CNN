@@ -1,8 +1,8 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 10
-dataset_path = '/home/olav/Pictures/Mass_roads_overfitting_test'
+number_of_epochs = 100
+dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
@@ -27,12 +27,12 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 2058,
+    "samples_per_image"     : 128,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
-    "reduce"                : 1,
+    "reduce"                : 0.05,
     "input_dim"             : 64,
     "output_dim"            : 16
 })

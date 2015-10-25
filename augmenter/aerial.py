@@ -69,7 +69,7 @@ class Creator(object):
 
         self._is_valid_dataset(tiles, labels)
 
-        limit = (int)(math.floor(reduce * len(tiles)))
+        limit = int(math.floor(reduce * len(tiles)))
         return list(zip(tiles[0:limit], labels[0:limit]))
 
 
