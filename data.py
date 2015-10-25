@@ -11,8 +11,8 @@ from util import debug_input_data
 from augmenter.aerial import Creator
 
 
-class AbstractDataset(metaclass=ABCMeta):
-
+class AbstractDataset(object):
+    __metaclass__ = ABCMeta
     def __init__(self):
         self.set = {
             'train': None,

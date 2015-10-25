@@ -16,7 +16,7 @@ class LogisticRegression(BaseLayer):
         :type n_out: int
         :param n_out: number of output units, the dimension of the space in which the labels lie
         """
-        super().__init__(None, input)
+        super(LogisticRegression, self).__init__(None, input)
         if W is None:
             self.W  = theano.shared(
                 value=np.zeros((n_in, n_out), dtype=theano.config.floatX),

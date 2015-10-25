@@ -5,7 +5,7 @@ from elements.util import BaseLayer
 
 class HiddenLayer(BaseLayer):
     def __init__(self, rng, input, n_in, n_out, W=None, b=None, activation=T.tanh, verbose=True, dropout_rate=0.0):
-        super().__init__(rng, input, dropout_rate)
+        super(HiddenLayer, self).__init__(rng, input, dropout_rate)
         self._verbose_print(verbose,activation, n_in, n_out)
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4

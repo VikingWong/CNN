@@ -6,7 +6,8 @@ import numpy as np
 import math
 from collections import deque
 
-class AbstractModel(metaclass=ABCMeta):
+class AbstractModel(object):
+    __metaclass__ = ABCMeta
 
     def __init__(self, params, verbose):
         #Every layer appended to this variable. layer 0= input, layer N = output
@@ -49,7 +50,7 @@ class AbstractModel(metaclass=ABCMeta):
 class ShallowModel(AbstractModel):
 
     def __init__(self, params, verbose=False):
-        super().__init__(params, verbose)
+        super(ShallowModel, self).__init__(params, verbose)
 
     def build(self, x, batch_size, init_params=None):
         print('... building Shallow neural network model')
@@ -81,7 +82,7 @@ class ShallowModel(AbstractModel):
 class Model(AbstractModel):
 
     def __init__(self, params, verbose=False):
-        super().__init__(params, verbose)
+        super(AbstractModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
 
 
@@ -178,7 +179,7 @@ class Model(AbstractModel):
 class ConvModel(AbstractModel):
 
     def __init__(self, params, verbose=False):
-        super().__init__(params, verbose)
+        super(ConvModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
         self.dropout_rate = params.hidden_dropout
         self.conv = params.conv_layers
@@ -209,7 +210,7 @@ class ConvModel(AbstractModel):
             init_idx = p_len - (i*2)-1
 
             filter = self._get_filter(self.nr_kernels[i], self.conv[i]["filter"])
-            print(filter)
+            print("filter", filter)
             layer = ConvPoolLayer(
                 self.rng,
                 input=layer_input,
@@ -223,11 +224,11 @@ class ConvModel(AbstractModel):
             )
 
             layer_input = layer.output
-            dim_x = math.floor((inp_shape[2] - self.conv[i]["filter"][0] +1) / (self.conv[i]["stride"][0] * self.conv[i]["pool"][0]))
-            dim_y = math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1]))
+            dim_x = int(math.floor((inp_shape[2] - self.conv[i]["filter"][0] +1) / (self.conv[i]["stride"][0] * self.conv[i]["pool"][0])))
+            dim_y = int(math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1])))
 
             inp_shape = (batch_size, self.nr_kernels[i], dim_x, dim_y)
-            print(inp_shape)
+            print("input shape", inp_shape)
             self.layer.append(layer)
 
         hidden_input = self.layer[-1].output.flatten(2)

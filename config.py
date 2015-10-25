@@ -1,8 +1,8 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 1
-dataset_path = 'C:\\Users\\olav\\Pictures\\Mass_roads_overfitting_test'
+number_of_epochs = 10
+dataset_path = '/home/olav/Pictures/Mass_roads_overfitting_test'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
@@ -15,7 +15,7 @@ visual_params =  Params({
 
 #TODO: Implement dropout_rate
 optimization_params =  Params({
-        "batch_size"                        : 128,
+        "batch_size"                        : 64,
         "initial_learning_rate"             : 0.001,
         "l2_reg"                            : 0.001,
         "initial_patience"                  : 100000,
@@ -27,7 +27,7 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 1000,
+    "samples_per_image"     : 2058,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
@@ -37,6 +37,7 @@ dataset_params = Params({
     "output_dim"            : 16
 })
 
+#TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
 model_params =  Params({
 
     "nr_kernels"        : [ 64, 112, 80 ],
@@ -47,7 +48,7 @@ model_params =  Params({
     "hidden_dropout"    : 0.5,
     "conv_layers"       :
         [
-            {"filter": (13,13), "stride": (2, 2), "pool": (2,2)},
+            {"filter": (13,13), "stride": (1, 1), "pool": (4,4)},
             {"filter": (6, 6), "stride": (1, 1), "pool": (2,2)},
             {"filter": (4,4), "stride": (1, 1), "pool": (1,1)}
         ],

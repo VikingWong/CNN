@@ -114,7 +114,6 @@ class Evaluator(object):
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
-                print("IT")
                 #output, y, cost, errs = self.tester(minibatch_index)
                 #print("errors: ", errs)
                 #print("TEMP____________")

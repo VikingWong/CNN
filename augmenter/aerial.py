@@ -69,7 +69,7 @@ class Creator(object):
 
         self._is_valid_dataset(tiles, labels)
 
-        limit = math.floor(reduce * len(tiles))
+        limit = (int)(math.floor(reduce * len(tiles)))
         return list(zip(tiles[0:limit], labels[0:limit]))
 
 
@@ -137,8 +137,9 @@ class Creator(object):
             if i % 50 == 0:
                 print('Input image: ', i, '/', len(paths))
 
-            im.close()
-            la.close()
+            if im and la:
+                del im
+                del la
 
         data = np.array(data)
         label = np.array(label)
