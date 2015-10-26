@@ -47,6 +47,8 @@ class AbstractModel(object):
     def build(self, x, batch_size, init_params=None):
         return
 
+
+
 class ShallowModel(AbstractModel):
 
     def __init__(self, params, verbose=False):
@@ -78,6 +80,8 @@ class ShallowModel(AbstractModel):
         self.layer = [layer0, layer1]
         self.params =  layer1.params + layer0.params
         print('Model created!')
+
+
 
 class Model(AbstractModel):
 
@@ -210,7 +214,6 @@ class ConvModel(AbstractModel):
             init_idx = p_len - (i*2)-1
 
             filter = self._get_filter(self.nr_kernels[i], self.conv[i]["filter"])
-            print("filter", filter)
             layer = ConvPoolLayer(
                 self.rng,
                 input=layer_input,
@@ -228,7 +231,6 @@ class ConvModel(AbstractModel):
             dim_y = int(math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1])))
 
             inp_shape = (batch_size, self.nr_kernels[i], dim_x, dim_y)
-            print("input shape", inp_shape)
             self.layer.append(layer)
 
         hidden_input = self.layer[-1].output.flatten(2)
@@ -237,7 +239,7 @@ class ConvModel(AbstractModel):
         hidden_layer = HiddenLayer(
             self.rng,
             input=hidden_input,
-            n_in=self.nr_kernels[2] * 1 * 1,
+            n_in=self.nr_kernels[-1] * inp_shape[2] * inp_shape[3],
             n_out=self.hidden,
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),

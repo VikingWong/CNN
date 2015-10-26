@@ -1,8 +1,8 @@
 from util import Params
 
 verbose = True
-number_of_epochs = 100
-dataset_path = '/home/olav/Pictures/Mass_roads'
+number_of_epochs = 500
+dataset_path = '/home/olav/Pictures/mass_test'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
@@ -15,10 +15,10 @@ visual_params =  Params({
 
 #TODO: Implement dropout_rate
 optimization_params =  Params({
-        "batch_size"                        : 64,
+        "batch_size"                        : 2,
         "initial_learning_rate"             : 0.001,
         "l2_reg"                            : 0.001,
-        "initial_patience"                  : 100000,
+        "initial_patience"                  : 10000000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.995
 
@@ -27,12 +27,13 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 128,
+    "samples_per_image"     : 1024,
     "dataset_std"           : 0.233174571944,
-    "use_rotation"          : True,
-    "use_preprocessing"     : True,
-    "only_mixed_labels"     : False,
-    "reduce"                : 0.05,
+    "use_rotation"          : False,
+    "use_preprocessing"     : False,
+    "only_mixed_labels"     : True,
+    "mix_ratio"             : 0.5,
+    "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16
 })

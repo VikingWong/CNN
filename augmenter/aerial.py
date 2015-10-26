@@ -12,12 +12,13 @@ class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
-    def __init__(self, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1):
+    def __init__(self, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1, mix_ratio=0.5):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
         self.only_mixed_labels = only_mixed #Only use labels containing positive label (roads etc)
         self.rotation = rotation
         self.preprocessing = preproccessing
+        self.mix_ratio = mix_ratio
         self.std = std
 
         self.print_verbose()
@@ -90,6 +91,10 @@ class Creator(object):
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
         '''
+
+        nr_class = 0
+        nr_total= 0
+
         data = []
         label = []
         dim_data = self.dim_data
@@ -126,8 +131,14 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                if self.only_mixed_labels and label_sample.max() == 0:
-                    continue
+                if self.only_mixed_labels:
+                    nr_total += 1
+                    contains_class = label_sample.max() == 0
+                    nr_class += int(contains_class)
+                    if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
+                        nr_total -=1
+                        continue
+
 
                 data.append(data_sample)
                 label.append(label_sample)
@@ -144,6 +155,8 @@ class Creator(object):
         data = np.array(data)
         label = np.array(label)
 
+        if self.only_mixed_labels:
+            print("Images containing class", nr_class, "of" ,nr_total)
         return data, label
 
 

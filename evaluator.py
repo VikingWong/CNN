@@ -127,14 +127,17 @@ class Evaluator(object):
                 #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
                 #print("TEMP____________")
                 #raise Exception("NO MORE")
-                if epoch > 0   and (iter + 1) % validation_frequency == 0:
+                if epoch > 4 and (iter + 1) % (validation_frequency * 100) == 0:
                     #TODO: Make a better debugger. FIX THIS!!!
                     for test in range(1):
-                        v = random.randint(0,batch_size)
-                        output, y, cost, errs = self.tester(v)
+                        v = random.randint(0,batch_size-1)
+                        output, y, cost, errs = self.tester(minibatch_index)
                         print(errs)
                         print(cost)
-                        img = self.data.set['train'][0][minibatch_index + v].eval()
+                        print(v)
+                        img = self.data.set['train'][0][(minibatch_index*batch_size) + v].eval()
+                        test = self.data.set['train'][0].eval()
+                        print("SHAPE", test.shape)
                         print(img.shape)
                         print(output.shape)
                         debug_input_data(img, output[v], 64, 16)
