@@ -49,7 +49,7 @@ class ConvPoolLayer(BaseLayer):
             ignore_border=True
         )
         pooled_out = pooled_out + self.b.dimshuffle('x', 0, 'x', 'x')
-        #pooled_out = self.dropout(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'), dropout_rate)
+        pooled_out = self.dropout(pooled_out, dropout_rate)
 
         self.output = activation(pooled_out)
 

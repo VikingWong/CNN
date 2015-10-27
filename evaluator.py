@@ -1,14 +1,13 @@
 
 
-from model import Model
 import numpy as np
 import theano
 import theano.tensor as T
 import timeit
 from util import debug_input_data
 import random
-#TODO: Generalized evaluator. Contains basic SGD, and utilize a model object where
-#TODO: model specific things recide.
+from SDG import sgd, rmsprop
+
 class Evaluator(object):
 
     def __init__(self, model, dataset):
@@ -19,6 +18,7 @@ class Evaluator(object):
         L2_reg = params.l2_reg
         learning_rate = params.initial_learning_rate
         batch_size = params.batch_size
+        momentum = params.momentum
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
@@ -50,11 +50,8 @@ class Evaluator(object):
             }
         )
         grads = T.grad(cost, self.model.params)
-
-        updates = [
-        (param_i, param_i - learning_rate * grad_i)
-        for param_i, grad_i in zip(self.model.params, grads)
-        ]
+        opt = rmsprop(self.model.params)
+        updates = opt.updates(self.model.params, grads,learning_rate/ float(batch_size), momentum)
 
 
         train_set_x, train_set_y = self.data.set['train']
@@ -114,20 +111,8 @@ class Evaluator(object):
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
-                #output, y, cost, errs = self.tester(minibatch_index)
-                #print("errors: ", errs)
-                #print("TEMP____________")
-                #print(cost)
-                #print(errs)
-                #print(output.shape)
-                #print(y.shape)
-                #print(output[0, 0: 16])
-                #print(y[0, 0: 16])
-                #print(T.sum(T.nnet.binary_crossentropy(output[0, 0: 256], y[0, 0: 256])).eval())
-                #print(T.sum(T.nnet.binary_crossentropy(output, y)).eval())
-                #print("TEMP____________")
-                #raise Exception("NO MORE")
-                if epoch > 4 and (iter + 1) % (validation_frequency * 100) == 0:
+
+                if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
                     #TODO: Make a better debugger. FIX THIS!!!
                     for test in range(1):
                         v = random.randint(0,batch_size-1)
@@ -136,10 +121,6 @@ class Evaluator(object):
                         print(cost)
                         print(v)
                         img = self.data.set['train'][0][(minibatch_index*batch_size) + v].eval()
-                        test = self.data.set['train'][0].eval()
-                        print("SHAPE", test.shape)
-                        print(img.shape)
-                        print(output.shape)
                         debug_input_data(img, output[v], 64, 16)
                         debug_input_data(img, y[v], 64, 16)
 

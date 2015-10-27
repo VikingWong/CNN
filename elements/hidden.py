@@ -13,7 +13,7 @@ class HiddenLayer(BaseLayer):
         self.set_bias(b, n_out)
 
         lin_output = T.dot(input, self.W) + self.b
-        #lin_output = self.dropout(lin_output, dropout_rate)
+        lin_output = self.dropout(lin_output, dropout_rate)
         self.output = (
             lin_output if activation is None
             else activation(lin_output)

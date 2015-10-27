@@ -8,7 +8,6 @@ sys.path.append(os.path.abspath("./"))
 
 from model import ShallowModel, Model, ConvModel
 from storage.store import ParamStorage
-from augmenter.aerial import Creator
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
 class Visualizer(object):
@@ -19,7 +18,7 @@ class Visualizer(object):
         self.model = model
         self.params = params
         self.std = std
-        self.creator = Creator()
+        print("STD:", self.std)
 
 
 
@@ -30,7 +29,7 @@ class Visualizer(object):
         predict = self.model.create_predict_function(x, shared_x)
         output = predict()
         image = self.combine_to_image(output, dim)
-        #self.show_individual_predictions(data, output)
+        self.show_individual_predictions(data, output)
         return image
 
 
@@ -54,9 +53,9 @@ class Visualizer(object):
 
             img.paste(lab, (24, 24), lab)
             img.show()
-            img.close()
-            lab.close()
-            user = input('Proceed?')
+            del img
+            del lab
+            user = raw_input('Proceed?')
             if user == 'no':
                 break
 
@@ -85,7 +84,7 @@ class Visualizer(object):
 
     def create_data_from_image(self):
         print("Create data patches for model")
-        image = self.open_image('/home/olav/Pictures/mass_test/test/data/10828795_15.tiff')
+        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/20878930_15.tiff')
         image = image[0:1024, 0: 1024, :]
         #Need to be a multiply of 2 for now.
         label_size = Visualizer.LABEL_SIZE
@@ -123,6 +122,7 @@ data = store.load_params(path="./results/params.pkl")
 print(data)
 m = ConvModel(data['model'])
 dataset_std = data['dataset'].dataset_std
+
 v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()
 img.show()

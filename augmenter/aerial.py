@@ -37,9 +37,9 @@ class Creator(object):
 
         print(len(test_img_paths), '# test img', len(train_img_paths), "# train img", len(valid_img_paths), "# valid img")
 
-        test = self._sample_data(base_test, test_img_paths, samples_per_image)
-        train = self._sample_data(base_train, train_img_paths, samples_per_image)
-        valid = self._sample_data(base_valid, valid_img_paths, samples_per_image)
+        test = self._sample_data(base_test, test_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
+        train = self._sample_data(base_train, train_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
+        valid = self._sample_data(base_valid, valid_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
         #input_debugger(train, 64, 16)
 
         return train, valid, test
@@ -86,7 +86,7 @@ class Creator(object):
                 raise Exception('tile', tiles[i], 'does not match label', labels[i])
 
 
-    def _sample_data(self, base, paths, samples_per_images):
+    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False, multiplyer=1):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -117,7 +117,7 @@ class Creator(object):
 
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
-            s = samples_per_images
+            s = samples_per_images*multiplyer
             while s>0:
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
@@ -131,9 +131,12 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                if self.only_mixed_labels:
+                if(data_sample.max() == 0 or data_sample.min() == 1):
+                    continue
+
+                if mixed_labels:
                     nr_total += 1
-                    contains_class = label_sample.max() == 0
+                    contains_class = not  label_sample.max() == 0
                     nr_class += int(contains_class)
                     if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
                         nr_total -=1

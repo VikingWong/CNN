@@ -96,10 +96,11 @@ class AerialDataset(AbstractDataset):
         print('Image data shape: ', train[0].shape, 'Label data shape', train[1].shape)
         print('')
         print('Creating shared dataset for train, valid and test')
+        size = sum(data.nbytes for list in [train, valid, test] for data in list)/1000000
+        print("Potential size:", size, " mb at least..." )
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
-        print("SIZE:", (train[0].nbytes + valid[0].nbytes + test[0].nbytes)/1000000, " mb at least..." )
         return True
 
 
