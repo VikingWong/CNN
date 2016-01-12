@@ -17,11 +17,13 @@ def get_image_files(path):
         files.sort()
         return files
 
+
 def get_dataset(path):
     content = os.listdir(path)
     if not all(x in ['train', 'valid', 'test'] for x in content):
         raise Exception('Folder does not contain image or label folder. Path probably not correct')
     return content
+
 
 def from_arr_to_label(label, label_dim):
     label_arr = label.reshape(label_dim, label_dim)
@@ -57,9 +59,6 @@ def debug_input_data(data, label, data_dim, label_dim, delay=0):
     data_image = data_image.resize( (512,512) )
     data_image.show()
     time.sleep(delay)
-
-
-
 
 
 def input_debugger(data, data_dim, label_dim):
