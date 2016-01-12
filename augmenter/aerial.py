@@ -3,7 +3,7 @@ __author__ = 'Olav'
 import numpy as np
 import os
 import theano
-from PIL import Image
+from PIL import Image, ImageFilter
 import math
 import random
 import util
@@ -56,7 +56,7 @@ class Creator(object):
         label = label[padding : padding+y_size, padding : padding+y_size ]
         label = label.reshape(y_size*y_size)
 
-        label = label / 255
+        label = label / 255.0
         return label
 
 
@@ -86,7 +86,7 @@ class Creator(object):
                 raise Exception('tile', tiles[i], 'does not match label', labels[i])
 
 
-    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False, multiplyer=1):
+    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -95,6 +95,7 @@ class Creator(object):
         nr_class = 0
         nr_total= 0
 
+        dropped_images = 0
         data = []
         label = []
         dim_data = self.dim_data
@@ -107,6 +108,7 @@ class Creator(object):
             im = Image.open(os.path.join(base, 'data',  d), 'r')
             la = Image.open(os.path.join(base, 'labels',  v), 'r').convert('L')
 
+
             width, height = im.size
             width = width - dim_data
             height = height - dim_data
@@ -117,8 +119,15 @@ class Creator(object):
 
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
-            s = samples_per_images*multiplyer
+
+            s = samples_per_images
+            invalid_selection = 0
+
             while s>0:
+                if invalid_selection > 300:
+                    dropped_images += 1
+                    break
+
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
 
@@ -132,6 +141,7 @@ class Creator(object):
                     data_sample = util.normalize(data_sample, self.std)
 
                 if(data_sample.max() == 0 or data_sample.min() == 1):
+                    invalid_selection += 1
                     continue
 
                 if mixed_labels:
@@ -139,6 +149,7 @@ class Creator(object):
                     contains_class = not  label_sample.max() == 0
                     nr_class += int(contains_class)
                     if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
+
                         nr_total -=1
                         continue
 
@@ -149,6 +160,7 @@ class Creator(object):
                 s -= 1
 
             if i % 50 == 0:
+                print("")
                 print('Input image: ', i, '/', len(paths))
 
             if im and la:
@@ -160,6 +172,9 @@ class Creator(object):
 
         if self.only_mixed_labels:
             print("Images containing class", nr_class, "of" ,nr_total)
+
+        print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
+        print("Dropped", dropped_images, "images")
         return data, label
 
 

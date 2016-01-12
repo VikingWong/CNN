@@ -14,9 +14,9 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     d = AerialDataset()
     d.load(dataset, dataset_params) #Input stage
     m = ConvModel(model_params, verbose=True) #Create network stage
-    e = Evaluator(m, d)
+    e = Evaluator(m, d,optimization_params)
     try:
-        e.evaluate(optimization_params, epochs=epochs,  verbose=verbose)
+        e.evaluate(epochs=epochs,  verbose=verbose)
     except KeyboardInterrupt:
         print("inpterupted by user. Current model params will be saved now.")
     #Stores the model params. Model can later be restored.

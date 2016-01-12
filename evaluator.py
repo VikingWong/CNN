@@ -10,20 +10,20 @@ from SDG import sgd, rmsprop
 
 class Evaluator(object):
 
-    def __init__(self, model, dataset):
+    def __init__(self, model, dataset, params):
         self.data = dataset
         self.model = model
+        self.params = params
 
-    def evaluate(self, params, epochs=10, verbose=False):
-        L2_reg = params.l2_reg
-        learning_rate = params.initial_learning_rate
-        batch_size = params.batch_size
-        momentum = params.momentum
+    def evaluate(self, epochs=10, verbose=False):
+        L2_reg = self.params.l2_reg
+        batch_size = self.params.batch_size
+        momentum = self.params.momentum
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
         y = T.imatrix('y')
-
+        learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
 
         self.model.build(x, batch_size)
         output_layer = self.model.get_output_layer()
@@ -51,12 +51,12 @@ class Evaluator(object):
         )
         grads = T.grad(cost, self.model.params)
         opt = rmsprop(self.model.params)
-        updates = opt.updates(self.model.params, grads,learning_rate/ float(batch_size), momentum)
+        updates = opt.updates(self.model.params, grads,learning_rate, momentum)
 
 
         train_set_x, train_set_y = self.data.set['train']
         self.train_model =  theano.function(
-            [index],
+            [index, learning_rate],
             cost,
             updates=updates,
             givens={
@@ -66,7 +66,7 @@ class Evaluator(object):
         )
 
         self.tester =  theano.function(
-            [index],
+            [index, learning_rate],
             (output_layer.output, y, cost, output_layer.errors(y)),
             givens={
                 x: train_set_x[index * batch_size: (index + 1) * batch_size],
@@ -74,12 +74,12 @@ class Evaluator(object):
             },
             on_unused_input='ignore'
         )
+        #TODO: Wierd to do it like this. A method that constructs all the functions? And integrate train in evaluate
+        self._train(batch_size, epochs)
 
-        self._train(batch_size, epochs, params)
 
 
-
-    def _train(self, batch_size, max_epochs, params):
+    def _train(self, batch_size, max_epochs):
         print('... training')
 
 
@@ -87,13 +87,16 @@ class Evaluator(object):
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
         n_test_batches = self._get_number_of_batches('test', batch_size)
 
-        patience = params.initial_patience # look as this many examples regardless
-        patience_increase = params.patience_increase  # wait this much longer when a new best is found
-        improvement_threshold = params.improvement_threshold # a relative improvement of this much is considered significant
+        patience = self.params.initial_patience # look as this many examples regardless
+        patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
+        improvement_threshold = self.params.improvement_threshold # a relative improvement of this much is considered significant
 
         # go through this many minibatche before checking the network on the validation set
         validation_frequency = min(n_train_batches, patience / 2)
-
+        learning_rate = self.params.initial_learning_rate/float(batch_size)
+        print("Effective learning rate ", learning_rate)
+        learning_adjustment = 30
+        print(learning_adjustment)
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -105,9 +108,14 @@ class Evaluator(object):
 
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
+            if(epoch%learning_adjustment == 0):
+                    print("Adjusting learning rate")
+                    learning_rate *= 0.95
+                    print("new learning rate", learning_rate)
             for minibatch_index in range(n_train_batches):
 
                 iter = (epoch - 1) * n_train_batches + minibatch_index
+
 
                 if iter % 100 == 0:
                     print('training @ iter = ', iter)
@@ -116,7 +124,7 @@ class Evaluator(object):
                     #TODO: Make a better debugger. FIX THIS!!!
                     for test in range(1):
                         v = random.randint(0,batch_size-1)
-                        output, y, cost, errs = self.tester(minibatch_index)
+                        output, y, cost, errs = self.tester(minibatch_index, learning_rate)
                         print(errs)
                         print(cost)
                         print(v)
@@ -124,9 +132,14 @@ class Evaluator(object):
                         debug_input_data(img, output[v], 64, 16)
                         debug_input_data(img, y[v], 64, 16)
 
-                cost_ij = self.train_model(minibatch_index)
+                #output, y, cost, errs = self.tester(minibatch_index, learning_rate)
+                cost_ij = self.train_model(minibatch_index, learning_rate)
+
+                if(np.isnan(cost_ij)):
+                    print("cost IS NAN")
+
                 if (iter + 1) % validation_frequency == 0:
-                    #output, y, cost, errs = self.tester(minibatch_index)
+                    #output, y, cost, errs = self.tester(minibatch_index, learning_rate)
                     #print(cost)
                     # compute zero-one loss on validation set
                     validation_losses = [self.validate_model(i) for i

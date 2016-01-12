@@ -43,15 +43,19 @@ class Visualizer(object):
 
     def show_individual_predictions(self, images, predictions):
         print("Show each individual prediction")
-        for i in range(images.shape[0]):
+        for i in range(124, images.shape[0]):
 
             img =from_arr_to_data(images[i], 64)
             pred = predictions[i]
+            print(i)
+
+
             clip_idx = pred < 0.3
             pred[clip_idx] = 0
             lab = from_arr_to_label(pred, 16)
 
-            img.paste(lab, (24, 24), lab)
+            #img.paste(lab, (24, 24), lab)
+            lab.show()
             img.show()
             del img
             del lab
@@ -84,7 +88,7 @@ class Visualizer(object):
 
     def create_data_from_image(self):
         print("Create data patches for model")
-        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/20878930_15.tiff')
+        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/12328750_15.tiff')
         image = image[0:1024, 0: 1024, :]
         #Need to be a multiply of 2 for now.
         label_size = Visualizer.LABEL_SIZE
@@ -98,7 +102,7 @@ class Visualizer(object):
                 image_data = from_rgb_to_arr(temp)
 
                 #TODO: Store preprocessing in params file as well. Will have concequences if config is out of sync with stored values.
-                if True:
+                if False:
                     image_data = normalize(image_data, self.std)
                 data.append(image_data)
 
