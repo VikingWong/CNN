@@ -11,6 +11,8 @@ filename_params = Params({
 #TODO: Use this for something
 visual_params =  Params({
         "visualize_flag"        : False,
+        "endpoint"              : "127.0.0.1",
+        "gui_enabled"           : False
     })
 
 #TODO: Implement dropout_rate
