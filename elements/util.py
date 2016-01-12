@@ -1,45 +1,48 @@
 import theano
 import numpy as np
 import theano.tensor as T
-class Util(object):
+from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 
-    @staticmethod
-    def create_weights(n_in, n_out):
-        W = theano.shared(
-            value=np.zeros((n_in, n_out), dtype=theano.config.floatX),
-            name='W',
-            borrow=True
+
+class BaseLayer(object):
+
+    def __init__(self, rng, input, dropout_rate):
+        self.stream = RandomStreams()
+        self.input = input
+        self.rng = rng
+        self.dropout_rate = dropout_rate
+
+
+    def set_bias(self, b, n):
+        if b is None:
+            self.b = theano.shared(
+                value=np.zeros((n,), dtype=theano.config.floatX),
+                name='b',
+                borrow=True
+            )
+        else:
+            print("Using supplied bias'")
+            self.b = b
+
+
+    def set_weight(self, W, W_low, W_high, size):
+        if W is None:
+            self.W = self.generate_init_weight(W_low, W_high, size)
+        else:
+            print("Using supplied weight matrix")
+            self.W = W
+
+
+    def dropout(self, X, p=0.):
+        if p > 0:
+            retain_prob = 1 - p
+            X *= self.stream.binomial(X.shape, p=retain_prob, dtype=theano.config.floatX)
+            X /= retain_prob
+        return X
+
+
+    def generate_init_weight(self, low, high, size):
+        return theano.shared(
+            np.asarray(self.rng.uniform(low=low, high=high, size=size), dtype=theano.config.floatX),
+            name='W', borrow=True
         )
-        return W
-
-    @staticmethod
-    def create_bias(n_out):
-        b = theano.shared(
-            value=np.zeros((n_out,), dtype=theano.config.floatX),
-            name='b',
-            borrow=True
-        )
-        return b
-
-    #Rectified linear unit
-    @staticmethod
-    def reLU(wb):
-        output = T.maximum(0.0, wb)
-        return output
-
-    # sigmoid
-    @staticmethod
-    def sigmoid(wb):
-        output = T.nnet.sigmoid(wb)
-        return output
-
-    # tanh
-    @staticmethod
-    def tanh(wb):
-        output = T.tanh(wb)
-        return(output)
-
-    # softmax
-    @staticmethod
-    def softmax(x):
-        return T.nnet.softmax(x)

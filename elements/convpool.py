@@ -3,11 +3,11 @@ from theano import tensor as T
 from theano.tensor.nnet import conv
 from theano.tensor.signal import downsample
 import numpy as np
-from elements.util import Util
+from elements.util import BaseLayer
 
-class ConvPoolLayer(object):
+class ConvPoolLayer(BaseLayer):
     def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
-                 activation=T.tanh, W = None, b = None, verbose = True):
+                 activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=0.0):
         '''
         :param rng: random number generator used to initialize weights
         :param input: symbolic image tensor
@@ -20,39 +20,27 @@ class ConvPoolLayer(object):
         :param verbose:
         :return:
         '''
+        super(ConvPoolLayer, self).__init__(rng, input, dropout_rate)
         assert image_shape[1] == filter_shape[1]
         self._verbose_print(verbose, filter_shape, poolsize, image_shape, strides)
-        self.input = input
-        datatype = theano.config.floatX
 
         fan_in = np.prod(filter_shape[1:])
         # each unit in the lower layer receives a gradient from:
         # "num output feature maps * filter height * filter width" /
         #   pooling size
         fan_out = (filter_shape[0] * np.prod(filter_shape[2:]) /
-                   np.prod(poolsize))
+               np.prod(poolsize))
         # initialize weights with random weights
         W_bound = np.sqrt(6. / (fan_in + fan_out))
 
-        if W is None:
-            self.W = theano.shared(
-                np.asarray(rng.uniform(low=-W_bound, high=W_bound, size=filter_shape), dtype=datatype),
-                borrow=True
-            )
-        else:
-            self.W = W
-
-        if b is None:
-            self.b = Util.create_bias(filter_shape[0])
-        else:
-            self.b = b
+        self.set_weight(W, -W_bound, W_bound, filter_shape)
+        self.set_bias(b, filter_shape[0])
 
         conv_out = conv.conv2d(
             input=input,
             filters=self.W,
             filter_shape=filter_shape,
             image_shape=image_shape,
-            subsample=strides
         )
 
         pooled_out = downsample.max_pool_2d(
@@ -60,12 +48,13 @@ class ConvPoolLayer(object):
             ds=poolsize,
             ignore_border=True
         )
+        pooled_out = pooled_out + self.b.dimshuffle('x', 0, 'x', 'x')
+        pooled_out = self.dropout(pooled_out, dropout_rate)
 
-        self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        self.output = activation(pooled_out)
 
         self.params = [self.W, self.b]
 
-        self.input = input
 
     def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
         if is_verbose:

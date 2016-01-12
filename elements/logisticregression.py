@@ -1,9 +1,9 @@
 import theano
 import theano.tensor as T
 import numpy as np
-from elements.util import Util
+from elements.util import BaseLayer
 
-class LogisticRegression(object):
+class LogisticRegression(BaseLayer):
 
     def __init__(self, input, n_in, n_out, W=None, b=None):
         """
@@ -16,20 +16,22 @@ class LogisticRegression(object):
         :type n_out: int
         :param n_out: number of output units, the dimension of the space in which the labels lie
         """
-
+        super(LogisticRegression, self).__init__(None, input)
         if W is None:
-            self.W = Util.create_weights(n_in, n_out)
+            self.W  = theano.shared(
+                value=np.zeros((n_in, n_out), dtype=theano.config.floatX),
+                name='W',
+                borrow=True
+            )
         else:
             self.W = W
 
-        if b is None:
-            self.b = Util.create_bias(n_out)
-        else:
-            self.b = b
+        self.set_bias(b, n_out)
 
         # symbolic expression for computing the matrix of class-membership
         # probabilities
-        self.p_y_given_x = Util.softmax(T.dot(input, self.W) + self.b)
+        #TODO: Insert softmax again.
+        #self.p_y_given_x = Util.softmax(T.dot(input, self.W) + self.b)
 
         # symbolic description of how to compute prediction as class whose
         # probability is maximal
@@ -39,7 +41,6 @@ class LogisticRegression(object):
         self.params = [self.W, self.b]
 
         # keep track of model input
-        self.input = input
         self.probabilities = T.log(self.p_y_given_x)
 
     def negative_log_likelihood(self, y):

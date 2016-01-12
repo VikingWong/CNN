@@ -11,8 +11,8 @@ from util import debug_input_data
 from augmenter.aerial import Creator
 
 
-class AbstractDataset(metaclass=ABCMeta):
-
+class AbstractDataset(object):
+    __metaclass__ = ABCMeta
     def __init__(self):
         self.set = {
             'train': None,
@@ -38,7 +38,6 @@ class AbstractDataset(metaclass=ABCMeta):
     def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
-
         shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
@@ -64,7 +63,8 @@ class MnistDataset(AbstractDataset):
         self.set['test'] = self._shared_dataset(test_set, cast_to_int=True)
         self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=True)
         self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
-        print(self.set)
+
+
 
         return True #TODO: Implement boolean for whether everything went ok or not
 
@@ -73,13 +73,16 @@ class AerialDataset(AbstractDataset):
 
     def load(self, dataset_path,params):
         samples_per_image = params.samples_per_image
+        preprocessing = params.use_preprocessing
         use_rotation = params.use_rotation
         reduce = params.reduce
         dim = (params.input_dim, params.output_dim)
+        std = params.dataset_std
+        mixed = params.only_mixed_labels
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
         #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
-        creator = Creator(dim=dim, rotation=use_rotation)
+        creator = Creator(dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')
@@ -93,10 +96,11 @@ class AerialDataset(AbstractDataset):
         print('Image data shape: ', train[0].shape, 'Label data shape', train[1].shape)
         print('')
         print('Creating shared dataset for train, valid and test')
+        size = sum(data.nbytes for list in [train, valid, test] for data in list)/1000000
+        print("Potential size:", size, " mb at least..." )
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
-
         return True
 
 
