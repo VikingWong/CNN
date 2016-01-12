@@ -4,3 +4,6 @@ number of convolutional layers. The system also include hooks for a web interfac
 can be used to stop a running job, and other things. The purpose of this system is to create a road extraction system.
 
 ### Dependencies ###
+* [Theano](http://deeplearning.net/software/theano/)
+* [Numpy](http://www.numpy.org/)
+* [Unirest](http://unirest.io/python.html)
