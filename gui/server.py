@@ -29,3 +29,4 @@ class ServerCommunication(object):
         thread = unirest.get(url, headers=self.default_headers, callback=callback)
 
 #TODO: finished job endpoint
+#TODO: Singleton by not using class.
