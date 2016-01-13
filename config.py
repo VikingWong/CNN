@@ -10,9 +10,8 @@ filename_params = Params({
     })
 #TODO: Use this for something
 visual_params =  Params({
-        "visualize_flag"        : False,
-        "endpoint"              : "127.0.0.1",
-        "gui_enabled"           : False
+        "endpoint"              : "http://127.0.0.1:3000/",
+        "gui_enabled"           : True
     })
 
 #TODO: Implement dropout_rate
@@ -30,7 +29,7 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 10,
+    "samples_per_image"     : 2,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,

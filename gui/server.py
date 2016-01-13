@@ -5,7 +5,7 @@ from config import model_params, optimization_params, dataset_params, filename_p
 class ServerCommunication(object):
 
     def __init__(self):
-        self.base_url = "http://127.0.0.1:3000/"
+        self.base_url = visual_params.endpoint
         self.stop = False
         self.default_headers = { "Accept": "application/json", "content-type": "application/json", "data-type": "json" }
         self.current_id = -1
@@ -18,11 +18,18 @@ class ServerCommunication(object):
             self.stop = True
         thread = unirest.get(url, headers=self.default_headers, callback=callback)
 
-    def append_job_update(self, job):
-        url = self.base_url + "job/update/" +  self.current_id
+    def append_job_update(self, epoch, training_loss, validation_loss, test_loss):
+        print("APPPENDS")
+        url = self.base_url + "job/" +  self.current_id + "/update"
+        data = json.dumps({
+            "epoch": epoch,
+            "validation_loss": validation_loss,
+            "test_loss": test_loss
+        })
+
         def callback(response):
             print(response.code)
-        thread = unirest.post(url, headers=self.default_headers, callback=callback, params=job)
+        thread = unirest.post(url, headers=self.default_headers, callback=callback, params=data)
 
     def start_new_job(self):
         url = self.base_url + "job/start/"
@@ -35,9 +42,10 @@ class ServerCommunication(object):
             "dataset_path": dataset_path
         }
         data = json.dumps(data)
+
         def callback(response):
             self.current_id = response.body['id']
-            
+
         thread = unirest.post(url, headers=self.default_headers, params=data, callback=callback)
 
 #TODO: finished job endpoint

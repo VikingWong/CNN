@@ -8,6 +8,7 @@ from util import debug_input_data
 import random
 from SDG import sgd, rmsprop
 from gui.server import ServerCommunication
+from config import visual_params
 
 class Evaluator(object):
 
@@ -16,7 +17,8 @@ class Evaluator(object):
         self.model = model
         self.params = params
         self.server = ServerCommunication()
-        self.server.start_new_job()
+        if(visual_params.gui_enabled):
+            self.server.start_new_job()
 
     def evaluate(self, epochs=10, verbose=False):
         L2_reg = self.params.l2_reg
@@ -174,6 +176,9 @@ class Evaluator(object):
                                'best model %f MSE') %
                               (epoch, minibatch_index + 1, n_train_batches,
                                test_score/batch_size))
+                        if(visual_params.gui_enabled):
+                            #TODO: Only test when validation is better, so move this out of inner scope.
+                            self.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
 
                 if patience <= iter:
                     done_looping = True
