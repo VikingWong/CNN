@@ -7,6 +7,7 @@ import timeit
 from util import debug_input_data
 import random
 from SDG import sgd, rmsprop
+from gui.server import ServerCommunication
 
 class Evaluator(object):
 
@@ -14,6 +15,8 @@ class Evaluator(object):
         self.data = dataset
         self.model = model
         self.params = params
+        self.server = ServerCommunication()
+        self.server.start_new_job()
 
     def evaluate(self, epochs=10, verbose=False):
         L2_reg = self.params.l2_reg

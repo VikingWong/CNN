@@ -2,6 +2,7 @@ from evaluator import Evaluator
 from model import Model, ShallowModel, ConvModel
 from data import MnistDataset, AerialDataset
 from storage.store import ParamStorage
+
 import os
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path

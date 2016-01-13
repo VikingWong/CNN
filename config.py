@@ -36,7 +36,7 @@ dataset_params = Params({
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5,
-    "reduce"                : 0.3,
+    "reduce"                : 0.05,
     "input_dim"             : 64,
     "output_dim"            : 16
 })
