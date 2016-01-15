@@ -2,8 +2,8 @@ from evaluator import Evaluator
 from model import Model, ShallowModel, ConvModel
 from data import MnistDataset, AerialDataset
 from storage.store import ParamStorage
-
-import os
+import gui.server
+import os, sys
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path
 
@@ -20,10 +20,17 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
         e.evaluate(epochs=epochs,  verbose=verbose)
     except KeyboardInterrupt:
         print("inpterupted by user. Current model params will be saved now.")
+    except Exception as e:
+        if visual_params.gui_enabled:
+            gui.server.stop_job()
+        print "Unexpected error:", sys.exc_info()[0]
+        raise
+
     #Stores the model params. Model can later be restored.
     p = ParamStorage(path=filename_params.network_save_name)
     p.store_params(m.params, model_params, dataset_params)
-
+    if visual_params.gui_enabled:
+        gui.server.stop_job()
 
 
 run_cnn(
