@@ -1,5 +1,7 @@
 from util import Params
+import secret
 
+token = secret.token
 verbose = True
 number_of_epochs = 100
 dataset_path = '/home/olav/Pictures/Mass_roads'
@@ -10,7 +12,7 @@ filename_params = Params({
     })
 #TODO: Use this for something
 visual_params =  Params({
-        "endpoint"              : "http://127.0.0.1:3000/",
+        "endpoint"              : "http://178.62.232.71/",
         "gui_enabled"           : True
     })
 
@@ -22,8 +24,8 @@ optimization_params =  Params({
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
-        "improvement_threshold"             : 0.995
-
+        "improvement_threshold"             : 0.995,
+        "backpropagation"                   : "sgd_nesterov"
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset

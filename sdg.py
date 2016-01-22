@@ -1,9 +1,20 @@
-# Authors: Kyle Kastner
-# License: BSD 3-clause
+from config import optimization_params
 import theano.tensor as T
 import numpy as np
 import theano
+import sys
 
+class Backpropagation:
+
+    @staticmethod
+    def create(params):
+        '''
+        Factory method create object by a string argument found in the
+        config file.
+        '''
+        print("BACKPROP")
+        backpropagation = optimization_params.backpropagation
+        return getattr(sys.modules[__name__], backpropagation)(params)
 
 class rmsprop(object):
     """

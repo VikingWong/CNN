@@ -6,7 +6,7 @@ import theano.tensor as T
 import timeit
 from util import debug_input_data
 import random
-from SDG import sgd, rmsprop
+from sdg import Backpropagation
 import gui.server
 from config import visual_params
 
@@ -53,8 +53,9 @@ class Evaluator(object):
                 y: valid_set_y[index * batch_size: (index + 1) * batch_size]
             }
         )
+
+        opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
-        opt = rmsprop(self.model.params)
         updates = opt.updates(self.model.params, grads,learning_rate, momentum)
 
 

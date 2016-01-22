@@ -1,13 +1,15 @@
 import unirest
 import json
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
-    number_of_epochs, verbose, dataset_path
+    number_of_epochs, verbose, dataset_path, token
 
 
 
 base_url = visual_params.endpoint
 stop = False
-default_headers = { "Accept": "application/json", "content-type": "application/json", "data-type": "json" }
+default_headers = {
+    "Accept": "application/json", "content-type": "application/json", "data-type": "json", "Authorization": token
+}
 current_id = "none"
 
 
