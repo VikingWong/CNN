@@ -96,12 +96,13 @@ class Creator(object):
         nr_total = 0
 
         dropped_images = 0
-        #idx = 0
-        #data = np.empty(max_arr_size, dtype=theano.config.floatX)
-        #label = np.empty(max_arr_size, dtype=theano.config.floatX)
-        data = []
-        label = []
+        idx = 0
+        #TODO: hard  color coded values
         dim_data = self.dim_data
+        max_arr_size = len(paths)*samples_per_images
+        data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
+        label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
+
 
         print('')
         print('Sampling examples for {}'.format(base))
@@ -126,8 +127,10 @@ class Creator(object):
             s = samples_per_images
             invalid_selection = 0
 
+            #TODO: Check if can get stuck, especially mixed labels.
             while s>0:
                 if invalid_selection > 300:
+                    print("INDVALID SELECTION")
                     dropped_images += 1
                     break
 
@@ -143,9 +146,10 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                if(data_sample.max() == 0 or data_sample.min() == 1):
-                    invalid_selection += 1
-                    continue
+                #TODO: must shrink to reintroduce this
+                #if(data_sample.max() == 0 or data_sample.min() == 1):
+                #    invalid_selection += 1
+                #    continue
 
                 if mixed_labels:
                     nr_total += 1
@@ -156,10 +160,9 @@ class Creator(object):
                         nr_total -= 1
                         continue
 
-
-                data.append(data_sample)
-                label.append(label_sample)
-
+                data[idx] = data_sample
+                label[idx] = label_sample
+                idx += 1
                 s -= 1
 
             if i % 50 == 0:
@@ -169,16 +172,7 @@ class Creator(object):
                 del im
                 del la
 
-            gc.collect() #Based on testing, seems like python do not release memory of opened images. Need further testing.
-            #TODO: Test with removed gc.collect()
-            #TODO: init an array with suitable size, fill with content
-        print('---- Done collecting images')
-        np_data = np.array(data)
-        np_label = np.array(label)
-        print(np_data.shape)
-        print(np_label.shape)
-        gc.collect()
-        print('---- Garbarge collection')
+
         if self.only_mixed_labels:
             print("----Images containing class {}/{}".format(nr_class, nr_total))
         print("----Dropped {} images".format(dropped_images))
