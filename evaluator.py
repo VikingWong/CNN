@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import timeit
-from util import debug_input_data
+from util import debug_input_data, print_section
 import random
 from sdg import Backpropagation
 import gui.server
@@ -13,6 +13,7 @@ from wrapper import create_theano_func, create_profiler_func
 
 class Evaluator(object):
 
+
     def __init__(self, model, dataset, params):
         self.data = dataset
         self.model = model
@@ -20,10 +21,15 @@ class Evaluator(object):
         if(visual_params.gui_enabled):
             gui.server.start_new_job()
 
+
     def evaluate(self, epochs=10, verbose=False):
-        L2_reg = self.params.l2_reg
         batch_size = self.params.batch_size
-        momentum = self.params.momentum
+        self._build(batch_size)
+        self._train(batch_size, epochs)
+
+
+    def _build(self, batch_size):
+        print_section('Building model')
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
@@ -36,23 +42,18 @@ class Evaluator(object):
         self.test_model = create_theano_func('test', self.data, x, y, [index], errors, batch_size)
         self.validate_model = create_theano_func('validation', self.data, x, y, [index], errors, batch_size)
 
-
-        cost = self.model.get_cost(y) + L2_reg * self.model.getL2()
+        cost = self.model.get_cost(y) + (self.params.l2_reg * self.model.getL2())
         opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
-        updates = opt.updates(self.model.params, grads,learning_rate, momentum)
+        updates = opt.updates(self.model.params, grads, learning_rate, self.params.momentum)
 
         self.train_model = create_theano_func('train', self.data, x, y, [index, learning_rate], cost, batch_size, updates=updates)
 
         self.tester = create_profiler_func(self.data, x, y, [index], self.model.get_output_layer() ,cost, batch_size)
 
-        self._train(batch_size, epochs)
-
-
 
     def _train(self, batch_size, max_epochs):
-        print('... training')
-
+        print_section('Training model')
 
         n_train_batches = self._get_number_of_batches('train', batch_size)
         n_valid_batches = self._get_number_of_batches('validation', batch_size)

@@ -30,5 +30,6 @@ class OutputLayer(BaseLayer):
 
     def _verbose_print(self, is_verbose, n_in, n_out):
         if is_verbose:
-            print('Initializing Output layer with', n_out, 'outputs')
+            print('Initializing Output layer with {} outputs'.format(n_out))
+            print('---- Sigmoidal units')
             print('')

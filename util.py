@@ -11,7 +11,7 @@ class Params:
 
 
 def get_image_files(path):
-        print("Retrieving", path)
+        print('Retrieving {}'.format(path))
         included_extenstions = ['jpg','png', 'tiff', 'tif']
         files = [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
         files.sort()
@@ -80,6 +80,10 @@ def normalize(data, std):
     data = (data - m) / std
     return data
 
+def print_section(description):
+    print('')
+    print('')
+    print('========== ' + str(description) + ' ==========')
 
 def debug_mnist():
     f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')

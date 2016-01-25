@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 import theano
 import theano.tensor as T
-from util import debug_input_data
+from util import debug_input_data, print_section
 
 from augmenter.aerial import Creator
 
@@ -53,8 +53,8 @@ class AbstractDataset(object):
 class MnistDataset(AbstractDataset):
 
     def load(self, dataset):
+        print("Creating MNIST dataset")
         dataset = self._get_file_path(dataset)
-        print("... loading data")
         f = gzip.open(dataset, 'rb')
         train_set, valid_set, test_set = pickle.load(f , encoding='latin1')
         f.close()
@@ -71,7 +71,8 @@ class MnistDataset(AbstractDataset):
 
 class AerialDataset(AbstractDataset):
 
-    def load(self, dataset_path,params):
+    def load(self, dataset_path, params):
+        print_section('Creating aerial image dataset')
         samples_per_image = params.samples_per_image
         preprocessing = params.use_preprocessing
         use_rotation = params.use_rotation
@@ -93,11 +94,11 @@ class AerialDataset(AbstractDataset):
             train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
 
         print('')
-        print('Image data shape: ', train[0].shape, 'Label data shape', train[1].shape)
+        print('Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
         print('')
         print('Creating shared dataset for train, valid and test')
         size = sum(data.nbytes for list in [train, valid, test] for data in list)/1000000
-        print("Potential size:", size, " mb at least..." )
+        print('Potential size: {}mb at least'.format(size))
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)

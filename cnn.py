@@ -1,9 +1,10 @@
 from evaluator import Evaluator
-from model import Model, ShallowModel, ConvModel
+from model import ShallowModel, ConvModel
 from data import MnistDataset, AerialDataset
 from storage.store import ParamStorage
 import gui.server
 import os, sys
+from util import print_section
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path
 
@@ -15,11 +16,11 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     d = AerialDataset()
     d.load(dataset, dataset_params) #Input stage
     m = ConvModel(model_params, verbose=True) #Create network stage
-    e = Evaluator(m, d,optimization_params)
+    e = Evaluator(m, d, optimization_params)
     try:
         e.evaluate(epochs=epochs,  verbose=verbose)
     except KeyboardInterrupt:
-        print("inpterupted by user. Current model params will be saved now.")
+        print("Inpterupted by user. Current model params will be saved now.")
     except Exception as e:
         if visual_params.gui_enabled:
             gui.server.stop_job()
@@ -27,6 +28,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
         raise
 
     #Stores the model params. Model can later be restored.
+    print_section('Storing model parameters')
     p = ParamStorage(path=filename_params.network_save_name)
     p.store_params(m.params, model_params, dataset_params)
     if visual_params.gui_enabled:

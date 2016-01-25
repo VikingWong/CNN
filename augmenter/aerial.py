@@ -35,7 +35,7 @@ class Creator(object):
         train_img_paths = self._merge_to_examples(base_train, reduce)
         valid_img_paths = self._merge_to_examples(base_valid, no_reduce)
 
-        print(len(test_img_paths), '# test img', len(train_img_paths), "# train img", len(valid_img_paths), "# valid img")
+        print('{}# test img, {}# train img, {}# valid img'.format(len(test_img_paths), len(train_img_paths), len(valid_img_paths)))
 
         test = self._sample_data(base_test, test_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
         train = self._sample_data(base_train, train_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
@@ -93,15 +93,15 @@ class Creator(object):
         '''
 
         nr_class = 0
-        nr_total= 0
+        nr_total = 0
 
         dropped_images = 0
         data = []
         label = []
         dim_data = self.dim_data
 
-        print("")
-        print("Sampling examples for", base)
+        print('')
+        print('Sampling examples for {}'.format(base))
 
         for i in range(len(paths)):
             d, v = paths[i]
@@ -160,8 +160,7 @@ class Creator(object):
                 s -= 1
 
             if i % 50 == 0:
-                print("")
-                print('Input image: ', i, '/', len(paths))
+                print('---- Input image: {}/{}'.format(i, len(paths)))
 
             if im and la:
                 del im
@@ -170,19 +169,21 @@ class Creator(object):
         data = np.array(data)
         label = np.array(label)
 
+        print('')
         if self.only_mixed_labels:
-            print("Images containing class", nr_class, "of" ,nr_total)
+
+            print("Images containing class {} of {}".format(nr_class, nr_total))
 
         print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
-        print("Dropped", dropped_images, "images")
+        print("Dropped {} images".format(dropped_images))
         return data, label
 
 
     def print_verbose(self):
         print('Initializing dataset creator')
-        print('----Data size', self.dim_data, 'x', self.dim_data)
-        print('----Label size', self.dim_label, 'x', self.dim_label)
-        print('----Rotation:', self.rotation, ' Preprocessing:', self.preprocessing, 'with std:' , self.std)
+        print('----Data size {}x{}'.format( self.dim_data, self.dim_data))
+        print('----Label size {}x{}'.format( self.dim_label, self.dim_label))
+        print('----Rotation: {}, preprocessing: {}, and with std: {}'.format(self.rotation, self.preprocessing, self.std))
         if self.only_mixed_labels:
             print('----CAUTION: will only include labels containing class of interest')
         print('')
