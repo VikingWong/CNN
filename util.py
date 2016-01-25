@@ -4,6 +4,7 @@ from PIL import Image
 import time
 import pickle, gzip
 
+#Enables dot notation when getting values in config
 class Params:
      def __init__(self, dictionary):
          for k, v in dictionary.items():
@@ -47,7 +48,7 @@ def from_arr_to_data(data, data_dim):
 def from_rgb_to_arr(image):
     arr =  np.asarray(image, dtype='float32') / 255
     arr = np.rollaxis(arr, 2, 0)
-    arr = arr.reshape(3*  arr.shape[1] * arr.shape[2])
+    arr = arr.reshape(3 * arr.shape[1] * arr.shape[2])
     return arr
 
 
@@ -56,7 +57,7 @@ def debug_input_data(data, label, data_dim, label_dim, delay=0):
     data_image= from_arr_to_data(data, data_dim)
 
     data_image.paste(label_image, (24, 24), label_image)
-    data_image = data_image.resize( (512,512) )
+    data_image = data_image.resize((512, 512))
     data_image.show()
     time.sleep(delay)
 

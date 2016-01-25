@@ -1,13 +1,10 @@
 from abc import ABCMeta, abstractmethod
-import os
-import gzip
-import pickle
-
+import os, gzip, pickle, math
 import numpy as np
 import theano
 import theano.tensor as T
-from util import debug_input_data, print_section
 
+from util import debug_input_data, print_section
 from augmenter.aerial import Creator
 
 
@@ -43,7 +40,7 @@ class AbstractDataset(object):
         #Since labels are index integers they have to be treated as such during computations.
         #Shared_y is therefore cast to int.
         if cast_to_int:
-            print("Casted to int")
+            print("---- Casted to int")
             return shared_x, T.cast(shared_y, 'int32')
         else:
             return shared_x, shared_y
@@ -80,9 +77,9 @@ class AerialDataset(AbstractDataset):
         dim = (params.input_dim, params.output_dim)
         std = params.dataset_std
         mixed = params.only_mixed_labels
+        chunks = params.chunk_size
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
-        #TODO: Use shared_value.set_value(my_dataset[...]) when dataset is to big to fit on gpu
         creator = Creator(dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
@@ -94,11 +91,26 @@ class AerialDataset(AbstractDataset):
             train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
 
         print('')
-        print('Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
-        print('')
-        print('Creating shared dataset for train, valid and test')
-        size = sum(data.nbytes for list in [train, valid, test] for data in list)/1000000
-        print('Potential size: {}mb at least'.format(size))
+        print('Preparing shared variables for datasets')
+        print('---- Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
+
+        mb = 1000000
+        train_size = sum(data.nbytes for data in train) / mb
+        valid_size = sum(data.nbytes for data in valid) / mb
+        test_size = sum(data.nbytes for data in test) / mb
+
+        print('---- Dataset at least:')
+        print('---- Training: \t {}mb'.format(train_size))
+        print('---- Validation: {}mb'.format(valid_size))
+        print('---- Testing: \t {}mb'.format(test_size))
+
+        nr_chunks = math.ceil(train_size/chunks) + 1
+
+        #TODO: use size, to divide list into chunks.
+        #TODO: Array of arrays [[],[],] maybe?
+        #TODO: Only training set for the moment being.
+
+        print('===========', nr_chunks)
         self.set['train'] = self._shared_dataset(train)
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)

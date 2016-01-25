@@ -39,7 +39,8 @@ dataset_params = Params({
     "mix_ratio"             : 0.5,
     "reduce"                : 0.05,
     "input_dim"             : 64,
-    "output_dim"            : 16
+    "output_dim"            : 16,
+    "chunk_size"            : 2048
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
