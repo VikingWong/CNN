@@ -169,13 +169,9 @@ class Creator(object):
         data = np.array(data)
         label = np.array(label)
 
-        print('')
         if self.only_mixed_labels:
-
-            print("Images containing class {} of {}".format(nr_class, nr_total))
-
-        print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
-        print("Dropped {} images".format(dropped_images))
+            print("----Images containing class {}/{}".format(nr_class, nr_total))
+        print("----Dropped {} images".format(dropped_images))
         return data, label
 
 
@@ -186,4 +182,5 @@ class Creator(object):
         print('----Rotation: {}, preprocessing: {}, and with std: {}'.format(self.rotation, self.preprocessing, self.std))
         if self.only_mixed_labels:
             print('----CAUTION: will only include labels containing class of interest')
+            #print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
         print('')

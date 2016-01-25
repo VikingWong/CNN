@@ -101,7 +101,7 @@ class ConvModel(AbstractModel):
 
     def build(self, x, batch_size, init_params=None):
 
-        print('Convolutional neural network model')
+        print('Creating layers for convolutional neural network model')
         channels, width, height = self.input_data_dim
         layer_input = x.reshape((batch_size, channels, width, height))
 

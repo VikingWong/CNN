@@ -58,7 +58,7 @@ class ConvPoolLayer(BaseLayer):
 
     def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
         if is_verbose:
-            print('Initializing convolutional layer with {} kernels'.format(filter_shape[0]))
+            print('Convolutional layer with {} kernels'.format(filter_shape[0]))
             print('---- Kernel size \t {}x{}'.format(filter_shape[2], filter_shape[3]))
             print('---- Pooling size \t {}x{}'.format(poolsize[0], poolsize[1]))
             print('---- Input size \t {}x{}'.format(image_shape[2],image_shape[3]))

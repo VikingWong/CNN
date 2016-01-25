@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-import os, gzip, pickle, math
+import os, gzip, pickle, math,sys
 import numpy as np
 import theano
 import theano.tensor as T
@@ -16,7 +16,7 @@ class AbstractDataset(object):
             'validation': None,
             'test': None,
         }
-
+        self.data = []
     @abstractmethod
     def load(self, dataset_path):
         """Loading and transforming logic for dataset"""
@@ -45,7 +45,15 @@ class AbstractDataset(object):
         else:
             return shared_x, shared_y
 
-
+    def _chunkify(self, dataset, nr_of_chunks, batch_size):
+        #Round items per chunk down until there is an exact number of minibatches. Multiple of batch_size
+        items_per_chunk = int(math.ceil(len(dataset[0])/nr_of_chunks))
+        temp = int(items_per_chunk / batch_size)
+        items_per_chunk = batch_size * temp
+        data, labels = dataset
+        chunks = [[np.array(data[x:x+items_per_chunk]), np.array(labels[x:x+items_per_chunk])]
+                         for x in xrange(0, len(dataset[0]), items_per_chunk)]
+        return chunks
 
 class MnistDataset(AbstractDataset):
 
@@ -62,13 +70,12 @@ class MnistDataset(AbstractDataset):
         self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
 
 
-
         return True #TODO: Implement boolean for whether everything went ok or not
 
 
 class AerialDataset(AbstractDataset):
 
-    def load(self, dataset_path, params):
+    def load(self, dataset_path, params, batch_size=1):
         print_section('Creating aerial image dataset')
         samples_per_image = params.samples_per_image
         preprocessing = params.use_preprocessing
@@ -93,27 +100,31 @@ class AerialDataset(AbstractDataset):
         print('')
         print('Preparing shared variables for datasets')
         print('---- Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
+        print('---- Max chunk size of {}mb'.format(chunks))
 
-        mb = 1000000
+        mb = 1000000.0
         train_size = sum(data.nbytes for data in train) / mb
         valid_size = sum(data.nbytes for data in valid) / mb
         test_size = sum(data.nbytes for data in test) / mb
+        nr_of_chunks = math.ceil(train_size/chunks)
 
+        print('---- Minimum number of training chunks: {}'.format(nr_of_chunks))
         print('---- Dataset at least:')
         print('---- Training: \t {}mb'.format(train_size))
         print('---- Validation: {}mb'.format(valid_size))
         print('---- Testing: \t {}mb'.format(test_size))
 
-        nr_chunks = math.ceil(train_size/chunks) + 1
+        training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
+        print('---- Actual number of training chunks: {}'.format(len(training_chunks)))
+        print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
+        print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
+        #TODO: Chunkify for validation and testing as well?
 
-        #TODO: use size, to divide list into chunks.
-        #TODO: Array of arrays [[],[],] maybe?
-        #TODO: Only training set for the moment being.
-
-        print('===========', nr_chunks)
-        self.set['train'] = self._shared_dataset(train)
+        self.set['train'] = self._shared_dataset(training_chunks[0])
         self.set['validation'] = self._shared_dataset(valid)
         self.set['test'] = self._shared_dataset(test)
+
+        self.data = training_chunks #Not stored on the GPU, unlike the shared variables defined above.
         return True
 
 

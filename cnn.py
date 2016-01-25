@@ -14,7 +14,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
         os.makedirs(filename_params.results)
 
     d = AerialDataset()
-    d.load(dataset, dataset_params) #Input stage
+    d.load(dataset, dataset_params, optimization_params.batch_size) #Input stage
     m = ConvModel(model_params, verbose=True) #Create network stage
     e = Evaluator(m, d, optimization_params)
     try:

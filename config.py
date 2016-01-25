@@ -18,7 +18,7 @@ visual_params =  Params({
 
 #TODO: Implement dropout_rate
 optimization_params =  Params({
-        "batch_size"                        : 1,
+        "batch_size"                        : 4,
         "initial_learning_rate"             : 0.0002,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
@@ -37,10 +37,10 @@ dataset_params = Params({
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5,
-    "reduce"                : 0.05,
+    "reduce"                : 0.2,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 2048
+    "chunk_size"            : 10
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized

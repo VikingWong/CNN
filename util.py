@@ -4,6 +4,7 @@ from PIL import Image
 import time
 import pickle, gzip
 
+#TODO: move printing to own file.
 #Enables dot notation when getting values in config
 class Params:
      def __init__(self, dictionary):
@@ -82,6 +83,18 @@ def normalize(data, std):
     return data
 
 # ======================PRINTING UTILITIES============================
+class Color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
 def debug_mnist():
     f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
@@ -89,10 +102,15 @@ def debug_mnist():
     f.close()
 
 
+def print_color(text):
+    print(Color.PURPLE + text + Color.PURPLE)
+
+
 def print_section(description):
     print('')
     print('')
-    print('========== ' + str(description) + ' ==========')
+    print('')
+    print(Color.BOLD + '========== ' + str(description) + ' ==========' + Color.END)
 
 
 def print_test(epoch, idx, minibatches, loss):
@@ -103,5 +121,5 @@ def print_test(epoch, idx, minibatches, loss):
 
 def print_valid(epoch, idx, minibatches, loss):
     print('')
-    print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
+    print(Color.CYAN + 'Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches) + Color.END)
     print('---- Validation error %f MSE' % (loss))

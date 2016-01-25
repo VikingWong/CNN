@@ -52,8 +52,24 @@ class Evaluator(object):
         self.tester = create_profiler_func(self.data, x, y, [index], self.model.get_output_layer() ,cost, batch_size)
 
 
+    def _debug(self, batch_size, minibatch_index):
+        number_of_tests = 1
+        #output, y, cost, errs = self.tester(minibatch_index)
+        for test in range(number_of_tests):
+            v = random.randint(0,batch_size-1)
+            output, y, cost, errs = self.tester(minibatch_index)
+            print(errs)
+            print(cost)
+            print(v)
+            img = self.data.set['train'][0][(minibatch_index*batch_size) + v].eval()
+            debug_input_data(img, output[v], 64, 16)
+            debug_input_data(img, y[v], 64, 16)
+
+
     def _train(self, batch_size, max_epochs):
         print_section('Training model')
+        #TODO: Inner forloop for changing content of training set
+        ##TODO: Fit exactly minibatch in each chunk
 
         n_train_batches = self._get_number_of_batches('train', batch_size)
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
@@ -63,12 +79,11 @@ class Evaluator(object):
         patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = self.params.improvement_threshold # a relative improvement of this much is considered significant
 
-        # go through this many minibatche before checking the network on the validation set
+        # go through this many minibatch before checking the network on the validation set
         validation_frequency = min(n_train_batches, patience / 2)
         learning_rate = self.params.initial_learning_rate/float(batch_size)
         print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = 30
-        print(learning_adjustment)
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -81,9 +96,9 @@ class Evaluator(object):
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
             if(epoch%learning_adjustment == 0):
-                    print('Adjusting learning rate')
                     learning_rate *= 0.95
-                    print('New learning rate {}'.format(learning_rate))
+                    print('---- New learning rate {}'.format(learning_rate))
+
             for minibatch_index in range(n_train_batches):
 
                 iter = (epoch - 1) * n_train_batches + minibatch_index
@@ -93,18 +108,10 @@ class Evaluator(object):
                     print('---- Training @ iter = {}'.format(iter))
 
                 if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
-                    #TODO: Make a better debugger. FIX THIS!!!
-                    for test in range(1):
-                        v = random.randint(0,batch_size-1)
-                        output, y, cost, errs = self.tester(minibatch_index)
-                        print(errs)
-                        print(cost)
-                        print(v)
-                        img = self.data.set['train'][0][(minibatch_index*batch_size) + v].eval()
-                        debug_input_data(img, output[v], 64, 16)
-                        debug_input_data(img, y[v], 64, 16)
+                    self._debug(batch_size, minibatch_index, )
 
-                #output, y, cost, errs = self.tester(minibatch_index)
+
+
                 cost_ij = self.train_model(minibatch_index, learning_rate)
 
                 if(np.isnan(cost_ij)):
