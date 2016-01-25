@@ -1,8 +1,19 @@
-# Authors: Kyle Kastner
-# License: BSD 3-clause
+from config import optimization_params
 import theano.tensor as T
 import numpy as np
 import theano
+import sys
+
+class Backpropagation:
+
+    @staticmethod
+    def create(params):
+        '''
+        Factory method create object by a string argument found in the
+        config file. The config must specify the correct class name of the backprop method that should be initialized.
+        '''
+        backpropagation = optimization_params.backpropagation
+        return getattr(sys.modules[__name__], backpropagation)(params)
 
 
 class rmsprop(object):
@@ -50,6 +61,9 @@ class rmsprop(object):
 
 
 class sgd_nesterov(object):
+    """
+    Nesterov stochastic backpropagation
+    """
     def __init__(self, params):
         self.memory_ = [theano.shared(np.zeros_like(p.get_value()))
                         for p in params]
@@ -67,8 +81,12 @@ class sgd_nesterov(object):
 
 
 class sgd(object):
-    # Only here for API conformity with other optimizers
+    """
+    Standard stochastic gradient descent backpropgation. No frills.
+    """
+
     def __init__(self, params):
+        # Only here for API conformity with other optimizers
         pass
 
     def updates(self, params, grads, learning_rate):

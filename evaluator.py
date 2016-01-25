@@ -6,7 +6,10 @@ import theano.tensor as T
 import timeit
 from util import debug_input_data
 import random
-from SDG import sgd, rmsprop
+from sdg import Backpropagation
+import gui.server
+from config import visual_params
+from wrapper import create_theano_func, create_profiler_func
 
 class Evaluator(object):
 
@@ -14,6 +17,8 @@ class Evaluator(object):
         self.data = dataset
         self.model = model
         self.params = params
+        if(visual_params.gui_enabled):
+            gui.server.start_new_job()
 
     def evaluate(self, epochs=10, verbose=False):
         L2_reg = self.params.l2_reg
@@ -26,55 +31,21 @@ class Evaluator(object):
         learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
 
         self.model.build(x, batch_size)
-        output_layer = self.model.get_output_layer()
+        errors = self.model.get_output_layer().errors(y)
+
+        self.test_model = create_theano_func('test', self.data, x, y, [index], errors, batch_size)
+        self.validate_model = create_theano_func('validation', self.data, x, y, [index], errors, batch_size)
+
+
         cost = self.model.get_cost(y) + L2_reg * self.model.getL2()
-
-        #errors = self.model.get_errors(y)
-        test_set_x, test_set_y = self.data.set['test']
-        self.test_model = theano.function(
-            [index],
-            output_layer.errors(y),
-            givens={
-                x: test_set_x[index * batch_size: (index + 1) * batch_size],
-                y: test_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
-
-        valid_set_x, valid_set_y = self.data.set['validation']
-        self.validate_model =  theano.function(
-            [index],
-            output_layer.errors(y),
-            givens={
-                x: valid_set_x[index * batch_size: (index + 1) * batch_size],
-                y: valid_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
+        opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
-        opt = rmsprop(self.model.params)
         updates = opt.updates(self.model.params, grads,learning_rate, momentum)
 
+        self.train_model = create_theano_func('train', self.data, x, y, [index, learning_rate], cost, batch_size, updates=updates)
 
-        train_set_x, train_set_y = self.data.set['train']
-        self.train_model =  theano.function(
-            [index, learning_rate],
-            cost,
-            updates=updates,
-            givens={
-                x: train_set_x[index * batch_size: (index + 1) * batch_size],
-                y: train_set_y[index * batch_size: (index + 1) * batch_size]
-            }
-        )
+        self.tester = create_profiler_func(self.data, x, y, [index], self.model.get_output_layer() ,cost, batch_size)
 
-        self.tester =  theano.function(
-            [index, learning_rate],
-            (output_layer.output, y, cost, output_layer.errors(y)),
-            givens={
-                x: train_set_x[index * batch_size: (index + 1) * batch_size],
-                y: train_set_y[index * batch_size: (index + 1) * batch_size]
-            },
-            on_unused_input='ignore'
-        )
-        #TODO: Wierd to do it like this. A method that constructs all the functions? And integrate train in evaluate
         self._train(batch_size, epochs)
 
 
@@ -124,7 +95,7 @@ class Evaluator(object):
                     #TODO: Make a better debugger. FIX THIS!!!
                     for test in range(1):
                         v = random.randint(0,batch_size-1)
-                        output, y, cost, errs = self.tester(minibatch_index, learning_rate)
+                        output, y, cost, errs = self.tester(minibatch_index)
                         print(errs)
                         print(cost)
                         print(v)
@@ -132,13 +103,15 @@ class Evaluator(object):
                         debug_input_data(img, output[v], 64, 16)
                         debug_input_data(img, y[v], 64, 16)
 
-                #output, y, cost, errs = self.tester(minibatch_index, learning_rate)
+                #output, y, cost, errs = self.tester(minibatch_index)
                 cost_ij = self.train_model(minibatch_index, learning_rate)
 
                 if(np.isnan(cost_ij)):
                     print("cost IS NAN")
 
                 if (iter + 1) % validation_frequency == 0:
+                    if visual_params.gui_enabled:
+                        gui.server.get_stop_status()
                     #output, y, cost, errs = self.tester(minibatch_index, learning_rate)
                     #print(cost)
                     # compute zero-one loss on validation set
@@ -171,10 +144,15 @@ class Evaluator(object):
                                'best model %f MSE') %
                               (epoch, minibatch_index + 1, n_train_batches,
                                test_score/batch_size))
+                        if visual_params.gui_enabled:
+                            #TODO: Only test when validation is better, so move this out of inner scope.
+                            gui.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
 
                 if patience <= iter:
                     done_looping = True
                     break
+                if visual_params.gui_enabled and gui.server.stop:
+                    done_looping = True
 
         end_time = timeit.default_timer()
         print('Optimization complete.')

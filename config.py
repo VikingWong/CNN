@@ -1,5 +1,7 @@
 from util import Params
+import secret
 
+token = secret.token
 verbose = True
 number_of_epochs = 100
 dataset_path = '/home/olav/Pictures/Mass_roads'
@@ -10,31 +12,32 @@ filename_params = Params({
     })
 #TODO: Use this for something
 visual_params =  Params({
-        "visualize_flag"        : False,
+        "endpoint"              : "http://178.62.232.71/",
+        "gui_enabled"           : False
     })
 
 #TODO: Implement dropout_rate
 optimization_params =  Params({
-        "batch_size"                        : 64,
+        "batch_size"                        : 1,
         "initial_learning_rate"             : 0.0002,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
-        "improvement_threshold"             : 0.995
-
+        "improvement_threshold"             : 0.995,
+        "backpropagation"                   : "sgd_nesterov"
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 70,
+    "samples_per_image"     : 2,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
-    "mix_ratio"             : 0.3,
-    "reduce"                : 0.5,
+    "mix_ratio"             : 0.5,
+    "reduce"                : 0.05,
     "input_dim"             : 64,
     "output_dim"            : 16
 })
