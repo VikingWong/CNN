@@ -16,7 +16,9 @@ class AbstractDataset(object):
             'validation': None,
             'test': None,
         }
-        self.data = []
+        self.all_training = []
+        self.active = []
+
     @abstractmethod
     def load(self, dataset_path):
         """Loading and transforming logic for dataset"""
@@ -39,11 +41,33 @@ class AbstractDataset(object):
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
         #Shared_y is therefore cast to int.
+        #TODO: cast to int prevent set_value()
         if cast_to_int:
             print("---- Casted to int")
             return shared_x, T.cast(shared_y, 'int32')
         else:
             return shared_x, shared_y
+
+    def switch_active_training_set(self, idx):
+        '''
+        Each epoch a large number of examples will be seen by model. Often all examples will not fit on the GPU at
+        the same time. This method, switches the data that are currently reciding in the gpu. Will be called
+        nr_of_chunks times per epoch.
+        '''
+        print('----Changing active chunk')
+        new_chunk_x, new_chunk_y = self.all_training[idx]
+        self.active[0].set_value(new_chunk_x)
+        self.active[1].set_value(new_chunk_y)
+
+    def get_chunk_number(self):
+        return len(self.all_training)
+
+    def get_elements(self, idx):
+        return len(self.all_training[idx][0])
+
+    def get_total_number_of_batches(self, batch_size):
+        s = sum(len(c[0]) for c in self.all_training)
+        return math.ceil(s/batch_size)
 
     def _chunkify(self, dataset, nr_of_chunks, batch_size):
         #Round items per chunk down until there is an exact number of minibatches. Multiple of batch_size
@@ -51,9 +75,11 @@ class AbstractDataset(object):
         temp = int(items_per_chunk / batch_size)
         items_per_chunk = batch_size * temp
         data, labels = dataset
-        chunks = [[np.array(data[x:x+items_per_chunk]), np.array(labels[x:x+items_per_chunk])]
+        #TODO:do floatX operation twice.
+        chunks = [[self._floatX(data[x:x+items_per_chunk]), self._floatX(labels[x:x+items_per_chunk])]
                          for x in xrange(0, len(dataset[0]), items_per_chunk)]
         return chunks
+
 
 class MnistDataset(AbstractDataset):
 
@@ -118,13 +144,15 @@ class AerialDataset(AbstractDataset):
         print('---- Actual number of training chunks: {}'.format(len(training_chunks)))
         print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
         print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
+
         #TODO: Chunkify for validation and testing as well?
 
-        self.set['train'] = self._shared_dataset(training_chunks[0])
-        self.set['validation'] = self._shared_dataset(valid)
-        self.set['test'] = self._shared_dataset(test)
+        self.active = self._shared_dataset(training_chunks[0], cast_to_int=False)
+        self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
+        self.set['validation'] = self._shared_dataset(valid, cast_to_int=True )
+        self.set['test'] = self._shared_dataset(test, cast_to_int=True)
 
-        self.data = training_chunks #Not stored on the GPU, unlike the shared variables defined above.
+        self.all_training = training_chunks #Not stored on the GPU, unlike the shared variables defined above.
         return True
 
 

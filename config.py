@@ -31,16 +31,16 @@ optimization_params =  Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 2,
+    "samples_per_image"     : 10,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5,
-    "reduce"                : 0.2,
+    "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 10
+    "chunk_size"            : 2048
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized

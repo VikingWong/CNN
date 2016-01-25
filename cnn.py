@@ -18,7 +18,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     m = ConvModel(model_params, verbose=True) #Create network stage
     e = Evaluator(m, d, optimization_params)
     try:
-        e.evaluate(epochs=epochs,  verbose=verbose)
+        e.run(epochs=epochs,  verbose=verbose)
     except KeyboardInterrupt:
         print("Inpterupted by user. Current model params will be saved now.")
     except Exception as e:
