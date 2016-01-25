@@ -80,13 +80,27 @@ def normalize(data, std):
     data = (data - m) / std
     return data
 
-def print_section(description):
-    print('')
-    print('')
-    print('========== ' + str(description) + ' ==========')
-
+# ======================PRINTING UTILITIES============================
 def debug_mnist():
     f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
     print(train_set[0].shape)
     f.close()
+
+
+def print_section(description):
+    print('')
+    print('')
+    print('========== ' + str(description) + ' ==========')
+
+
+def print_test(epoch, idx, minibatches, loss):
+    #print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
+    print('---- Test error %f MSE' % (loss))
+    print('')
+
+
+def print_valid(epoch, idx, minibatches, loss):
+    print('')
+    print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
+    print('---- Validation error %f MSE' % (loss))

@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import timeit
-from util import debug_input_data, print_section
+from util import debug_input_data, print_section, print_test, print_valid
 import random
 from sdg import Backpropagation
 import gui.server
@@ -66,7 +66,7 @@ class Evaluator(object):
         # go through this many minibatche before checking the network on the validation set
         validation_frequency = min(n_train_batches, patience / 2)
         learning_rate = self.params.initial_learning_rate/float(batch_size)
-        print("Effective learning rate ", learning_rate)
+        print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = 30
         print(learning_adjustment)
         best_validation_loss = np.inf
@@ -81,16 +81,16 @@ class Evaluator(object):
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
             if(epoch%learning_adjustment == 0):
-                    print("Adjusting learning rate")
+                    print('Adjusting learning rate')
                     learning_rate *= 0.95
-                    print("new learning rate", learning_rate)
+                    print('New learning rate {}'.format(learning_rate))
             for minibatch_index in range(n_train_batches):
 
                 iter = (epoch - 1) * n_train_batches + minibatch_index
 
 
                 if iter % 100 == 0:
-                    print('training @ iter = ', iter)
+                    print('---- Training @ iter = {}'.format(iter))
 
                 if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
                     #TODO: Make a better debugger. FIX THIS!!!
@@ -108,7 +108,7 @@ class Evaluator(object):
                 cost_ij = self.train_model(minibatch_index, learning_rate)
 
                 if(np.isnan(cost_ij)):
-                    print("cost IS NAN")
+                    print('cost IS NAN')
 
                 if (iter + 1) % validation_frequency == 0:
                     if visual_params.gui_enabled:
@@ -119,9 +119,7 @@ class Evaluator(object):
                     validation_losses = [self.validate_model(i) for i
                                          in range(n_valid_batches)]
                     this_validation_loss = np.mean(validation_losses)
-                    print('epoch %i, minibatch %i/%i, validation error %f MSE' %
-                          (epoch, minibatch_index + 1, n_train_batches,
-                           this_validation_loss/batch_size))
+                    print_valid(epoch, minibatch_index + 1, n_train_batches,  this_validation_loss/batch_size)
 
                     # if we got the best validation score until now
                     if this_validation_loss < best_validation_loss:
@@ -141,10 +139,8 @@ class Evaluator(object):
                             for i in range(n_test_batches)
                         ]
                         test_score = np.mean(test_losses)
-                        print(('     epoch %i, minibatch %i/%i, test error of '
-                               'best model %f MSE') %
-                              (epoch, minibatch_index + 1, n_train_batches,
-                               test_score/batch_size))
+                        print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
+
                         if visual_params.gui_enabled:
                             #TODO: Only test when validation is better, so move this out of inner scope.
                             gui.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
