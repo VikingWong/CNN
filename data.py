@@ -41,7 +41,7 @@ class AbstractDataset(object):
         shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
         #Since labels are index integers they have to be treated as such during computations.
         #Shared_y is therefore cast to int.
-        #TODO: cast to int prevent set_value()
+
         if cast_to_int:
             print("---- Casted to int")
             return shared_x, T.cast(shared_y, 'int32')
@@ -121,7 +121,7 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f , encoding='latin1')
             f.close()
         else:
-            train,valid,test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
+            train, valid, test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
 
         print('')
         print('Preparing shared variables for datasets')

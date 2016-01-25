@@ -1,7 +1,7 @@
 __author__ = 'Olav'
 
 import numpy as np
-import os
+import os, gc
 import theano
 from PIL import Image, ImageFilter
 import math
@@ -96,6 +96,9 @@ class Creator(object):
         nr_total = 0
 
         dropped_images = 0
+        #idx = 0
+        #data = np.empty(max_arr_size, dtype=theano.config.floatX)
+        #label = np.empty(max_arr_size, dtype=theano.config.floatX)
         data = []
         label = []
         dim_data = self.dim_data
@@ -150,7 +153,7 @@ class Creator(object):
                     nr_class += int(contains_class)
                     if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
 
-                        nr_total -=1
+                        nr_total -= 1
                         continue
 
 
@@ -166,9 +169,16 @@ class Creator(object):
                 del im
                 del la
 
-        data = np.array(data)
-        label = np.array(label)
-
+            gc.collect() #Based on testing, seems like python do not release memory of opened images. Need further testing.
+            #TODO: Test with removed gc.collect()
+            #TODO: init an array with suitable size, fill with content
+        print('---- Done collecting images')
+        np_data = np.array(data)
+        np_label = np.array(label)
+        print(np_data.shape)
+        print(np_label.shape)
+        gc.collect()
+        print('---- Garbarge collection')
         if self.only_mixed_labels:
             print("----Images containing class {}/{}".format(nr_class, nr_total))
         print("----Dropped {} images".format(dropped_images))
