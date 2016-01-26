@@ -65,10 +65,11 @@ class AbstractDataset(object):
         self.active[1].set_value(new_chunk_y)
 
 
-    def _dataset_check(self, dataset, batch_size):
+    def _dataset_check(self, name, dataset, batch_size):
         #If there are are to few examples for at least one batch, the dataset is invalid.
         if len(dataset[0]) < batch_size:
-            print_error('Insufficent examples in datasets. Must be enough examples for at least one minibatch')
+            print_error('Insufficent examples in {}. '
+                        '{} examples not enough for at least one minibatch'.format(name, len(dataset[0])))
             raise Exception('Decrease batch_size or increase samples_per_image')
 
     def get_chunk_number(self):
@@ -150,9 +151,9 @@ class AerialDataset(AbstractDataset):
             train, valid, test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
 
         #Testing dataset size requirements
-        self._dataset_check(train, batch_size)
-        self._dataset_check(valid, batch_size)
-        self._dataset_check(test, batch_size)
+        self._dataset_check('train', train, batch_size)
+        self._dataset_check('valid', valid, batch_size)
+        self._dataset_check('test', test, batch_size)
 
         print('')
         print('Preparing shared variables for datasets')

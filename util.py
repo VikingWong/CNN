@@ -25,6 +25,7 @@ def get_dataset(path):
     if not all(x in ['train', 'valid', 'test'] for x in content):
         print_error('Folder does not contain image or label folder. Path probably not correct')
         raise Exception('Fix dataset_path in config')
+    content.sort()
     return content
 
 

@@ -173,5 +173,5 @@ class ConvModel(AbstractModel):
         self.params = []
         for layer in reversed(self.layer):
             self.params += layer.params
-            
+
         print('Model created!')
