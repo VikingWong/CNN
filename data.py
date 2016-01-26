@@ -19,20 +19,24 @@ class AbstractDataset(object):
         self.all_training = []
         self.active = []
 
+
     @abstractmethod
     def load(self, dataset_path):
         """Loading and transforming logic for dataset"""
         return
 
+
     def _floatX(self, d):
         #Creates a data representation suitable for GPU
         return np.asarray(d, dtype=theano.config.floatX)
+
 
     def _get_file_path(self, dataset):
         data_dir, data_file = os.path.split(dataset)
         #TODO: Add some robustness, like checking if file is folder and correct that
         assert os.path.isfile(dataset)
         return dataset
+
 
     def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
@@ -48,6 +52,7 @@ class AbstractDataset(object):
         else:
             return shared_x, shared_y
 
+
     def switch_active_training_set(self, idx):
         '''
         Each epoch a large number of examples will be seen by model. Often all examples will not fit on the GPU at
@@ -59,18 +64,27 @@ class AbstractDataset(object):
         self.active[0].set_value(new_chunk_x)
         self.active[1].set_value(new_chunk_y)
 
+
+    def _dataset_check(self, dataset, batch_size):
+        #If there are are to few examples for at least one batch, the dataset is invalid.
+        if len(dataset[0]) < batch_size:
+            print_error('Insufficent examples in datasets. Must be enough examples for at least one minibatch')
+            raise Exception('Decrease batch_size or increase samples_per_image')
+
     def get_chunk_number(self):
         return len(self.all_training)
 
+
     def get_elements(self, idx):
         return len(self.all_training[idx][0])
+
 
     def get_total_number_of_batches(self, batch_size):
         s = sum(len(c[0]) for c in self.all_training)
         return math.ceil(s/batch_size)
 
-    def _chunkify(self, dataset, nr_of_chunks, batch_size):
 
+    def _chunkify(self, dataset, nr_of_chunks, batch_size):
         #Round items per chunk down until there is an exact number of minibatches. Multiple of batch_size
         items_per_chunk = len(dataset[0])/ nr_of_chunks
         if(items_per_chunk < batch_size):
@@ -84,11 +98,12 @@ class AbstractDataset(object):
         chunks = [[self._floatX(data[x:x+items_per_chunk]), self._floatX(labels[x:x+items_per_chunk])]
                          for x in xrange(0, len(dataset[0]), items_per_chunk)]
 
-        #If the last chunk is less than batch size, it is cut.
-        if(len(chunks[-1][0]) <batch_size):
+        #If the last chunk is less than batch size, it is cut. No reason for an unnecessary swap.
+        if(len(chunks[-1][0]) < batch_size):
             chunks.pop(-1)
             print('---- Removed last chunk. Not enough elements for at least one minibatch of {}'.format(batch_size))
         return chunks
+
 
 
 class MnistDataset(AbstractDataset):
@@ -107,6 +122,7 @@ class MnistDataset(AbstractDataset):
 
 
         return True #TODO: Implement boolean for whether everything went ok or not
+
 
 
 class AerialDataset(AbstractDataset):
@@ -128,10 +144,15 @@ class AerialDataset(AbstractDataset):
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')
             f = open(dataset_path, 'rb')
-            train, valid, test = pickle.load(f , encoding='latin1')
+            train, valid, test = pickle.load(f, encoding='latin1')
             f.close()
         else:
             train, valid, test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
+
+        #Testing dataset size requirements
+        self._dataset_check(train, batch_size)
+        self._dataset_check(valid, batch_size)
+        self._dataset_check(test, batch_size)
 
         print('')
         print('Preparing shared variables for datasets')
@@ -155,9 +176,7 @@ class AerialDataset(AbstractDataset):
         print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
         print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
 
-
         #TODO: Chunkify for validation and testing as well?
-
         self.active = self._shared_dataset(training_chunks[0], cast_to_int=False)
         self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
         self.set['validation'] = self._shared_dataset(valid, cast_to_int=True )

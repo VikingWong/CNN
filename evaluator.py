@@ -65,9 +65,11 @@ class Evaluator(object):
             debug_input_data(img, output[v], 64, 16)
             debug_input_data(img, y[v], 64, 16)
 
+
     def _evaluate(self):
         #TODO: smart way to test and validation stuff from while loop in here?
         pass
+
 
     def _train(self, batch_size, max_epochs):
         print_section('Training model')
@@ -102,11 +104,13 @@ class Evaluator(object):
                     print('---- New learning rate {}'.format(learning_rate))
 
             for chunk_index in range(nr_chunks):
+                #print(nr_chunks)
+
                 #Switch content on GPU
                 self.data.switch_active_training_set( chunk_index )
                 nr_elements = self.data.get_elements( chunk_index )
                 chunk_batches = nr_elements / batch_size
-
+                #print(self.data.set['train'][0].eval())
                 #Each chunk contains a certain number of batches.
                 for minibatch_index in range(chunk_batches):
                     cost_ij = self.train_model(minibatch_index, learning_rate)
@@ -135,8 +139,7 @@ class Evaluator(object):
                         if this_validation_loss < best_validation_loss:
 
                             #improve patience if loss improvement is good enough
-                            if this_validation_loss < best_validation_loss *  \
-                               improvement_threshold:
+                            if this_validation_loss < best_validation_loss * improvement_threshold:
                                 patience = max(patience, iter * patience_increase)
 
                             # save best validation score and iteration number
@@ -148,6 +151,7 @@ class Evaluator(object):
                                 self.test_model(i)
                                 for i in range(n_test_batches)
                             ]
+                            print(test_losses)
                             test_score = np.mean(test_losses)
                             print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
 

@@ -18,30 +18,37 @@ class AbstractModel(object):
         self.hidden = params.hidden_layer
         self.output_label_dim = params.output_label_dim
 
+
     def get_output_layer(self):
         assert len(self.layer) >0
         return self.layer[-1]
 
+
     def get_cost(self, y):
         return  self.get_output_layer().negative_log_likelihood(y)
 
+
     def get_errors(self, y):
         self.get_output_layer().errors(y)
+
 
     def _weight(self, params, idx):
         if not params:
             return None
         return params[idx]
 
+
     def create_predict_function(self, x, data):
         return theano.function([], self.get_output_layer().output,
                    givens={x: data})
+
 
     def getL2(self):
         v = 0
         for layer in self.L2_layers:
             v += (layer.W ** 2).sum()
         return v
+
 
     @abstractmethod
     def build(self, x, batch_size, init_params=None):
@@ -80,6 +87,7 @@ class ShallowModel(AbstractModel):
         self.layer = [layer0, layer1]
         self.params =  layer1.params + layer0.params
         print('Model created!')
+
 
 #TODO: print number of parameters
 class ConvModel(AbstractModel):
@@ -165,4 +173,5 @@ class ConvModel(AbstractModel):
         self.params = []
         for layer in reversed(self.layer):
             self.params += layer.params
+            
         print('Model created!')
