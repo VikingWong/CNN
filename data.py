@@ -83,6 +83,11 @@ class AbstractDataset(object):
         #TODO:do floatX operation twice.
         chunks = [[self._floatX(data[x:x+items_per_chunk]), self._floatX(labels[x:x+items_per_chunk])]
                          for x in xrange(0, len(dataset[0]), items_per_chunk)]
+
+        #If the last chunk is less than batch size, it is cut.
+        if(len(chunks[-1][0]) <batch_size):
+            chunks.pop(-1)
+            print('---- Removed last chunk. Not enough elements for at least one minibatch of {}'.format(batch_size))
         return chunks
 
 
@@ -149,6 +154,7 @@ class AerialDataset(AbstractDataset):
         print('---- Actual number of training chunks: {}'.format(len(training_chunks)))
         print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
         print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
+
 
         #TODO: Chunkify for validation and testing as well?
 

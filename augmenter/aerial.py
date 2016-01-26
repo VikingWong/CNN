@@ -174,17 +174,17 @@ class Creator(object):
 
 
         if self.only_mixed_labels:
-            print("----Images containing class {}/{}".format(nr_class, nr_total))
-        print("----Dropped {} images".format(dropped_images))
+            print("---- Images containing class {}/{}".format(nr_class, nr_total))
+        print("---- Dropped {} images".format(dropped_images))
         return data, label
 
 
     def print_verbose(self):
         print('Initializing dataset creator')
-        print('----Data size {}x{}'.format( self.dim_data, self.dim_data))
-        print('----Label size {}x{}'.format( self.dim_label, self.dim_label))
-        print('----Rotation: {}, preprocessing: {}, and with std: {}'.format(self.rotation, self.preprocessing, self.std))
+        print('---- Data size {}x{}'.format( self.dim_data, self.dim_data))
+        print('---- Label size {}x{}'.format( self.dim_label, self.dim_label))
+        print('---- Rotation: {}, preprocessing: {}, and with std: {}'.format(self.rotation, self.preprocessing, self.std))
         if self.only_mixed_labels:
-            print('----CAUTION: will only include labels containing class of interest')
+            print('---- CAUTION: will only include labels containing class of interest')
             #print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
         print('')

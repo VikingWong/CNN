@@ -40,7 +40,7 @@ dataset_params = Params({
     "reduce"                : 0.1,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 6
+    "chunk_size"            : 1000
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
