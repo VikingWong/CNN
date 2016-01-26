@@ -172,9 +172,10 @@ class Creator(object):
                 del im
                 del la
 
-
+        print("---- Extracted {} images".format(data.shape[0]))
         if self.only_mixed_labels:
             print("---- Images containing class {}/{}".format(nr_class, nr_total))
+
         print("---- Dropped {} images".format(dropped_images))
         return data, label
 

@@ -87,6 +87,8 @@ class Evaluator(object):
         learning_rate = self.params.initial_learning_rate/float(batch_size)
         print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = self.params.epoch_learning_adjustment
+        learning_decrease = self.params.learning_rate_decrease
+
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -103,7 +105,7 @@ class Evaluator(object):
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
             if(epoch % learning_adjustment == 0):
-                    learning_rate *= 0.95
+                    learning_rate *= learning_decrease
                     print('---- New learning rate {}'.format(learning_rate))
 
             for chunk_index in range(nr_chunks):
@@ -114,7 +116,7 @@ class Evaluator(object):
                 #Each chunk contains a certain number of batches.
                 for minibatch_index in range(chunk_batches):
                     cost_ij = self.train_model(minibatch_index, learning_rate)
-                    if iter % 10 == 0:
+                    if iter % 100 == 0:
                         print('---- Training @ iter = {}'.format(iter))
 
                     if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:

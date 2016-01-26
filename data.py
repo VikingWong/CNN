@@ -59,7 +59,7 @@ class AbstractDataset(object):
         the same time. This method, switches the data that are currently reciding in the gpu. Will be called
         nr_of_chunks times per epoch.
         '''
-        print('----Changing active chunk')
+        print('---- Changing active chunk')
         new_chunk_x, new_chunk_y = self.all_training[idx]
         self.active[0].set_value(new_chunk_x)
         self.active[1].set_value(new_chunk_y)

@@ -3,7 +3,7 @@ import secret
 
 token = secret.token
 verbose = True
-number_of_epochs = 10
+number_of_epochs = 100
 dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",
@@ -21,6 +21,7 @@ optimization_params = Params({
         "batch_size"                        : 64,
         "initial_learning_rate"             : 0.001,
         "epoch_learning_adjustment"         : 15,
+        "learning_rate_decrease"            : 0.95,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
@@ -32,16 +33,16 @@ optimization_params = Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 10,
+    "samples_per_image"     : 200,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
-    "reduce"                : 0.3,
+    "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 100
+    "chunk_size"            : 2048
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
