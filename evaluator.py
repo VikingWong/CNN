@@ -73,7 +73,7 @@ class Evaluator(object):
 
     def _train(self, batch_size, max_epochs):
         print_section('Training model')
-        #TODO: Inner forloop for changing content of training set
+
         n_train_batches = self.data.get_total_number_of_batches(batch_size)
         n_valid_batches = self._get_number_of_batches('validation', batch_size)
         n_test_batches = self._get_number_of_batches('test', batch_size)
@@ -86,7 +86,7 @@ class Evaluator(object):
         validation_frequency = min(n_train_batches, patience / 2)
         learning_rate = self.params.initial_learning_rate/float(batch_size)
         print('Effective learning rate {}'.format(learning_rate))
-        learning_adjustment = 30
+        learning_adjustment = self.params.epoch_learning_adjustment
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -97,6 +97,9 @@ class Evaluator(object):
         done_looping = False
         iter = 0
 
+        #TODO: np.mean cross entropy. over 1. Want error per pixel but current have a value of 26 or something.
+        #TODO: Because of batch size or number of pixels?
+
         while (epoch < max_epochs) and (not done_looping):
             epoch = epoch + 1
             if(epoch % learning_adjustment == 0):
@@ -104,17 +107,14 @@ class Evaluator(object):
                     print('---- New learning rate {}'.format(learning_rate))
 
             for chunk_index in range(nr_chunks):
-                #print(nr_chunks)
-
-                #Switch content on GPU
                 self.data.switch_active_training_set( chunk_index )
                 nr_elements = self.data.get_elements( chunk_index )
                 chunk_batches = nr_elements / batch_size
-                #print(self.data.set['train'][0].eval())
+
                 #Each chunk contains a certain number of batches.
                 for minibatch_index in range(chunk_batches):
                     cost_ij = self.train_model(minibatch_index, learning_rate)
-                    if iter % 100 == 0:
+                    if iter % 10 == 0:
                         print('---- Training @ iter = {}'.format(iter))
 
                     if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
@@ -129,10 +129,8 @@ class Evaluator(object):
                         if visual_params.gui_enabled:
                             gui.server.get_stop_status()
 
-                        validation_losses = [self.validate_model(i) for i
-                                             in range(n_valid_batches)]
+                        validation_losses = [self.validate_model(i) for i in range(n_valid_batches)]
                         this_validation_loss = np.mean(validation_losses)
-                        #TODO: n_train_batches not correct
                         print_valid(epoch, minibatch_index + 1, n_train_batches,  this_validation_loss/batch_size)
 
                         # if we got the best validation score until now
@@ -147,11 +145,7 @@ class Evaluator(object):
                             best_iter = iter
 
                             # test it on the test set
-                            test_losses = [
-                                self.test_model(i)
-                                for i in range(n_test_batches)
-                            ]
-                            print(test_losses)
+                            test_losses = [self.test_model(i) for i in range(n_test_batches)]
                             test_score = np.mean(test_losses)
                             print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
 
@@ -169,9 +163,9 @@ class Evaluator(object):
 
         end_time = timeit.default_timer()
         print('Optimization complete.')
-        print('Best validation score of %f %% obtained at iteration %i, '
-              'with test performance %f %%' %
-              (best_validation_loss * 100., best_iter + 1, test_score * 100.))
+        print('Best validation score of %f obtained at iteration %i, '
+              'with test performance %f' %
+              (best_validation_loss/batch_size, best_iter + 1, test_score/batch_size))
         print('The code ran for %.2fm' % ((end_time - start_time) / 60.))
 
 

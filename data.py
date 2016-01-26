@@ -100,9 +100,11 @@ class AbstractDataset(object):
                          for x in xrange(0, len(dataset[0]), items_per_chunk)]
 
         #If the last chunk is less than batch size, it is cut. No reason for an unnecessary swap.
-        if(len(chunks[-1][0]) < batch_size):
+        last_chunk_size = len(chunks[-1][0])
+        if(last_chunk_size < batch_size):
             chunks.pop(-1)
-            print('---- Removed last chunk. Not enough elements for at least one minibatch of {}'.format(batch_size))
+            print('---- Removed last chunk. '
+                  '{} elements not enough for at least one minibatch of {}'.format(last_chunk_size, batch_size))
         return chunks
 
 

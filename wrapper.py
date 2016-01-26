@@ -13,6 +13,7 @@ def create_theano_func(name, data, x,y, input, output, batch_size, updates=None)
         input,
         output,
         updates=updates,
+        name=name,
         givens={
             x: set_x[index * batch_size: (index + 1) * batch_size],
             y: set_y[index * batch_size: (index + 1) * batch_size]
