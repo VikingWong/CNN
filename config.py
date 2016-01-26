@@ -11,13 +11,13 @@ filename_params = Params({
 
     })
 #TODO: Use this for something
-visual_params =  Params({
+visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
         "gui_enabled"           : False
     })
 
 #TODO: Implement dropout_rate
-optimization_params =  Params({
+optimization_params = Params({
         "batch_size"                        : 1,
         "initial_learning_rate"             : 0.0002,
         "l2_reg"                            : 0.0002,
@@ -44,7 +44,7 @@ dataset_params = Params({
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
-model_params =  Params({
+model_params = Params({
 
     "nr_kernels"        : [ 64, 112, 80 ],
     "random_seed"       : 23455,

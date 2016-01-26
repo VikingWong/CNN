@@ -16,12 +16,12 @@ class ParamStorage(object):
         f.close()
         return params
 
-    def store_params(self, params, model, dataset, path=None):
+    def store_params(self, params, model, dataset, optimization, epochs, path=None):
         #TODO: Check if params exist and if overwriting a file
         if not path:
             path = self.path
 
-        data = {'params': params, 'model': model, 'dataset': dataset}
+        data = {'params': params, 'model': model, 'dataset': dataset, 'optimization': optimization, 'epochs': epochs}
         print(path)
         f = open(path, 'wb')
         pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)

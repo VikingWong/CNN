@@ -30,7 +30,7 @@ def run_cnn(model_params, optimization_params, dataset, dataset_params, filename
     #Stores the model params. Model can later be restored.
     print_section('Storing model parameters')
     p = ParamStorage(path=filename_params.network_save_name)
-    p.store_params(m.params, model_params, dataset_params)
+    p.store_params(m.params, model_params, dataset_params, optimization_params, number_of_epochs)
     if visual_params.gui_enabled:
         gui.server.stop_job()
 
