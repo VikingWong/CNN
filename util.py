@@ -23,7 +23,8 @@ def get_image_files(path):
 def get_dataset(path):
     content = os.listdir(path)
     if not all(x in ['train', 'valid', 'test'] for x in content):
-        raise Exception('Folder does not contain image or label folder. Path probably not correct')
+        print_error('Folder does not contain image or label folder. Path probably not correct')
+        raise Exception('Fix dataset_path in config')
     return content
 
 
@@ -105,6 +106,8 @@ def debug_mnist():
 def print_color(text):
     print(Color.PURPLE + text + Color.PURPLE)
 
+def print_error(text):
+    print(Color.RED + text + Color.END)
 
 def print_section(description):
     print('')

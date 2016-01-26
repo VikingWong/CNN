@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-from util import debug_input_data, print_section
+from util import debug_input_data, print_section, print_error
 from augmenter.aerial import Creator
 
 
@@ -70,8 +70,13 @@ class AbstractDataset(object):
         return math.ceil(s/batch_size)
 
     def _chunkify(self, dataset, nr_of_chunks, batch_size):
+
         #Round items per chunk down until there is an exact number of minibatches. Multiple of batch_size
-        items_per_chunk = int(math.ceil(len(dataset[0])/nr_of_chunks))
+        items_per_chunk = len(dataset[0])/ nr_of_chunks
+        if(items_per_chunk < batch_size):
+            print_error('Chunk limit in config set to small, or batch size to large. \n'
+                        'Each chunk must include at least one batch.')
+            raise Exception('Fix chunk_size and batch_size')
         temp = int(items_per_chunk / batch_size)
         items_per_chunk = batch_size * temp
         data, labels = dataset

@@ -3,7 +3,7 @@ import secret
 
 token = secret.token
 verbose = True
-number_of_epochs = 100
+number_of_epochs = 10
 dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",
@@ -18,7 +18,7 @@ visual_params = Params({
 
 #TODO: Implement dropout_rate
 optimization_params = Params({
-        "batch_size"                        : 1,
+        "batch_size"                        : 64,
         "initial_learning_rate"             : 0.0002,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
@@ -31,7 +31,7 @@ optimization_params = Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 5,
+    "samples_per_image"     : 4,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
@@ -40,22 +40,22 @@ dataset_params = Params({
     "reduce"                : 0.1,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 1
+    "chunk_size"            : 6
 })
 
 #TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
 model_params = Params({
 
-    "nr_kernels"        : [ 64, 112, 80 ],
+    "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),
-    "output_label_dim"  : (16,16),
+    "output_label_dim"  : (16, 16),
     "hidden_layer"      : 4096,
     "hidden_dropout"    : 0.5,
     "conv_layers"       :
         [
-            {"filter": (16,16), "stride": (1, 1), "pool": (4,4)},
-            {"filter": (4, 4), "stride": (1, 1), "pool": (1,1)},
-            {"filter": (3,3), "stride": (1, 1), "pool": (1,1)}
+            {"filter": (16,16), "stride": (1, 1), "pool": (4, 4)},
+            {"filter": (4, 4), "stride": (1, 1), "pool": (1, 1)},
+            {"filter": (3,3), "stride": (1, 1), "pool": (1, 1)}
         ],
 })

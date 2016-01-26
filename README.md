@@ -91,3 +91,7 @@ can be used to stop a running job, and other things. The purpose of this system 
     compiler_bindir=C:\Program Files (x86)\Microsoft Visual Studio 13.0\VC\bin
   ```
   Make sure the paths for anaconda and visual studio are correct.
+
+##Profile
+In your .theanorc file, change or enter profile=True.
+Run system by command CUDA_LAUNCH_BLOCKING=1 python cnn.py
