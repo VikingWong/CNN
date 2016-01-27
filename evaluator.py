@@ -119,8 +119,8 @@ class Evaluator(object):
                     if iter % 100 == 0:
                         print('---- Training @ iter = {}'.format(iter))
 
-                    if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
-                        #pass
+                    if visual_params.gui_enabled and gui.server.is_testing():
+                        #If testing command is True, immediately set to false by is_testing, and debug is run.
                         self._debug(batch_size, minibatch_index )
 
                     if(np.isnan(cost_ij)):
@@ -129,7 +129,7 @@ class Evaluator(object):
                     #TODO: move to function - this is not run that often, and is kind of a unit.
                     if (iter + 1) % validation_frequency == 0:
                         if visual_params.gui_enabled:
-                            gui.server.get_stop_status()
+                            gui.server.get_command_status()
 
                         validation_losses = [self.validate_model(i) for i in range(n_valid_batches)]
                         this_validation_loss = np.mean(validation_losses)
