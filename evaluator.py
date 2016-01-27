@@ -120,8 +120,8 @@ class Evaluator(object):
                         print('---- Training @ iter = {}'.format(iter))
 
                     if epoch > 4 and (iter + 1) % (validation_frequency * 10) == 0:
-                        pass
-                        #self._debug(batch_size, minibatch_index )
+                        #pass
+                        self._debug(batch_size, minibatch_index )
 
                     if(np.isnan(cost_ij)):
                         print('cost IS NAN')

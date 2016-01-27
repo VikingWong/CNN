@@ -6,7 +6,7 @@ import math, sys, os
 
 sys.path.append(os.path.abspath("./"))
 
-from model import ShallowModel, Model, ConvModel
+from model import ShallowModel, ConvModel
 from storage.store import ParamStorage
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
@@ -88,7 +88,7 @@ class Visualizer(object):
 
     def create_data_from_image(self):
         print("Create data patches for model")
-        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/12328750_15.tiff')
+        image = self.open_image('/home/olav/Pictures/Mass_roads/valid/data/18028945_15.tiff')
         image = image[0:1024, 0: 1024, :]
         #Need to be a multiply of 2 for now.
         label_size = Visualizer.LABEL_SIZE
@@ -102,7 +102,7 @@ class Visualizer(object):
                 image_data = from_rgb_to_arr(temp)
 
                 #TODO: Store preprocessing in params file as well. Will have concequences if config is out of sync with stored values.
-                if False:
+                if True:
                     image_data = normalize(image_data, self.std)
                 data.append(image_data)
 

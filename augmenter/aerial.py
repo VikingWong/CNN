@@ -38,7 +38,8 @@ class Creator(object):
         print('{}# test img, {}# train img, {}# valid img'.format(len(test_img_paths), len(train_img_paths), len(valid_img_paths)))
 
         test = self._sample_data(base_test, test_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
-        train = self._sample_data(base_train, train_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
+        train = self._sample_data(base_train, train_img_paths, samples_per_image,
+                                  mixed_labels=self.only_mixed_labels, rotation=self.rotation)
         valid = self._sample_data(base_valid, valid_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
         #input_debugger(train, 64, 16)
 
@@ -86,7 +87,7 @@ class Creator(object):
                 raise Exception('tile', tiles[i], 'does not match label', labels[i])
 
 
-    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False):
+    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False, rotation=False):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -118,7 +119,7 @@ class Creator(object):
             height = height - dim_data
 
             rot = 0
-            if self.rotation:
+            if rotation:
                 rot = random.uniform(0.0, 360.0)
 
             image_img = np.asarray(im.rotate(rot))
@@ -129,10 +130,10 @@ class Creator(object):
 
             #TODO: Check if can get stuck, especially mixed labels.
             while s>0:
-                if invalid_selection > 300:
-                    print("INDVALID SELECTION")
-                    dropped_images += 1
-                    break
+                #if invalid_selection > 300:
+                #    print("INDVALID SELECTION")
+                #    dropped_images += 1
+                #    break
 
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
@@ -151,14 +152,14 @@ class Creator(object):
                 #    invalid_selection += 1
                 #    continue
 
-                if mixed_labels:
-                    nr_total += 1
-                    contains_class = not  label_sample.max() == 0
-                    nr_class += int(contains_class)
-                    if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
-
-                        nr_total -= 1
-                        continue
+                nr_total += 1
+                contains_class = not label_sample.max() == 0
+                nr_class += int(contains_class)
+                if mixed_labels and contains_class and nr_class/float(nr_total) < self.mix_ratio:
+                    nr_total -= 1
+                    nr_class -= int(contains_class)
+                    invalid_selection += 1
+                    continue
 
                 data[idx] = data_sample
                 label[idx] = label_sample
@@ -173,9 +174,7 @@ class Creator(object):
                 del la
 
         print("---- Extracted {} images".format(data.shape[0]))
-        if self.only_mixed_labels:
-            print("---- Images containing class {}/{}".format(nr_class, nr_total))
-
+        print("---- Images containing class {}/{}".format(nr_class, nr_total))
         print("---- Dropped {} images".format(dropped_images))
         return data, label
 
