@@ -4,6 +4,8 @@ from PIL import Image
 import time
 import pickle, gzip
 
+#TODO: move printing to own file.
+#Enables dot notation when getting values in config
 class Params:
      def __init__(self, dictionary):
          for k, v in dictionary.items():
@@ -11,7 +13,7 @@ class Params:
 
 
 def get_image_files(path):
-        print("Retrieving", path)
+        print('Retrieving {}'.format(path))
         included_extenstions = ['jpg','png', 'tiff', 'tif']
         files = [fn for fn in os.listdir(path) if any([fn.endswith(ext) for ext in included_extenstions])]
         files.sort()
@@ -21,7 +23,9 @@ def get_image_files(path):
 def get_dataset(path):
     content = os.listdir(path)
     if not all(x in ['train', 'valid', 'test'] for x in content):
-        raise Exception('Folder does not contain image or label folder. Path probably not correct')
+        print_error('Folder does not contain image or label folder. Path probably not correct')
+        raise Exception('Fix dataset_path in config')
+    content.sort()
     return content
 
 
@@ -47,7 +51,7 @@ def from_arr_to_data(data, data_dim):
 def from_rgb_to_arr(image):
     arr =  np.asarray(image, dtype='float32') / 255
     arr = np.rollaxis(arr, 2, 0)
-    arr = arr.reshape(3*  arr.shape[1] * arr.shape[2])
+    arr = arr.reshape(3 * arr.shape[1] * arr.shape[2])
     return arr
 
 
@@ -56,7 +60,7 @@ def debug_input_data(data, label, data_dim, label_dim, delay=0):
     data_image= from_arr_to_data(data, data_dim)
 
     data_image.paste(label_image, (24, 24), label_image)
-    data_image = data_image.resize( (512,512) )
+    data_image = data_image.resize((512, 512))
     data_image.show()
     time.sleep(delay)
 
@@ -80,9 +84,46 @@ def normalize(data, std):
     data = (data - m) / std
     return data
 
+# ======================PRINTING UTILITIES============================
+class Color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
 
 def debug_mnist():
     f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
     print(train_set[0].shape)
     f.close()
+
+
+def print_color(text):
+    print(Color.PURPLE + text + Color.PURPLE)
+
+def print_error(text):
+    print(Color.RED + text + Color.END)
+
+def print_section(description):
+    print('')
+    print('')
+    print('')
+    print(Color.BOLD + '========== ' + str(description) + ' ==========' + Color.END)
+
+
+def print_test(epoch, idx, minibatches, loss):
+    #print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
+    print('---- Test error %f MSE' % (loss))
+    print('')
+
+
+def print_valid(epoch, idx, minibatches, loss):
+    print('')
+    print(Color.CYAN + 'Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches) + Color.END)
+    print('---- Validation error %f MSE' % (loss))

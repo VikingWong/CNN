@@ -1,7 +1,7 @@
 __author__ = 'Olav'
 
 import numpy as np
-import os
+import os, gc
 import theano
 from PIL import Image, ImageFilter
 import math
@@ -35,10 +35,11 @@ class Creator(object):
         train_img_paths = self._merge_to_examples(base_train, reduce)
         valid_img_paths = self._merge_to_examples(base_valid, no_reduce)
 
-        print(len(test_img_paths), '# test img', len(train_img_paths), "# train img", len(valid_img_paths), "# valid img")
+        print('{}# test img, {}# train img, {}# valid img'.format(len(test_img_paths), len(train_img_paths), len(valid_img_paths)))
 
         test = self._sample_data(base_test, test_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
-        train = self._sample_data(base_train, train_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
+        train = self._sample_data(base_train, train_img_paths, samples_per_image,
+                                  mixed_labels=self.only_mixed_labels, rotation=self.rotation)
         valid = self._sample_data(base_valid, valid_img_paths, samples_per_image, mixed_labels=self.only_mixed_labels)
         #input_debugger(train, 64, 16)
 
@@ -86,22 +87,26 @@ class Creator(object):
                 raise Exception('tile', tiles[i], 'does not match label', labels[i])
 
 
-    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False):
+    def _sample_data(self, base, paths, samples_per_images, mixed_labels=False, rotation=False):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
         '''
 
         nr_class = 0
-        nr_total= 0
+        nr_total = 0
 
         dropped_images = 0
-        data = []
-        label = []
+        idx = 0
+        #TODO: hard  color coded values
         dim_data = self.dim_data
+        max_arr_size = len(paths)*samples_per_images
+        data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
+        label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
 
-        print("")
-        print("Sampling examples for", base)
+
+        print('')
+        print('Sampling examples for {}'.format(base))
 
         for i in range(len(paths)):
             d, v = paths[i]
@@ -114,7 +119,7 @@ class Creator(object):
             height = height - dim_data
 
             rot = 0
-            if self.rotation:
+            if rotation:
                 rot = random.uniform(0.0, 360.0)
 
             image_img = np.asarray(im.rotate(rot))
@@ -123,10 +128,12 @@ class Creator(object):
             s = samples_per_images
             invalid_selection = 0
 
+            #TODO: Check if can get stuck, especially mixed labels.
             while s>0:
-                if invalid_selection > 300:
-                    dropped_images += 1
-                    break
+                #if invalid_selection > 300:
+                #    print("INDVALID SELECTION")
+                #    dropped_images += 1
+                #    break
 
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
@@ -140,49 +147,44 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                if(data_sample.max() == 0 or data_sample.min() == 1):
+                #TODO: must shrink to reintroduce this
+                #if(data_sample.max() == 0 or data_sample.min() == 1):
+                #    invalid_selection += 1
+                #    continue
+
+                nr_total += 1
+                contains_class = not label_sample.max() == 0
+                nr_class += int(contains_class)
+                if mixed_labels and contains_class and nr_class/float(nr_total) < self.mix_ratio:
+                    nr_total -= 1
+                    nr_class -= int(contains_class)
                     invalid_selection += 1
                     continue
 
-                if mixed_labels:
-                    nr_total += 1
-                    contains_class = not  label_sample.max() == 0
-                    nr_class += int(contains_class)
-                    if not contains_class and nr_class/float(nr_total) < self.mix_ratio:
-
-                        nr_total -=1
-                        continue
-
-
-                data.append(data_sample)
-                label.append(label_sample)
-
+                data[idx] = data_sample
+                label[idx] = label_sample
+                idx += 1
                 s -= 1
 
             if i % 50 == 0:
-                print("")
-                print('Input image: ', i, '/', len(paths))
+                print('---- Input image: {}/{}'.format(i, len(paths)))
 
             if im and la:
                 del im
                 del la
 
-        data = np.array(data)
-        label = np.array(label)
-
-        if self.only_mixed_labels:
-            print("Images containing class", nr_class, "of" ,nr_total)
-
-        print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
-        print("Dropped", dropped_images, "images")
+        print("---- Extracted {} images".format(data.shape[0]))
+        print("---- Images containing class {}/{}".format(nr_class, nr_total))
+        print("---- Dropped {} images".format(dropped_images))
         return data, label
 
 
     def print_verbose(self):
         print('Initializing dataset creator')
-        print('----Data size', self.dim_data, 'x', self.dim_data)
-        print('----Label size', self.dim_label, 'x', self.dim_label)
-        print('----Rotation:', self.rotation, ' Preprocessing:', self.preprocessing, 'with std:' , self.std)
+        print('---- Data size {}x{}'.format( self.dim_data, self.dim_data))
+        print('---- Label size {}x{}'.format( self.dim_label, self.dim_label))
+        print('---- Rotation: {}, preprocessing: {}, and with std: {}'.format(self.rotation, self.preprocessing, self.std))
         if self.only_mixed_labels:
-            print('----CAUTION: will only include labels containing class of interest')
+            print('---- CAUTION: will only include labels containing class of interest')
+            #print("Image that contains a lot of deadspace in terms of white or dark areas are dropped")
         print('')

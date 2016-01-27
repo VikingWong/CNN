@@ -25,5 +25,10 @@ class HiddenLayer(BaseLayer):
     def _verbose_print(self, is_verbose,activation, n_in, n_out):
         #Add type of activation
         if is_verbose:
-            print('Initializing hidden layer with', n_out, 'nodes, where each have', n_in, 'incoming connections')
+            print('Hidden layer with {} nodes'.format(n_out))
+            print('---- Incoming connections: {}'.format(n_in))
+            if (activation is T.tanh):
+                print('---- Activation: tanh')
+            elif (activation is T.nnet.relu):
+                print('---- Activation: relu')
             print('')
