@@ -19,10 +19,10 @@ visual_params = Params({
 #TODO: Implement dropout_rate
 optimization_params = Params({
         "batch_size"                        : 8,
-        "initial_learning_rate"             : 0.05,
-        "epoch_learning_adjustment"         : 10,
+        "initial_learning_rate"             : 0.06,
+        "epoch_learning_adjustment"         : 5,
         "learning_rate_decrease"            : 0.95,
-        "l2_reg"                            : 0.0002,
+        "l2_reg"                            : 0.0003,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
@@ -33,7 +33,7 @@ optimization_params = Params({
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 10,
+    "samples_per_image"     : 20,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,

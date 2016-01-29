@@ -2,6 +2,7 @@ import unirest
 import json
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, token
+from util import print_error
 
 
 
@@ -29,11 +30,12 @@ def get_command_status():
     print(base_url)
     url = base_url + "job/" + current_id + "/status"
     def callback(response):
+        print(response.body)
         global stop, test
         if not response.body['running']:
             stop = True
-        if response.body['test_epoch'] > 0:
-            test = response.body['test_epoch']
+        if response.body['test']:
+            test = response.body['test']
     thread = unirest.get(url, headers=default_headers, callback=callback)
 
 def append_job_update( epoch, training_loss, validation_loss, test_loss):
@@ -62,11 +64,15 @@ def start_new_job():
     data = json.dumps(data)
 
     def callback(response):
+        if(response.body == 'Unauthorized'):
+            print_error('Gui is enabled, but token in secret.py is invalid')
+            raise Exception('Token is invalid')
         global current_id
         current_id = response.body['id']
 
     thread = unirest.post(url, headers=default_headers, params=data, callback=callback)
 
-def stop_job():
+def stop_job(report):
     url = base_url + "job/" + current_id + "/stop"
-    thread = unirest.post(url, headers=default_headers)
+    print(report)
+    thread = unirest.post(url, headers=default_headers, params=json.dumps(report))
