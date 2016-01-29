@@ -52,10 +52,14 @@ class Evaluator(object):
         self.tester = create_profiler_func(self.data, x, y, [index], self.model.get_output_layer() ,cost, batch_size)
 
 
-    def _debug(self, batch_size, minibatch_index):
-        number_of_tests = 1
-        #output, y, cost, errs = self.tester(minibatch_index)
+    def _debug(self, batch_size, nr_batches):
+        '''
+        When gui has requested a debug. A random minibatch is chosen, and a number of images are displayed,
+        so user can evaulate progress.
+        '''
+        number_of_tests = 5
         for test in range(number_of_tests):
+            minibatch_index = random.randint(0, nr_batches-1)
             v = random.randint(0,batch_size-1)
             output, y, cost, errs = self.tester(minibatch_index)
             print(errs)
@@ -132,19 +136,29 @@ class Evaluator(object):
                             gui.server.get_command_status()
 
                         if visual_params.gui_enabled and (iter - 100) % gui_frequency ==0 and gui.server.is_testing():
-                            self._debug(batch_size, minibatch_index)
+                            self._debug(batch_size, chunk_batches)
 
                         if(np.isnan(cost_ij)):
                             print('cost IS NAN')
 
                         #TODO: move to function - this is not run that often, and is kind of a unit.
+                        #==== EVAULATE ====
                         if (iter + 1) % validation_frequency == 0:
 
                             validation_losses = [self.validate_model(i) for i in range(n_valid_batches)]
                             this_validation_loss = np.mean(validation_losses)
                             print_valid(epoch, minibatch_index + 1, n_train_batches,  this_validation_loss/batch_size)
 
-                            # if we got the best validation score until now
+                            #TODO: Get the testscore no matter if validation is worse than before. That way we can record it
+                            # test it on the test set
+                            test_losses = [self.test_model(i) for i in range(n_test_batches)]
+                            test_score = np.mean(test_losses)
+                            print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
+
+                            if visual_params.gui_enabled:
+                                    gui.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
+
+                            #==== EARLY STOPPING ====
                             if this_validation_loss < best_validation_loss:
 
                                 #improve patience if loss improvement is good enough
@@ -154,15 +168,6 @@ class Evaluator(object):
                                 # save best validation score and iteration number
                                 best_validation_loss = this_validation_loss
                                 best_iter = iter
-
-                                # test it on the test set
-                                test_losses = [self.test_model(i) for i in range(n_test_batches)]
-                                test_score = np.mean(test_losses)
-                                print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
-
-                                if visual_params.gui_enabled:
-                                    #TODO: Only test when validation is better, so move this out of inner scope.
-                                    gui.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
 
                         if patience <= iter:
                             done_looping = True

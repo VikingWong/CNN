@@ -18,7 +18,7 @@ visual_params = Params({
 
 #TODO: Implement dropout_rate
 optimization_params = Params({
-        "batch_size"                        : 8,
+        "batch_size"                        : 16,
         "initial_learning_rate"             : 0.06,
         "epoch_learning_adjustment"         : 5,
         "learning_rate_decrease"            : 0.95,
@@ -39,7 +39,7 @@ dataset_params = Params({
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
-    "reduce"                : 0.5,
+    "reduce"                : 1,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
