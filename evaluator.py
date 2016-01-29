@@ -24,6 +24,9 @@ class Evaluator(object):
 
     def run(self, epochs=10, verbose=False):
         batch_size = self.params.batch_size
+        self.nr_train_batches = self.data.get_total_number_of_batches(batch_size)
+        self.nr_valid_batches = self._get_number_of_batches('validation', batch_size)
+        self.nr_test_batches = self._get_number_of_batches('test', batch_size)
         self._build(batch_size)
         self._train(batch_size, epochs)
 
@@ -70,9 +73,17 @@ class Evaluator(object):
             debug_input_data(img, y[v], 64, 16)
 
 
-    def _evaluate(self):
-        #TODO: smart way to test and validation stuff from while loop in here?
-        pass
+    def _get_validation_score(self, epoch, minibatch_index, batch_size):
+        validation_loss = np.mean( [self.validate_model(i) for i in range(self.n_valid_batches)] )
+        print_valid(epoch, minibatch_index + 1, self.nr_train_batches,  validation_loss/batch_size)
+        return validation_loss
+
+
+    def _get_test_score(self, batch_size):
+        test_score =  np.mean( [self.test_model(i) for i in range(self.nr_test_batches)] )
+        print_test(test_score/batch_size)
+        return test_score
+
 
     def _get_number_of_batches(self, set_name, batch_size):
         set_x, set_y = self.data.set[set_name]
@@ -80,12 +91,9 @@ class Evaluator(object):
         nr_of_batches /= batch_size
         return int(nr_of_batches)
 
+
     def _train(self, batch_size, max_epochs):
         print_section('Training model')
-
-        n_train_batches = self.data.get_total_number_of_batches(batch_size)
-        n_valid_batches = self._get_number_of_batches('validation', batch_size)
-        n_test_batches = self._get_number_of_batches('test', batch_size)
 
         patience = self.params.initial_patience # look as this many examples regardless
         patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
@@ -93,8 +101,8 @@ class Evaluator(object):
 
         # go through this many minibatch before checking the network on the validation set
         gui_frequency = 500
-        validation_frequency = min(n_train_batches, patience / 2)
-        learning_rate = self.params.initial_learning_rate/float(batch_size)
+        validation_frequency = min(self.nr_train_batches, patience / 2)
+        learning_rate = self.params.initial_learning_rate/float(batch_size/2)
         print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = self.params.epoch_learning_adjustment
         nr_learning_adjustments = 0
@@ -141,32 +149,26 @@ class Evaluator(object):
                         if(np.isnan(cost_ij)):
                             print('cost IS NAN')
 
-                        #TODO: move to function - this is not run that often, and is kind of a unit.
                         #==== EVAULATE ====
                         if (iter + 1) % validation_frequency == 0:
 
-                            validation_losses = [self.validate_model(i) for i in range(n_valid_batches)]
-                            this_validation_loss = np.mean(validation_losses)
-                            print_valid(epoch, minibatch_index + 1, n_train_batches,  this_validation_loss/batch_size)
+                            #==== CURRENT PERFORMANCE ====
+                            validation_score = self._get_validation_score(batch_size, epoch, minibatch_index)
+                            test_score = self._get_test_score(batch_size)
 
-                            #TODO: Get the testscore no matter if validation is worse than before. That way we can record it
-                            # test it on the test set
-                            test_losses = [self.test_model(i) for i in range(n_test_batches)]
-                            test_score = np.mean(test_losses)
-                            print_test(epoch, minibatch_index + 1, n_train_batches,  test_score/batch_size)
-
+                            #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(epoch, cost_ij, this_validation_loss/batch_size, test_score/batch_size)
+                                    gui.server.append_job_update(epoch, cost_ij, validation_score/batch_size, test_score/batch_size)
 
                             #==== EARLY STOPPING ====
-                            if this_validation_loss < best_validation_loss:
+                            if validation_score < best_validation_loss:
 
                                 #improve patience if loss improvement is good enough
-                                if this_validation_loss < best_validation_loss * improvement_threshold:
+                                if validation_score < best_validation_loss * improvement_threshold:
                                     patience = max(patience, iter * patience_increase)
 
                                 # save best validation score and iteration number
-                                best_validation_loss = this_validation_loss
+                                best_validation_loss = validation_score
                                 best_iter = iter
 
                         if patience <= iter:

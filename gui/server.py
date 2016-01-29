@@ -27,10 +27,9 @@ def is_testing():
         return False
 
 def get_command_status():
-    print(base_url)
+    print("---- Retrieve command status")
     url = base_url + "job/" + current_id + "/status"
     def callback(response):
-        print(response.body)
         global stop, test
         if not response.body['running']:
             stop = True
@@ -74,5 +73,4 @@ def start_new_job():
 
 def stop_job(report):
     url = base_url + "job/" + current_id + "/stop"
-    print(report)
     thread = unirest.post(url, headers=default_headers, params=json.dumps(report))

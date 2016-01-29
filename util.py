@@ -117,7 +117,7 @@ def print_section(description):
     print(Color.BOLD + '========== ' + str(description) + ' ==========' + Color.END)
 
 
-def print_test(epoch, idx, minibatches, loss):
+def print_test(loss):
     #print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
     print('---- Test error %f MSE' % (loss))
     print('')
