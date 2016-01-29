@@ -88,7 +88,7 @@ class Visualizer(object):
 
     def create_data_from_image(self):
         print("Create data patches for model")
-        image = self.open_image('/home/olav/Pictures/Mass_roads/valid/data/18028945_15.tiff')
+        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/18478735_15.tiff')
         image = image[0:1024, 0: 1024, :]
         #Need to be a multiply of 2 for now.
         label_size = Visualizer.LABEL_SIZE

@@ -19,17 +19,21 @@ class AbstractDataset(object):
         self.all_training = []
         self.active = []
 
+        self.nr_examples = {}
+
 
     @abstractmethod
     def load(self, dataset_path):
         """Loading and transforming logic for dataset"""
         return
 
-
     def _floatX(self, d):
         #Creates a data representation suitable for GPU
         return np.asarray(d, dtype=theano.config.floatX)
 
+
+    def get_report(self):
+        return self.nr_examples
 
     def _get_file_path(self, dataset):
         data_dir, data_file = os.path.split(dataset)
@@ -161,6 +165,10 @@ class AerialDataset(AbstractDataset):
         print('Preparing shared variables for datasets')
         print('---- Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
         print('---- Max chunk size of {}mb'.format(chunks))
+
+        self.nr_examples['train'] = train[0].shape[0]
+        self.nr_examples['valid'] = valid[0].shape[0]
+        self.nr_examples['test'] = test[0].shape[0]
 
         mb = 1000000.0
         train_size = sum(data.nbytes for data in train) / mb
