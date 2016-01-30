@@ -4,3 +4,4 @@ storage/params
 results
 *.pyc
 secret.py
+/tools/visualize/tester.jpg

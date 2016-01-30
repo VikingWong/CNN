@@ -73,8 +73,8 @@ class Evaluator(object):
             debug_input_data(img, y[v], 64, 16)
 
 
-    def _get_validation_score(self, epoch, minibatch_index, batch_size):
-        validation_loss = np.mean( [self.validate_model(i) for i in range(self.n_valid_batches)] )
+    def _get_validation_score(self, batch_size, epoch, minibatch_index):
+        validation_loss = np.mean( [self.validate_model(i) for i in range(self.nr_valid_batches)] )
         print_valid(epoch, minibatch_index + 1, self.nr_train_batches,  validation_loss/batch_size)
         return validation_loss
 
@@ -102,7 +102,7 @@ class Evaluator(object):
         # go through this many minibatch before checking the network on the validation set
         gui_frequency = 500
         validation_frequency = min(self.nr_train_batches, patience / 2)
-        learning_rate = self.params.initial_learning_rate/float(batch_size/2)
+        learning_rate = self.params.initial_learning_rate/float(batch_size)
         print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = self.params.epoch_learning_adjustment
         nr_learning_adjustments = 0
@@ -117,6 +117,14 @@ class Evaluator(object):
         epoch = 0
         done_looping = False
         iter = 0
+
+        #==== INITIAL PERFORMANCE ====
+        validation_score = self._get_validation_score(batch_size, epoch, 0)
+        test_score = self._get_test_score(batch_size)
+
+        #==== UPDATE GUI ====
+        if visual_params.gui_enabled:
+                gui.server.append_job_update(epoch, None, validation_score/batch_size, test_score/batch_size)
 
         #TODO: np.mean cross entropy. over 1. Want error per pixel but current have a value of 26 or something.
         #TODO: Because of batch size or number of pixels?
