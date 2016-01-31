@@ -13,10 +13,10 @@ print_section('TOOLS: Visualize result from model')
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
 
-m = ConvModel(data.model)
-dataset_std = data.dataset.dataset_std
+m = ConvModel(data['model'])
+dataset_std = data['dataset'].dataset_std
 
-v = Visualizer(m, data.params, std=dataset_std)
+v = Visualizer(m, data['params'], std=dataset_std)
 img = v.visualize()
 img.show()
 img.save('./tools/visualize/tester.jpg')

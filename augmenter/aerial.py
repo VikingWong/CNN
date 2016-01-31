@@ -27,15 +27,15 @@ class Creator(object):
         self.print_verbose()
 
 
-    def _load_dataset(self):
+    def load_dataset(self):
         test_path, train_path, valid_path = util.get_dataset(self.dataset_path)
         no_reduce = 1
         self.test = Dataset("Test set", self.dataset_path, test_path, no_reduce)
-        self.train = Dataset("Training set", self.dataset_path, train_path, reduce)
+        self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce)
         self.valid = Dataset("Validation set", self.dataset_path, valid_path, no_reduce)
 
     def dynamically_create(self, samples_per_image):
-        self._load_dataset()
+        self.load_dataset()
 
         print('{}# test img, {}# train img, {}# valid img'.format(
             self.test.nr_img, self.train.nr_img, self.valid.nr_img))

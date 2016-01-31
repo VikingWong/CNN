@@ -5,7 +5,7 @@ import theano
 import theano.tensor as T
 
 from printing import print_section, print_error
-from augmenter.aerial import Creator
+from augmenter import Creator
 
 
 class AbstractDataset(object):
@@ -27,7 +27,8 @@ class AbstractDataset(object):
         """Loading and transforming logic for dataset"""
         return
 
-    def _floatX(self, d):
+    @staticmethod
+    def _floatX(d):
         #Creates a data representation suitable for GPU
         return np.asarray(d, dtype=theano.config.floatX)
 
@@ -41,17 +42,17 @@ class AbstractDataset(object):
         assert os.path.isfile(dataset)
         return dataset
 
-
-    def _shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
+    @staticmethod
+    def shared_dataset(data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
-        shared_x = theano.shared(self._floatX(data_x), borrow=borrow)
-        shared_y = theano.shared(self._floatX(data_y), borrow=borrow)
-        #Since labels are index integers they have to be treated as such during computations.
-        #Shared_y is therefore cast to int.
+        shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
+        shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
 
         if cast_to_int:
             print("---- Casted to int")
+            #Since labels are index integers they have to be treated as such during computations.
+            #Shared_y is therefore cast to int.
             return shared_x, T.cast(shared_y, 'int32')
         else:
             return shared_x, shared_y
@@ -123,9 +124,9 @@ class MnistDataset(AbstractDataset):
         f.close()
 
         #All the shared variables in a simple datastructure for easier access.
-        self.set['test'] = self._shared_dataset(test_set, cast_to_int=True)
-        self.set['validation'] = self._shared_dataset(valid_set, cast_to_int=True)
-        self.set['train'] = self._shared_dataset(train_set, cast_to_int=True)
+        self.set['test'] = MnistDataset.shared_dataset(test_set, cast_to_int=True)
+        self.set['validation'] = MnistDataset.shared_dataset(valid_set, cast_to_int=True)
+        self.set['train'] = MnistDataset.shared_dataset(train_set, cast_to_int=True)
 
 
         return True #TODO: Implement boolean for whether everything went ok or not
@@ -188,10 +189,10 @@ class AerialDataset(AbstractDataset):
         print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
 
         #TODO: Chunkify for validation and testing as well?
-        self.active = self._shared_dataset(training_chunks[0], cast_to_int=False)
+        self.active = AerialDataset.shared_dataset(training_chunks[0], cast_to_int=False)
         self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
-        self.set['validation'] = self._shared_dataset(valid, cast_to_int=True )
-        self.set['test'] = self._shared_dataset(test, cast_to_int=True)
+        self.set['validation'] = AerialDataset.shared_dataset(valid, cast_to_int=True )
+        self.set['test'] = AerialDataset.shared_dataset(test, cast_to_int=True)
 
         self.all_training = training_chunks #Not stored on the GPU, unlike the shared variables defined above.
         return True
