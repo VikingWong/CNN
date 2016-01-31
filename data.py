@@ -36,7 +36,8 @@ class AbstractDataset(object):
     def get_report(self):
         return self.nr_examples
 
-    def _get_file_path(self, dataset):
+    @staticmethod
+    def _get_file_path(dataset):
         data_dir, data_file = os.path.split(dataset)
         #TODO: Add some robustness, like checking if file is folder and correct that
         assert os.path.isfile(dataset)
@@ -69,8 +70,8 @@ class AbstractDataset(object):
         self.active[0].set_value(new_chunk_x)
         self.active[1].set_value(new_chunk_y)
 
-
-    def _dataset_check(self, name, dataset, batch_size):
+    @staticmethod
+    def _dataset_check(name, dataset, batch_size):
         #If there are are to few examples for at least one batch, the dataset is invalid.
         if len(dataset[0]) < batch_size:
             print_error('Insufficent examples in {}. '
@@ -118,7 +119,7 @@ class MnistDataset(AbstractDataset):
 
     def load(self, dataset):
         print("Creating MNIST dataset")
-        dataset = self._get_file_path(dataset)
+        dataset = MnistDataset._get_file_path(dataset)
         f = gzip.open(dataset, 'rb')
         train_set, valid_set, test_set = pickle.load(f , encoding='latin1')
         f.close()
@@ -158,9 +159,9 @@ class AerialDataset(AbstractDataset):
             train, valid, test = creator.dynamically_create(samples_per_image)
 
         #Testing dataset size requirements
-        self._dataset_check('train', train, batch_size)
-        self._dataset_check('valid', valid, batch_size)
-        self._dataset_check('test', test, batch_size)
+        AerialDataset._dataset_check('train', train, batch_size)
+        AerialDataset._dataset_check('valid', valid, batch_size)
+        AerialDataset._dataset_check('test', test, batch_size)
 
         print('')
         print('Preparing shared variables for datasets')
