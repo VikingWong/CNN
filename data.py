@@ -98,6 +98,8 @@ class AbstractDataset(object):
     def shared_dataset(data_xy, borrow=True, cast_to_int=True):
         #Stored in theano shared variable to allow Theano to copy it into GPU memory
         data_x, data_y = data_xy
+        print(data_x.shape)
+        print(data_y.shape)
         shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
         shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
 

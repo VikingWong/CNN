@@ -12,6 +12,7 @@ print_section("TOOLS: Measure precision and recall of model")
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
 m = ConvModel(data['model'])
-dataset_path = '/home/olav/Pictures/Mass_roads'
+dataset_path = '/home/olav/Pictures/Mass_roads' #TODO: default, but specifiy as environment variable
+batch_size = data['optimization'].batch_size
 measurer = PrecisionRecallCurve(dataset_path, m, data['params'], data['model'], data['dataset'])
-datapoints = measurer.get_curves_datapoints()
+datapoints = measurer.get_curves_datapoints(batch_size)
