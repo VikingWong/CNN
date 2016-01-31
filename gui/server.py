@@ -2,7 +2,7 @@ import unirest
 import json
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, token
-from util import print_error
+from printing import print_error
 
 
 

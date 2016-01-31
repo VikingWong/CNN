@@ -1,11 +1,9 @@
 __author__ = 'Olav'
 
 import numpy as np
-import os, gc
+import os, math, random
 import theano
 from PIL import Image, ImageFilter
-import math
-import random
 import util
 
 
@@ -47,10 +45,10 @@ class Creator(object):
         return train, valid, test
 
 
-    def create_image_label(self, image):
+    def create_image_label(self, image, dim_data, dim_label):
         #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
-        y_size = self.dim_label
-        padding = (self.dim_data - y_size)/2
+        y_size = dim_label
+        padding = (dim_data - y_size)/2
         #label = np.array(image.getdata())
 
         #label = np.asarray(image, dtype=theano.config.floatX)
@@ -75,6 +73,7 @@ class Creator(object):
         idx = 0
         #TODO: hard  color coded values
         dim_data = self.dim_data
+        dim_label = self.dim_label
         max_arr_size = dataset.nr_img *samples_per_images
         data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
         label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
@@ -114,7 +113,7 @@ class Creator(object):
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
                 data_sample =   util.from_rgb_to_arr(data_temp)
-                label_sample =  self.create_image_label(label_temp)
+                label_sample =  self.create_image_label(label_temp, dim_data, dim_label)
 
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)

@@ -3,7 +3,8 @@
 import numpy as np
 import theano
 import theano.tensor as T
-from util import debug_input_data, print_section, print_test, print_valid
+from util import debug_input_data
+from printing import print_section, print_test, print_valid
 import random, sys, timeit
 from sdg import Backpropagation
 import gui.server

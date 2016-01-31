@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-from util import debug_input_data, print_section, print_error
+from printing import print_section, print_error
 from augmenter.aerial import Creator
 
 
