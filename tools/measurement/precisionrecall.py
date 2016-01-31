@@ -8,7 +8,7 @@ import theano
 sys.path.append(os.path.abspath("./"))
 
 from augmenter import Creator
-from data import _
+from data import AerialDataset
 
 '''
 TODO: Create all possible patches in test dataset.
@@ -45,12 +45,11 @@ class PrecisionRecallCurve(object):
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
         std = self.dataset_config.dataset_std
-
+        samples_per_image = 10
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
-        test_dataset = creator.sample_data(creator.test, 10)
-        test_dataset = self._shared_dataset(test, cast_to_int=True)
-        return test_dataset
+        #Creating a shared variable of sampled test data
+        return AerialDataset.shared_dataset(creator.sample_data(creator.test, samples_per_image), cast_to_int=True)
 
     def _predict_patches(self, dataset):
         number = dataset.shape[0] #Might be to big for a single prediction, lol mao.

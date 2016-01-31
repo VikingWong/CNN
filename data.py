@@ -27,56 +27,6 @@ class AbstractDataset(object):
         """Loading and transforming logic for dataset"""
         return
 
-    @staticmethod
-    def _floatX(d):
-        #Creates a data representation suitable for GPU
-        return np.asarray(d, dtype=theano.config.floatX)
-
-
-    def get_report(self):
-        return self.nr_examples
-
-    @staticmethod
-    def _get_file_path(dataset):
-        data_dir, data_file = os.path.split(dataset)
-        #TODO: Add some robustness, like checking if file is folder and correct that
-        assert os.path.isfile(dataset)
-        return dataset
-
-    @staticmethod
-    def shared_dataset(data_xy, borrow=True, cast_to_int=True):
-        #Stored in theano shared variable to allow Theano to copy it into GPU memory
-        data_x, data_y = data_xy
-        shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
-        shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
-
-        if cast_to_int:
-            print("---- Casted to int")
-            #Since labels are index integers they have to be treated as such during computations.
-            #Shared_y is therefore cast to int.
-            return shared_x, T.cast(shared_y, 'int32')
-        else:
-            return shared_x, shared_y
-
-
-    def switch_active_training_set(self, idx):
-        '''
-        Each epoch a large number of examples will be seen by model. Often all examples will not fit on the GPU at
-        the same time. This method, switches the data that are currently reciding in the gpu. Will be called
-        nr_of_chunks times per epoch.
-        '''
-        print('---- Changing active chunk')
-        new_chunk_x, new_chunk_y = self.all_training[idx]
-        self.active[0].set_value(new_chunk_x)
-        self.active[1].set_value(new_chunk_y)
-
-    @staticmethod
-    def _dataset_check(name, dataset, batch_size):
-        #If there are are to few examples for at least one batch, the dataset is invalid.
-        if len(dataset[0]) < batch_size:
-            print_error('Insufficent examples in {}. '
-                        '{} examples not enough for at least one minibatch'.format(name, len(dataset[0])))
-            raise Exception('Decrease batch_size or increase samples_per_image')
 
     def get_chunk_number(self):
         return len(self.all_training)
@@ -102,7 +52,7 @@ class AbstractDataset(object):
         items_per_chunk = batch_size * temp
         data, labels = dataset
         #TODO:do floatX operation twice.
-        chunks = [[self._floatX(data[x:x+items_per_chunk]), self._floatX(labels[x:x+items_per_chunk])]
+        chunks = [[AbstractDataset._floatX(data[x:x+items_per_chunk]), AbstractDataset._floatX(labels[x:x+items_per_chunk])]
                          for x in xrange(0, len(dataset[0]), items_per_chunk)]
 
         #If the last chunk is less than batch size, it is cut. No reason for an unnecessary swap.
@@ -113,6 +63,60 @@ class AbstractDataset(object):
                   '{} elements not enough for at least one minibatch of {}'.format(last_chunk_size, batch_size))
         return chunks
 
+
+    def get_report(self):
+        return self.nr_examples
+
+
+    def switch_active_training_set(self, idx):
+        '''
+        Each epoch a large number of examples will be seen by model. Often all examples will not fit on the GPU at
+        the same time. This method, switches the data that are currently reciding in the gpu. Will be called
+        nr_of_chunks times per epoch.
+        '''
+        print('---- Changing active chunk')
+        new_chunk_x, new_chunk_y = self.all_training[idx]
+        self.active[0].set_value(new_chunk_x)
+        self.active[1].set_value(new_chunk_y)
+
+
+    @staticmethod
+    def _floatX(d):
+        #Creates a data representation suitable for GPU
+        return np.asarray(d, dtype=theano.config.floatX)
+
+
+    @staticmethod
+    def _get_file_path(dataset):
+        data_dir, data_file = os.path.split(dataset)
+        #TODO: Add some robustness, like checking if file is folder and correct that
+        assert os.path.isfile(dataset)
+        return dataset
+
+
+    @staticmethod
+    def shared_dataset(data_xy, borrow=True, cast_to_int=True):
+        #Stored in theano shared variable to allow Theano to copy it into GPU memory
+        data_x, data_y = data_xy
+        shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
+        shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
+
+        if cast_to_int:
+            print("---- Casted to int")
+            #Since labels are index integers they have to be treated as such during computations.
+            #Shared_y is therefore cast to int.
+            return shared_x, T.cast(shared_y, 'int32')
+        else:
+            return shared_x, shared_y
+
+
+    @staticmethod
+    def _dataset_check(name, dataset, batch_size):
+        #If there are are to few examples for at least one batch, the dataset is invalid.
+        if len(dataset[0]) < batch_size:
+            print_error('Insufficent examples in {}. '
+                        '{} examples not enough for at least one minibatch'.format(name, len(dataset[0])))
+            raise Exception('Decrease batch_size or increase samples_per_image')
 
 
 class MnistDataset(AbstractDataset):
