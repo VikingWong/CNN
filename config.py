@@ -39,7 +39,7 @@ dataset_params = Params({
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
-    "reduce"                : 1,
+    "reduce"                : 0.01,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048

@@ -1,1 +1,1 @@
-__author__ = 'olav'
+from precisionrecall import *

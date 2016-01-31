@@ -146,7 +146,6 @@ class AerialDataset(AbstractDataset):
         chunks = params.chunk_size
 
         #TODO: Handle premade datasets. Later on when dataset structure is finalized
-        creator = Creator(dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed)
         #get image and label folder from dataset, if valid
         if dataset_path.endswith('.pkl'):
             raise NotImplementedError('Not tested yet')
@@ -154,7 +153,8 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f, encoding='latin1')
             f.close()
         else:
-            train, valid, test = creator.dynamically_create(dataset_path, samples_per_image, reduce=reduce)
+            creator = Creator(dataset_path, dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed, reduce=reduce)
+            train, valid, test = creator.dynamically_create(samples_per_image)
 
         #Testing dataset size requirements
         self._dataset_check('train', train, batch_size)

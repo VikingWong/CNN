@@ -6,8 +6,8 @@ import math, sys, os
 
 sys.path.append(os.path.abspath("./"))
 
-from model import ShallowModel, ConvModel
-from storage.store import ParamStorage
+
+
 from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
 class Visualizer(object):
@@ -37,7 +37,7 @@ class Visualizer(object):
         print("Build model and predict function")
         x = T.matrix('x')
         shared_x = theano.shared(np.asarray(data, dtype=theano.config.floatX), borrow=True)
-        self.model.build(x,number, init_params=self.params)
+        self.model.build(x, number, init_params=self.params)
         return x, shared_x
 
 
@@ -120,14 +120,3 @@ class Visualizer(object):
 
 
 
-print(sys.path)
-store = ParamStorage()
-data = store.load_params(path="./results/params.pkl")
-print(data)
-m = ConvModel(data['model'])
-dataset_std = data['dataset'].dataset_std
-
-v = Visualizer(m, data['params'], std=dataset_std)
-img = v.visualize()
-img.show()
-img.save('./tools/visualize/tester.jpg')
