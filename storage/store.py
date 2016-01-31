@@ -1,5 +1,5 @@
 import pickle
-
+from util import Params
 
 class ParamStorage(object):
 
@@ -14,7 +14,7 @@ class ParamStorage(object):
         f = open(path, 'rb');
         params = pickle.load(f)
         f.close()
-        return params
+        return Params(params)
 
     def store_params(self, params, model, dataset, optimization, epochs, path=None):
         #TODO: Check if params exist and if overwriting a file

@@ -36,30 +36,30 @@ class Creator(object):
 
     def dynamically_create(self, samples_per_image):
         self._load_dataset()
-        
+
         print('{}# test img, {}# train img, {}# valid img'.format(
             self.test.nr_img, self.train.nr_img, self.valid.nr_img))
 
-        test = self._sample_data(self.test, samples_per_image, mixed_labels=self.only_mixed_labels)
-        train = self._sample_data(self.train, samples_per_image,
+        test = self.sample_data(self.test, samples_per_image, mixed_labels=self.only_mixed_labels)
+        train = self.sample_data(self.train, samples_per_image,
                                   mixed_labels=self.only_mixed_labels, rotation=self.rotation)
-        valid = self._sample_data(self.valid, samples_per_image, mixed_labels=self.only_mixed_labels)
+        valid = self.sample_data(self.valid, samples_per_image, mixed_labels=self.only_mixed_labels)
 
         return train, valid, test
 
 
-    def _sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False):
+    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
         '''
-
+        #TODO: Support several samplers, IE, random and fully. Change behavior of sampling.
         nr_class = 0
         nr_total = 0
 
         dropped_images = 0
         idx = 0
-        #TODO: hard  color coded values
+
         dim_data = self.dim_data
         dim_label = self.dim_label
         max_arr_size = dataset.nr_img *samples_per_images
