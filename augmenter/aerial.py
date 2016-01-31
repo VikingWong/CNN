@@ -4,7 +4,7 @@ import numpy as np
 import os, math, random
 import theano
 from PIL import Image, ImageFilter
-import util
+import augmenter.util as util
 
 
 class Creator(object):
@@ -20,20 +20,23 @@ class Creator(object):
         self.mix_ratio = mix_ratio
         self.std = std
         self.reduce = reduce
-
+        self.dataset_path = dataset_path
         #Load paths to all images found in dataset
-        test_path, train_path, valid_path = util.get_dataset(dataset_path)
-        no_reduce = 1
-        self.test = Dataset(dataset_path, test_path, no_reduce)
-        self.train = Dataset(dataset_path, train_path, reduce)
-        self.valid = Dataset(dataset_path, valid_path, no_reduce)
+
 
         self.print_verbose()
 
 
+    def _load_dataset(self):
+        test_path, train_path, valid_path = util.get_dataset(self.dataset_path)
+        no_reduce = 1
+        self.test = Dataset("Test set", self.dataset_path, test_path, no_reduce)
+        self.train = Dataset("Training set", self.dataset_path, train_path, reduce)
+        self.valid = Dataset("Validation set", self.dataset_path, valid_path, no_reduce)
 
-    def dynamically_create(self, samples_per_image, reduce=1):
-
+    def dynamically_create(self, samples_per_image):
+        self._load_dataset()
+        
         print('{}# test img, {}# train img, {}# valid img'.format(
             self.test.nr_img, self.train.nr_img, self.valid.nr_img))
 
@@ -43,21 +46,6 @@ class Creator(object):
         valid = self._sample_data(self.valid, samples_per_image, mixed_labels=self.only_mixed_labels)
 
         return train, valid, test
-
-
-    def create_image_label(self, image, dim_data, dim_label):
-        #TODO: Euclidiean to dist, ramp up to definite roads. Model label noise in labels?
-        y_size = dim_label
-        padding = (dim_data - y_size)/2
-        #label = np.array(image.getdata())
-
-        #label = np.asarray(image, dtype=theano.config.floatX)
-        label = np.asarray(image)
-        label = label[padding : padding+y_size, padding : padding+y_size ]
-        label = label.reshape(y_size*y_size)
-
-        label = label / 255.0
-        return label
 
 
     def _sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False):
@@ -113,7 +101,7 @@ class Creator(object):
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
                 data_sample =   util.from_rgb_to_arr(data_temp)
-                label_sample =  self.create_image_label(label_temp, dim_data, dim_label)
+                label_sample =  util.create_image_label(label_temp, dim_data, dim_label)
 
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
@@ -144,7 +132,7 @@ class Creator(object):
                 del im
                 del la
 
-        print("---- Extracted {} images".format(data.shape[0]))
+        print("---- Extracted {} images from {}".format(data.shape[0], dataset.name))
         print("---- Images containing class {}/{}".format(nr_class, nr_total))
         print("---- Dropped {} images".format(dropped_images))
         return data, label
@@ -166,7 +154,8 @@ class Dataset(object):
     Helper object, that uses os methods to check validity of a datasets test, valid or train dataset.
     Collect all image files and base path.
     '''
-    def __init__(self, base, folder, reduce):
+    def __init__(self, name, base, folder, reduce):
+        self.name = name
         self.base = os.path.join(base, folder)
         self.img_paths = self._get_image_files(self.base, reduce)
         self.nr_img = len(self.img_paths)

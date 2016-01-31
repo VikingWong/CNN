@@ -8,8 +8,6 @@ import theano
 sys.path.append(os.path.abspath("./"))
 
 
-from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
-
 '''
 TODO: Create all possible patches in test dataset.
 TODO: Create predictions using system for all these patches.
