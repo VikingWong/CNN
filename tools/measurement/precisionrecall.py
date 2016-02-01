@@ -4,6 +4,7 @@ import numpy as np
 import math, sys, os
 import theano.tensor as T
 import theano
+import scipy.ndimage as morph
 
 sys.path.append(os.path.abspath("./"))
 
@@ -16,8 +17,6 @@ from model import ConvModel
 '''
 TODO: All patches instead of random samples per image (optional) in creator
 TODO: Implement within x pixel , done by Hinton and Minh.
-TODO: Upload to database, and display using rickshaw. (Should be done)
-TODO: Do this test at the end of a training session, so PR curves for all experiments automatically (optional)
 TODO: Save points to file.
 '''
 
@@ -39,6 +38,7 @@ class PrecisionRecallCurve(object):
         predictions, labels = self._predict_patches(dataset, batch_size)
         print('---- Calculating precision and recall')
         datapoints = self._get_datapoints(predictions, labels)
+        print('---- Got {} datapoints from tests'.format(len(datapoints)))
         return datapoints
 
 
@@ -47,7 +47,7 @@ class PrecisionRecallCurve(object):
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
         std = self.dataset_config.dataset_std
-        samples_per_image = 40
+        samples_per_image = 100
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
@@ -65,12 +65,11 @@ class PrecisionRecallCurve(object):
         model = ConvModel(self.model_config, verbose=False)
         model.build(x, batch_size, init_params=self.params)
         compute_output = create_output_func(dataset, x, y, [index], model.get_output_layer(), batch_size)
-
         examples = dataset[0].eval().shape[0]
         nr_of_batches = int(examples/ batch_size)
         dim = self.dataset_config.output_dim
-        result_output = np.empty((examples*nr_of_batches, dim*dim), dtype=theano.config.floatX)
-        result_label = np.empty((examples*nr_of_batches, dim*dim), dtype=theano.config.floatX)
+        result_output = np.empty((examples, dim*dim), dtype=theano.config.floatX)
+        result_label = np.empty((examples, dim*dim), dtype=theano.config.floatX)
 
         for i in range(nr_of_batches):
             output, label = compute_output(i)
@@ -86,17 +85,38 @@ class PrecisionRecallCurve(object):
         The threshold indicate that for a pixel value above threshold value is considered a road pixel.
         This generate different values for precision and recall and highlight the trade off between precision and recall.
         '''
-        tests = np.arange(0 , 1, 0.05)
+
+        labels_with_slack = self._apply_buffer(labels, 3)
+
+        tests = np.arange(0.0001 , 0.980, 0.01)
         datapoints = []
         for threshold in tests:
             binary_arr = np.ones(predictions.shape)
             low_values_indices = predictions <= threshold  # Where values are low
             binary_arr[low_values_indices] = 0  # All low values set to 0
 
-            precision = self._get_precision(labels, binary_arr)
-            recall = self._get_recall(labels, binary_arr)
+            precision = self._get_precision(labels_with_slack, binary_arr)
+            recall = self._get_recall(labels_with_slack, binary_arr)
             datapoints.append({"precision": precision, "recall": recall, "threshold": threshold})
         return datapoints
+
+
+    def _apply_buffer(self, labels, buffer):
+        dim = self.dataset_config.output_dim
+        nr_labels = labels.shape[0]
+        labels2D = np.array(labels)
+        labels2D  = labels2D.reshape(nr_labels, dim, dim)
+        struct_dim = (buffer * 2) + 1
+        struct = np.ones((struct_dim, struct_dim), dtype=np.uint8)
+
+        for i in range(nr_labels):
+            labels2D[i] = morph.binary_dilation(labels2D[i], structure=struct).astype(np.uint8)
+            #if np.amax(labels2D[i] > 0):
+            #    print(labels2D[i].astype(np.uint8))
+            #    print(morph.binary_dilation(labels2D[i], structure=struct).astype(np.uint8))
+            #    raise
+        labels_with_slack = labels2D.reshape(nr_labels, dim*dim)
+        return labels_with_slack
 
 
     def _get_precision(self, labels, thresholded_output):
@@ -107,7 +127,6 @@ class PrecisionRecallCurve(object):
         in the label and the output. All positives minus true positive gives the false positives. That is predicted
         road pixels which is not marked on the label.
         '''
-        #TODO: implement precision with no pixel slack
         total_positive = np.count_nonzero(thresholded_output)
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
 
@@ -126,7 +145,6 @@ class PrecisionRecallCurve(object):
         considered an successful extraction. If output cells are all 1, for all postive pixels in label, the
         recall rate will be 1. If output misses some road pixels this rate will decline.
         '''
-        #TODO: implement recall with no pixel slack.
         total_positive = np.count_nonzero(labels)
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
 
