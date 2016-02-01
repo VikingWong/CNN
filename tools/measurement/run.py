@@ -21,5 +21,5 @@ measurer = PrecisionRecallCurve(dataset_path, m, data['params'], data['model'], 
 datapoints = measurer.get_curves_datapoints(batch_size)
 
 if store_gui:
-    job_id = "-1"
+    job_id = "56ab3ca7ce4612092200087c"
     send_precision_recall_data(datapoints, job_id=job_id)

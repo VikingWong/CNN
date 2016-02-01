@@ -81,11 +81,11 @@ class PrecisionRecallCurve(object):
         The threshold indicate that for a pixel value above threshold value is considered a road pixel.
         This generate different values for precision and recall and highlight the trade off between precision and recall.
         '''
-        tests = np.arange(0.1 , 1, 0.05)
+        tests = np.arange(0 , 1, 0.05)
         datapoints = []
         for threshold in tests:
             binary_arr = np.ones(predictions.shape)
-            low_values_indices = predictions < threshold  # Where values are low
+            low_values_indices = predictions <= threshold  # Where values are low
             binary_arr[low_values_indices] = 0  # All low values set to 0
 
             precision = self._get_precision(labels, binary_arr)
@@ -105,6 +105,10 @@ class PrecisionRecallCurve(object):
         #TODO: implement precision with no pixel slack
         total_positive = np.count_nonzero(thresholded_output)
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
+
+        if total_positive == 0:
+            return 0.0
+
         return true_positive / float(total_positive)
 
 
@@ -120,5 +124,9 @@ class PrecisionRecallCurve(object):
         #TODO: implement recall with no pixel slack.
         total_positive = np.count_nonzero(labels)
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
+
+        if total_positive == 0:
+            return 0.0
+
         return true_positive / float(total_positive)
 
