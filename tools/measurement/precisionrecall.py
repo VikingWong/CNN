@@ -10,6 +10,8 @@ sys.path.append(os.path.abspath("./"))
 from augmenter import Creator
 from data import AerialDataset
 from wrapper import create_output_func
+from model import ConvModel
+
 
 '''
 TODO: All patches instead of random samples per image (optional) in creator
@@ -21,8 +23,7 @@ TODO: Save points to file.
 
 class PrecisionRecallCurve(object):
 
-    def __init__(self, dataset_path, model, model_params, model_config, dataset_config):
-        self.model = model
+    def __init__(self, dataset_path, model_params, model_config, dataset_config):
         self.params = model_params
         self.model_config = model_config
         self.dataset_config = dataset_config
@@ -31,9 +32,12 @@ class PrecisionRecallCurve(object):
 
     def get_curves_datapoints(self, batch_size, dataset=None):
         if not dataset:
+            print('---- Creating dataset')
             dataset = self._create_dataset()
 
+        print('---- Generating output predictions using current model')
         predictions, labels = self._predict_patches(dataset, batch_size)
+        print('---- Calculating precision and recall')
         datapoints = self._get_datapoints(predictions, labels)
         return datapoints
 
@@ -43,7 +47,7 @@ class PrecisionRecallCurve(object):
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
         std = self.dataset_config.dataset_std
-        samples_per_image = 10
+        samples_per_image = 40
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
@@ -54,12 +58,13 @@ class PrecisionRecallCurve(object):
         '''
         Using the params.pkl or instantiated model to create patch predictions.
         '''
-        #TODO: What if model is already instantiated?
+
         x = T.matrix('x')
         y = T.imatrix('y')
         index = T.lscalar()
-        self.model.build(x, batch_size, init_params=self.params)
-        compute_output = create_output_func(dataset, x, y, [index], self.model.get_output_layer(), batch_size)
+        model = ConvModel(self.model_config, verbose=False)
+        model.build(x, batch_size, init_params=self.params)
+        compute_output = create_output_func(dataset, x, y, [index], model.get_output_layer(), batch_size)
 
         examples = dataset[0].eval().shape[0]
         nr_of_batches = int(examples/ batch_size)

@@ -76,7 +76,8 @@ def stop_job(report):
     thread = unirest.post(url, headers=default_headers, params=json.dumps(report))
 
 def send_precision_recall_data(datapoints, job_id=None):
-    #TODO: do this after experiment is finished.
+    if not job_id:
+        job_id = current_id
     url = base_url + "job/" + job_id + "/precision-recall-curve"
     def callback(response):
         print(response.body)

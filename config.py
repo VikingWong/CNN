@@ -3,7 +3,7 @@ import secret
 
 token = secret.token
 verbose = True
-number_of_epochs = 100
+number_of_epochs = 1
 dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",

@@ -21,7 +21,6 @@ class BaseLayer(object):
                 borrow=True
             )
         else:
-            print("Using supplied bias'")
             self.b = b
 
 
@@ -29,7 +28,6 @@ class BaseLayer(object):
         if W is None:
             self.W = self.generate_init_weight(W_low, W_high, size)
         else:
-            print("Using supplied weight matrix")
             self.W = W
 
 

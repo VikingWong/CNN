@@ -1,13 +1,13 @@
 from evaluator import Evaluator
-from model import ShallowModel, ConvModel
-from data import MnistDataset, AerialDataset
+from model import ConvModel
+from data import AerialDataset
 from storage.store import ParamStorage
 import gui.server
-import os, sys
+import os
 from printing import print_section
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path
-
+from tools.measurement import PrecisionRecallCurve
 
 def run_cnn(model_params, optimization_params, dataset_path, dataset_params, filename_params, visual_params, epochs, verbose=False):
     print(filename_params)
@@ -21,11 +21,16 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     evaluator.run(epochs=epochs,  verbose=verbose)
     report = evaluator.get_result()
 
+    print_section('Evaluation precision and recall')
+
+    prc = PrecisionRecallCurve(dataset_path, model.params, model_params, dataset_params)
+    datapoints = prc.get_curves_datapoints(optimization_params.batch_size)
     #Stores the model params. Model can later be restored.
     print_section('Storing model parameters')
     storage = ParamStorage(path=filename_params.network_save_name)
     storage.store_params(model.params, model_params, dataset_params, optimization_params, number_of_epochs)
     if visual_params.gui_enabled:
+        gui.server.send_precision_recall_data(datapoints)
         gui.server.stop_job(report)
 
 

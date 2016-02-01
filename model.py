@@ -92,14 +92,14 @@ class ShallowModel(AbstractModel):
 #TODO: print number of parameters
 class ConvModel(AbstractModel):
 
-    def __init__(self, params, verbose=False):
+    def __init__(self, params, verbose=True):
         super(ConvModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
         self.dropout_rate = params.hidden_dropout
         self.conv = params.conv_layers
         #Because of for loop -1 will disappear, but keep queue len being 2.
         self.queue = deque([self.input_data_dim[0], -1])
-
+        self.verbose = verbose
 
     def _get_filter(self, next_kernel, filter):
         self.queue.appendleft(next_kernel)
@@ -110,6 +110,8 @@ class ConvModel(AbstractModel):
     def build(self, x, batch_size, init_params=None):
 
         print('Creating layers for convolutional neural network model')
+        if self.verbose and init_params:
+            print('---- Using supplied weights and bias')
         channels, width, height = self.input_data_dim
         layer_input = x.reshape((batch_size, channels, width, height))
 
@@ -133,7 +135,8 @@ class ConvModel(AbstractModel):
                 poolsize=self.conv[i]["pool"],
                 activation=T.nnet.relu,
                 W=self._weight(init_params, init_idx-1),
-                b=self._weight(init_params, init_idx)
+                b=self._weight(init_params, init_idx),
+                verbose=self.verbose
             )
 
             layer_input = layer.output
@@ -154,7 +157,8 @@ class ConvModel(AbstractModel):
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3),
-            dropout_rate=self.dropout_rate
+            dropout_rate=self.dropout_rate,
+            verbose=self.verbose
 
         )
 
@@ -165,7 +169,8 @@ class ConvModel(AbstractModel):
             n_in=self.hidden,
             n_out=output_dim,
             W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
+            b=self._weight(init_params, 1),
+            verbose=self.verbose
         )
 
         self.L2_layers = [hidden_layer, output_layer]
