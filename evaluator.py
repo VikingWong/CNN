@@ -76,13 +76,13 @@ class Evaluator(object):
 
     def _get_validation_score(self, batch_size, epoch, minibatch_index):
         validation_loss = np.mean( [self.validate_model(i) for i in range(self.nr_valid_batches)] )
-        print_valid(epoch, minibatch_index + 1, self.nr_train_batches,  validation_loss/batch_size)
+        print_valid(epoch, minibatch_index + 1, self.nr_train_batches,  validation_loss)
         return validation_loss
 
 
     def _get_test_score(self, batch_size):
         test_score =  np.mean( [self.test_model(i) for i in range(self.nr_test_batches)] )
-        print_test(test_score/batch_size)
+        print_test(test_score)
         return test_score
 
 
@@ -103,7 +103,7 @@ class Evaluator(object):
         # go through this many minibatch before checking the network on the validation set
         gui_frequency = 500
         validation_frequency = min(self.nr_train_batches, patience / 2)
-        learning_rate = self.params.initial_learning_rate/float(batch_size)
+        learning_rate = self.params.initial_learning_rate
         print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = self.params.epoch_learning_adjustment
         nr_learning_adjustments = 0
@@ -125,7 +125,7 @@ class Evaluator(object):
 
         #==== UPDATE GUI ====
         if visual_params.gui_enabled:
-                gui.server.append_job_update(epoch, None, validation_score/batch_size, test_score/batch_size)
+                gui.server.append_job_update(epoch, None, validation_score, test_score)
 
         #TODO: np.mean cross entropy. over 1. Want error per pixel but current have a value of 26 or something.
         #TODO: Because of batch size or number of pixels?
@@ -146,6 +146,7 @@ class Evaluator(object):
                     #Each chunk contains a certain number of batches.
                     for minibatch_index in range(chunk_batches):
                         cost_ij = self.train_model(minibatch_index, learning_rate)
+
                         if iter % 100 == 0:
                             print('---- Training @ iter = {}'.format(iter))
 
@@ -167,7 +168,7 @@ class Evaluator(object):
 
                             #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(epoch, cost_ij, validation_score/batch_size, test_score/batch_size)
+                                    gui.server.append_job_update(epoch, cost_ij, validation_score, test_score)
 
                             #==== EARLY STOPPING ====
                             if validation_score < best_validation_loss:
@@ -199,8 +200,8 @@ class Evaluator(object):
     def set_result(self, best_iter, iter, valid, test, nr_learning_adjustments, epoch):
         end_time = timeit.default_timer()
         duration = (end_time - self.start_time) / 60.
-        valid_end_score = valid/self.params.batch_size
-        test_end_score = test/self.params.batch_size
+        valid_end_score = valid
+        test_end_score = test
         print('Optimization complete.')
         print('Best validation score of %f obtained at iteration %i, '
               'with test performance %f' %

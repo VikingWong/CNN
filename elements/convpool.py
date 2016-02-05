@@ -1,10 +1,12 @@
 import theano
 from theano import tensor as T
 from theano.tensor.nnet import conv
+from theano.sandbox.cuda import dnn
 from theano.tensor.signal import downsample
 import numpy as np
 from elements.util import BaseLayer
 
+#TODO: uses deprecated conv and downsample methods. Bleeding edge Theano have convOp and pool2d something.
 class ConvPoolLayer(BaseLayer):
     def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
                  activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=0.0):
@@ -36,12 +38,19 @@ class ConvPoolLayer(BaseLayer):
         self.set_weight(W, -W_bound, W_bound, filter_shape)
         self.set_bias(b, filter_shape[0])
 
-        conv_out = conv.conv2d(
+        if strides[0] == 1 and strides[1] == 1:
+            #Strides make the system run impossibly slow because of legacy OP.
+
+            conv_out = conv.conv2d(
             input=input,
             filters=self.W,
             filter_shape=filter_shape,
             image_shape=image_shape,
-        )
+            )
+        else:
+            #When using stride/subsample the system require a GPU and CUDA. Using GPU OP directly.
+            #he memory layout to use is ‘bc01’, that is ‘batch’, ‘channel’, ‘first dim’, ‘second dim’ in that order.
+            conv_out = dnn.dnn_conv(input, self.W, subsample=strides)
 
         pooled_out = downsample.max_pool_2d(
             input=conv_out,

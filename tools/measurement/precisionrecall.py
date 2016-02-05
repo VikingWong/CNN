@@ -25,6 +25,7 @@ class PrecisionRecallCurve(object):
     def __init__(self, dataset_path, model_params, model_config, dataset_config):
         self.params = model_params
         self.model_config = model_config
+        self.model_config.hidden_dropout = 0
         self.dataset_config = dataset_config
         self.dataset_path = dataset_path
 

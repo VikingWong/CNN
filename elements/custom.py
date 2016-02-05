@@ -8,7 +8,6 @@ class OutputLayer(BaseLayer):
         super(OutputLayer, self).__init__(rng, input, 0.0)
         self._verbose_print(verbose, n_in, n_out)
 
-        self.output_dim = n_out
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4
         self.set_weight(W, -W_bound, W_bound, (n_in, n_out))
@@ -21,12 +20,15 @@ class OutputLayer(BaseLayer):
         self.input = input
 
     def negative_log_likelihood(self, y):
+        #returns  averaged -((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
         return T.mean(T.nnet.binary_crossentropy(self.output, y))
-        #return -T.mean((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
+
 
     def errors(self, y):
-        #Mean squared error no percentage error at all!
-       return (T.sum(T.pow(self.output- y, 2))/self.output_dim);
+        #Returns the mean squared error.
+        # Prediction - label squared, for all cells in all batches and pixels.
+        # Averaged by sum + divided by total number of elements. AKA - batch_size * dim * dim elements
+       return T.mean(T.pow(self.output- y, 2))
 
     def _verbose_print(self, is_verbose, n_in, n_out):
         if is_verbose:
