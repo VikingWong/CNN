@@ -49,7 +49,7 @@ class ConvPoolLayer(BaseLayer):
             )
         else:
             #When using stride/subsample the system require a GPU and CUDA. Using GPU OP directly.
-            #he memory layout to use is ‘bc01’, that is ‘batch’, ‘channel’, ‘first dim’, ‘second dim’ in that order.
+            #he memory layout to use is bc01, that is batch, channel, first dim, second dim in that order.
             conv_out = dnn.dnn_conv(input, self.W, subsample=strides)
 
         pooled_out = downsample.max_pool_2d(

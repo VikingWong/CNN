@@ -1,18 +1,14 @@
 __author__ = 'olav'
 
 import numpy as np
-import math, sys, os
-import theano.tensor as T
-import theano
+import sys, os
 import scipy.ndimage as morph
 
 sys.path.append(os.path.abspath("./"))
 
 from augmenter import Creator
 from data import AerialDataset
-from wrapper import create_output_func
-from model import ConvModel
-
+from tools.util import create_predictor, batch_predict
 
 '''
 TODO: All patches instead of random samples per image (optional) in creator
@@ -48,7 +44,7 @@ class PrecisionRecallCurve(object):
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
         std = self.dataset_config.dataset_std
-        samples_per_image = 100
+        samples_per_image = 200
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
@@ -59,23 +55,9 @@ class PrecisionRecallCurve(object):
         '''
         Using the params.pkl or instantiated model to create patch predictions.
         '''
-
-        x = T.matrix('x')
-        y = T.imatrix('y')
-        index = T.lscalar()
-        model = ConvModel(self.model_config, verbose=False)
-        model.build(x, batch_size, init_params=self.params)
-        compute_output = create_output_func(dataset, x, y, [index], model.get_output_layer(), batch_size)
-        examples = dataset[0].eval().shape[0]
-        nr_of_batches = int(examples/ batch_size)
         dim = self.dataset_config.output_dim
-        result_output = np.empty((examples, dim*dim), dtype=theano.config.floatX)
-        result_label = np.empty((examples, dim*dim), dtype=theano.config.floatX)
-
-        for i in range(nr_of_batches):
-            output, label = compute_output(i)
-            result_output[i*batch_size: (i+1)*batch_size] = output
-            result_label[i*batch_size: (i+1)*batch_size] = label
+        compute_output = create_predictor(dataset,self.model_config, self.params, batch_size)
+        result_output, result_label = batch_predict(compute_output, dataset, dim, batch_size)
 
         return result_output, result_label
 
@@ -87,6 +69,7 @@ class PrecisionRecallCurve(object):
         This generate different values for precision and recall and highlight the trade off between precision and recall.
         '''
 
+        #Results in a slack of 3 pixels.
         labels_with_slack = self._apply_buffer(labels, 3)
 
         tests = np.arange(0.0001 , 0.980, 0.01)

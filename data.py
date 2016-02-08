@@ -149,7 +149,7 @@ class AerialDataset(AbstractDataset):
         use_rotation = params.use_rotation
         reduce = params.reduce
         dim = (params.input_dim, params.output_dim)
-        std = params.dataset_std
+        self.std = params.dataset_std
         mixed = params.only_mixed_labels
         chunks = params.chunk_size
 
@@ -161,7 +161,7 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f, encoding='latin1')
             f.close()
         else:
-            creator = Creator(dataset_path, dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=std, only_mixed=mixed, reduce=reduce)
+            creator = Creator(dataset_path, dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=self.std, only_mixed=mixed, reduce=reduce)
             train, valid, test = creator.dynamically_create(samples_per_image)
 
         #Testing dataset size requirements

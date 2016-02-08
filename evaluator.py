@@ -3,7 +3,7 @@
 import numpy as np
 import theano
 import theano.tensor as T
-from util import debug_input_data
+from util import debug_input_data, show_debug_sample
 from printing import print_section, print_test, print_valid
 import random, sys, timeit
 from sdg import Backpropagation
@@ -61,17 +61,19 @@ class Evaluator(object):
         When gui has requested a debug. A random minibatch is chosen, and a number of images are displayed,
         so user can evaulate progress.
         '''
-        number_of_tests = 5
+        data = []
+        labels = []
+        predictions = []
+        number_of_tests = 6
         for test in range(number_of_tests):
             minibatch_index = random.randint(0, nr_batches-1)
             v = random.randint(0,batch_size-1)
             output, y, cost, errs = self.tester(minibatch_index)
-            print(errs)
-            print(cost)
-            print(v)
-            img = self.data.set['train'][0][(minibatch_index*batch_size) + v].eval()
-            debug_input_data(img, output[v], 64, 16)
-            debug_input_data(img, y[v], 64, 16)
+            predictions.append(output[v])
+            labels.append(y[v])
+            data.append(self.data.set['train'][0][(minibatch_index*batch_size) + v].eval())
+
+        show_debug_sample(data, labels, predictions, 64, 16, std=self.data.std)
 
 
     def _get_validation_score(self, batch_size, epoch, minibatch_index):
@@ -127,8 +129,6 @@ class Evaluator(object):
         if visual_params.gui_enabled:
                 gui.server.append_job_update(epoch, None, validation_score, test_score)
 
-        #TODO: np.mean cross entropy. over 1. Want error per pixel but current have a value of 26 or something.
-        #TODO: Because of batch size or number of pixels?
         try:
             while (epoch < max_epochs) and (not done_looping):
                 epoch = epoch + 1
@@ -147,8 +147,8 @@ class Evaluator(object):
                     for minibatch_index in range(chunk_batches):
                         cost_ij = self.train_model(minibatch_index, learning_rate)
 
-                        if iter % 100 == 0:
-                            print('---- Training @ iter = {}'.format(iter))
+                        if iter % 1000 == 0:
+                            print('---- Training @ iter = {}. Patience = {}'.format(iter, patience))
 
                         if visual_params.gui_enabled and iter % gui_frequency == 0:
                             gui.server.get_command_status()

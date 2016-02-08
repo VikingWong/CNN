@@ -13,27 +13,27 @@ filename_params = Params({
 #TODO: Use this for something
 visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
-        "gui_enabled"           : False
+        "gui_enabled"           : True
     })
 
 #TODO: Implement dropout_rate
 optimization_params = Params({
-        "batch_size"                        : 64,
-        "initial_learning_rate"             : 0.0005,
-        "epoch_learning_adjustment"         : 20,
+        "batch_size"                        : 32,
+        "initial_learning_rate"             : 0.0009,
+        "epoch_learning_adjustment"         : 16,
         "learning_rate_decrease"            : 0.95,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
-        "improvement_threshold"             : 0.995,
+        "improvement_threshold"             : 0.996,
         "backpropagation"                   : "sgd_nesterov"
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 200,
+    "samples_per_image"     : 230,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,

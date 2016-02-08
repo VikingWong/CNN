@@ -6,6 +6,7 @@ import math, sys, os
 
 sys.path.append(os.path.abspath("./"))
 
+from tools.util import create_predictor
 
 
 from augmenter import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
