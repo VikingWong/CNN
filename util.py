@@ -64,9 +64,6 @@ def input_debugger(data, data_dim, label_dim):
             debug_input_data(d, l, data_dim, label_dim)
     print('Total:' , data[0].shape[0], ' over', n)
 
-
-
-
 def debug_mnist():
     f = gzip.open('C:\\Users\\olav\\Downloads\\mnist.pkl.gz', 'rb')
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')

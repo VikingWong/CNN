@@ -1,2 +1,3 @@
 #!/bin/sh
-python ./tools/visualize/run.py
+
+python ./tools/visualize/run.py "$@"

@@ -10,6 +10,13 @@ from wrapper import create_output_func
 from model import ConvModel
 
 
+def create_threshold_image(image, threshold):
+    binary_arr = np.ones(image.shape)
+    low_values_indices = image <= threshold  # Where values are low
+    binary_arr[low_values_indices] = 0  # All low values set to 0
+    return binary_arr
+
+
 def create_predictor(dataset, model_config, model_params, batch_size):
     x = T.matrix('x')
     y = T.imatrix('y')

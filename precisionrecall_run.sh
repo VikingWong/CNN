@@ -1,2 +1,2 @@
 #!/bin/sh
-python ./tools/measurement/run.py
+python ./tools/measurement/run.py "$@"

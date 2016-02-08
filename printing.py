@@ -13,7 +13,11 @@ class Color:
 
 
 def print_color(text):
-    print(Color.PURPLE + text + Color.PURPLE)
+    print(Color.PURPLE + text + Color.END)
+
+def print_action(text):
+    print(Color.PURPLE + text + Color.END)
+
 
 def print_error(text):
     print(Color.RED + text + Color.END)

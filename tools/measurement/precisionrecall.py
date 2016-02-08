@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath("./"))
 
 from augmenter import Creator
 from data import AerialDataset
-from tools.util import create_predictor, batch_predict
+import tools.util as util
 
 '''
 TODO: All patches instead of random samples per image (optional) in creator
@@ -56,8 +56,8 @@ class PrecisionRecallCurve(object):
         Using the params.pkl or instantiated model to create patch predictions.
         '''
         dim = self.dataset_config.output_dim
-        compute_output = create_predictor(dataset,self.model_config, self.params, batch_size)
-        result_output, result_label = batch_predict(compute_output, dataset, dim, batch_size)
+        compute_output = util.create_predictor(dataset,self.model_config, self.params, batch_size)
+        result_output, result_label = util.batch_predict(compute_output, dataset, dim, batch_size)
 
         return result_output, result_label
 
@@ -75,9 +75,7 @@ class PrecisionRecallCurve(object):
         tests = np.arange(0.0001 , 0.980, 0.01)
         datapoints = []
         for threshold in tests:
-            binary_arr = np.ones(predictions.shape)
-            low_values_indices = predictions <= threshold  # Where values are low
-            binary_arr[low_values_indices] = 0  # All low values set to 0
+            binary_arr = util.create_threshold_image(predictions, threshold)
 
             precision = self._get_precision(labels_with_slack, binary_arr)
             recall = self._get_recall(labels_with_slack, binary_arr)
