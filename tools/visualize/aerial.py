@@ -13,6 +13,7 @@ from augmenter import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, norm
 
 class Visualizer(object):
 
+
     def __init__(self, model_config, model_params, dataset_config):
         self.model_config = model_config
         self.model_params = model_params
@@ -23,39 +24,31 @@ class Visualizer(object):
         self.std = dataset_config.dataset_std
 
 
-
     def visualize(self, image_path, batch_size, threshold=1):
         dataset, dim = self.create_data_from_image(image_path)
 
         compute_output = util.create_predictor(dataset, self.model_config, self.model_params, batch_size)
         predictions, labels = util.batch_predict(compute_output, dataset, self.dim_label, batch_size)
-        #self.show_individual_predictions(dataset, predictions)
         image = self.combine_to_image(predictions, dim, threshold)
+        #self.show_individual_predictions(dataset, predictions)
         return image
-
-
 
 
     def show_individual_predictions(self, dataset, predictions):
         print("Show each individual prediction")
         images = np.array(dataset[0].eval())
         for i in range(200, images.shape[0]):
-            print(i)
-            print(images[i].shape)
             min_val = np.amin(images[i])
             img =from_arr_to_data((images[i]*self.std + min_val), 64)
-            pred = predictions[i]
 
+            pred = predictions[i]
             clip_idx = pred < 0.3
             pred[clip_idx] = 0
             lab = from_arr_to_label(pred, 16)
 
-            #img.paste(lab, (24, 24), lab)
             img.paste(lab, (24, 24), lab)
             img = img.resize((256, 256))
             img.show()
-            del img
-            del lab
             user = raw_input('Proceed?')
             if user == 'no':
                 break
@@ -70,8 +63,8 @@ class Visualizer(object):
         combined = np.concatenate(temp, axis=1)
         if(threshold <1):
             combined = util.create_threshold_image(combined, threshold)
-        output = combined * 255
-        image = np.array(output, dtype=np.uint8)
+
+        image = np.array(combined * 255, dtype=np.uint8)
         return Image.fromarray(image)
 
 
@@ -80,6 +73,7 @@ class Visualizer(object):
         dim = self.dim_label
         image = self.open_image(image_path)
         dp = 2* self.padding
+
         vertical = int((image.shape[0] - dp) / dim)
         horizontal = int((image.shape[1] - dp) / dim)
         number_of_patches = vertical * horizontal
@@ -88,7 +82,6 @@ class Visualizer(object):
         label = np.empty((number_of_patches, dim*dim), dtype=theano.config.floatX)
 
         idx = 0
-
         for i in range(vertical):
             for j in range(horizontal):
                 img_i = i * dim
