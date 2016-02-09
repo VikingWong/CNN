@@ -30,16 +30,49 @@ class Visualizer(object):
         compute_output = util.create_predictor(dataset, self.model_config, self.model_params, batch_size)
         predictions, labels = util.batch_predict(compute_output, dataset, self.dim_label, batch_size)
         image = self.combine_to_image(predictions, dim, threshold)
-        #self.show_individual_predictions(dataset, predictions)
+
+        #Need to have Mass_road structure TODO: argument
+        dir = os.path.abspath(image_path + "../../../")
+        label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
+        self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
         return image
 
 
-    def show_individual_predictions(self, dataset, predictions):
+    def _create_hit_image(self, prediction_image, input_image, label_image):
+        best_trade_off = 0.0801
+        thresh = 255 * 0.1
+        w, h = input_image.size
+        w = int(w/self.dim_label)*self.dim_label
+        h = int(h/self.dim_label)*self.dim_label
+        p = self.padding
+
+        input_image = input_image.crop((p, p, w-p, h-p))
+        label_image = label_image.crop((p, p, w-p, h-p))
+
+        pred = np.array(prediction_image)
+        label = np.array(label_image)
+        pixdata = input_image.load()
+
+        print("Creating stuff")
+        for y in xrange(input_image.size[1]):
+            for x in xrange(input_image.size[0]):
+                #print(y, x)
+                if(pred[y][x] > thresh or label[y][x] > thresh):
+                    if pred[y][x] > thresh and label[y][x] >thresh:
+                        pixdata[x, y] = (0,255,0)
+                    elif label[y][x] > thresh:
+                        pixdata[x, y] = (255, 0, 0)
+                    else:
+                         pixdata[x, y] = (0,0 ,255)
+
+        input_image.show()
+
+    def show_individual_predictions(self, dataset, predictions, std=1):
         print("Show each individual prediction")
         images = np.array(dataset[0].eval())
-        for i in range(200, images.shape[0]):
+        for i in range(images.shape[0]):
             min_val = np.amin(images[i])
-            img =from_arr_to_data((images[i]*self.std + min_val), 64)
+            img =from_arr_to_data((images[i]*std + min_val), 64)
 
             pred = predictions[i]
             clip_idx = pred < 0.3

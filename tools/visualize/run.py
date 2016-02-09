@@ -12,7 +12,7 @@ print_section('TOOLS: Visualize result from model')
 print("-data: Path to image you want predictions for")
 image_path = None
 if '-data' in sys.argv:
-    idx = sys.argv.index('-d')
+    idx = sys.argv.index('-data')
     image_path = sys.argv[idx+1]
     print("using {} as image path".format(image_path))
 
