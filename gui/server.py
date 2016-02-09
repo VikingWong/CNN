@@ -89,9 +89,9 @@ def send_precision_recall_data(datapoints, job_id=None):
         print(response.body)
     thread = unirest.post(url, headers=default_headers, params=json.dumps(datapoints), callback=callback)
 
-def send_result_images(job_id, prediction, hit):
-    url = base_url + "job/" + job_id + "/result-images"
+def send_result_image(job_id, image):
+    url = base_url + "job/" + job_id + "/result-image"
     def callback(response):
         print(response.body)
-    data = {"prediction": base64.b64encode(prediction), "hit": base64.b64encode(hit) }
+    data = {"image": base64.b64encode(image)}
     thread = unirest.post(url, headers=default_headers, params=json.dumps(data), callback=callback)

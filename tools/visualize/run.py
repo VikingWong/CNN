@@ -10,7 +10,18 @@ from model import ConvModel
 from aerial import Visualizer
 from printing import print_action
 import tools.util as Image
-from gui.server import send_result_images
+from gui.server import send_result_image
+
+def store_image(image, job_id, store_gui):
+    out = Image.resize(image, 0.5)
+
+    if store_gui:
+        buf= StringIO.StringIO()
+        out.save(buf, format='JPEG')
+        send_result_image(job_id, buf.getvalue())
+
+    out.save('./tools/visualize/pred.jpg')
+    out.show()
 
 print_section('TOOLS: Visualize result from model')
 print("-data: Path to image you want predictions for")
@@ -42,18 +53,5 @@ batch_size = data['optimization'].batch_size
 v = Visualizer(data['model'], data['params'], data['dataset'])
 image_prediction, image_hit = v.visualize(image_path, batch_size, threshold=1)
 
-out = Image.resize(image_prediction, 0.5)
-out2 =  Image.resize(image_hit, 0.5)
-
-if store_gui:
-    buf= StringIO.StringIO()
-    buf2= StringIO.StringIO()
-    out.save(buf, format='JPEG')
-    out2.save(buf2, format='JPEG')
-    send_result_images(job_id, buf.getvalue(), buf2.getvalue())
-
-out.save('./tools/visualize/pred.jpg')
-out2.save('./tools/visualize/hit.jpg')
-
-out.show()
-out2.show()
+store_image(image_prediction, job_id, store_gui)
+store_image(image_hit, job_id, store_gui)
