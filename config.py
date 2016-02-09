@@ -12,7 +12,7 @@ filename_params = Params({
     })
 #TODO: Use this for something
 visual_params = Params({
-        "endpoint"              : "http://178.62.232.71/",
+        "endpoint"              : "http://localhost:3000/",
         "gui_enabled"           : True
     })
 

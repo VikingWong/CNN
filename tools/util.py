@@ -17,6 +17,10 @@ def create_threshold_image(image, threshold):
     return binary_arr
 
 
+def resize(image, size):
+    return image.resize( [int(size * s) for s in image.size] )
+
+
 def create_predictor(dataset, model_config, model_params, batch_size):
     x = T.matrix('x')
     y = T.imatrix('y')

@@ -34,8 +34,8 @@ class Visualizer(object):
         #Need to have Mass_road structure TODO: argument
         dir = os.path.abspath(image_path + "../../../")
         label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
-        self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
-        return image
+        hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
+        return image, hit_image
 
 
     def _create_hit_image(self, prediction_image, input_image, label_image):
@@ -53,19 +53,19 @@ class Visualizer(object):
         label = np.array(label_image)
         pixdata = input_image.load()
 
-        print("Creating stuff")
+        print("---- Creating hit/miss image")
         for y in xrange(input_image.size[1]):
             for x in xrange(input_image.size[0]):
                 #print(y, x)
                 if(pred[y][x] > thresh or label[y][x] > thresh):
                     if pred[y][x] > thresh and label[y][x] >thresh:
-                        pixdata[x, y] = (0,255,0)
+                        pixdata[x, y] = (0, 255, 0)
                     elif label[y][x] > thresh:
                         pixdata[x, y] = (255, 0, 0)
                     else:
-                         pixdata[x, y] = (0,0 ,255)
+                         pixdata[x, y] = (0, 0, 255)
 
-        input_image.show()
+        return input_image
 
     def show_individual_predictions(self, dataset, predictions, std=1):
         print("Show each individual prediction")

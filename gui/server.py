@@ -3,7 +3,7 @@ import json
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, token
 from printing import print_error
-
+import base64
 
 
 base_url = visual_params.endpoint
@@ -13,6 +13,7 @@ default_headers = {
     "Accept": "application/json", "content-type": "application/json", "data-type": "json", "Authorization": token
 }
 current_id = "none"
+
 
 def is_testing():
     '''
@@ -26,6 +27,7 @@ def is_testing():
     else:
         return False
 
+
 def get_command_status():
     print("---- Retrieve command status")
     url = base_url + "job/" + current_id + "/status"
@@ -36,6 +38,7 @@ def get_command_status():
         if response.body['test']:
             test = response.body['test']
     thread = unirest.get(url, headers=default_headers, callback=callback)
+
 
 def append_job_update( epoch, training_loss, validation_loss, test_loss):
     url = base_url + "job/" +  current_id + "/update"
@@ -48,6 +51,7 @@ def append_job_update( epoch, training_loss, validation_loss, test_loss):
     def callback(response):
         pass
     thread = unirest.post(url, headers=default_headers, callback=callback, params=data)
+
 
 def start_new_job():
 
@@ -71,9 +75,11 @@ def start_new_job():
 
     thread = unirest.post(url, headers=default_headers, params=data, callback=callback)
 
+
 def stop_job(report):
     url = base_url + "job/" + current_id + "/stop"
     thread = unirest.post(url, headers=default_headers, params=json.dumps(report))
+
 
 def send_precision_recall_data(datapoints, job_id=None):
     if not job_id:
@@ -82,3 +88,10 @@ def send_precision_recall_data(datapoints, job_id=None):
     def callback(response):
         print(response.body)
     thread = unirest.post(url, headers=default_headers, params=json.dumps(datapoints), callback=callback)
+
+def send_result_images(job_id, prediction, hit):
+    url = base_url + "job/" + job_id + "/result-images"
+    def callback(response):
+        print(response.body)
+    data = {"prediction": base64.b64encode(prediction), "hit": base64.b64encode(hit) }
+    thread = unirest.post(url, headers=default_headers, params=json.dumps(data), callback=callback)
