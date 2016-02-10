@@ -29,14 +29,16 @@ def is_testing():
 
 
 def get_command_status():
-    print("---- Retrieve command status")
+
     url = base_url + "job/" + current_id + "/status"
     def callback(response):
         global stop, test
         if not response.body['running']:
             stop = True
+            print("---- Received stop message from GUI")
         if response.body['test']:
             test = response.body['test']
+            print("---- Received debug message from GUI")
     thread = unirest.get(url, headers=default_headers, callback=callback)
 
 

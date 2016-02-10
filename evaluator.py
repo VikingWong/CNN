@@ -37,23 +37,26 @@ class Evaluator(object):
 
         index = T.lscalar()  # index to a [mini]batch
         x = T.matrix('x')   # the data is presented as rasterized images
-        y = T.imatrix('y')
+        y = T.imatrix('y') #label data
+
+        #Drop switch. Only train should drop units. For testing and validation all units should be used (but output rescaled)
+        drop = T.iscalar('drop')
         learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
 
-        self.model.build(x, batch_size)
+        self.model.build(x, drop, batch_size)
         errors = self.model.get_output_layer().errors(y)
 
-        self.test_model = create_theano_func('test', self.data, x, y, [index], errors, batch_size)
-        self.validate_model = create_theano_func('validation', self.data, x, y, [index], errors, batch_size)
+        self.test_model = create_theano_func('test', self.data, x, y, drop, [index], errors, batch_size)
+        self.validate_model = create_theano_func('validation', self.data, x, y, drop, [index], errors, batch_size)
 
         cost = self.model.get_cost(y) + (self.params.l2_reg * self.model.getL2())
         opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
         updates = opt.updates(self.model.params, grads, learning_rate, self.params.momentum)
 
-        self.train_model = create_theano_func('train', self.data, x, y, [index, learning_rate], cost, batch_size, updates=updates)
+        self.train_model = create_theano_func('train', self.data, x, y, drop, [index, learning_rate], cost, batch_size, updates=updates, dropping=True)
 
-        self.tester = create_profiler_func(self.data, x, y, [index], self.model.get_output_layer() ,cost, batch_size)
+        self.tester = create_profiler_func(self.data, x, y, drop, [index], self.model.get_output_layer(), cost, batch_size)
 
 
     def _debug(self, batch_size, nr_batches):
@@ -176,6 +179,7 @@ class Evaluator(object):
                                 #improve patience if loss improvement is good enough
                                 if validation_score < best_validation_loss * improvement_threshold:
                                     patience = max(patience, iter * patience_increase)
+                                    print("---- New best validation loss. Patience increased to {}".format(patience))
 
                                 # save best validation score and iteration number
                                 best_validation_loss = validation_score
@@ -188,6 +192,7 @@ class Evaluator(object):
                             done_looping = True
 
                         iter += 1 #Increment interation after each batch has been processed.
+
         except KeyboardInterrupt:
             self.set_result(best_iter, iter, best_validation_loss, test_score, nr_learning_adjustments, epoch)
             print("Inpterupted by user. Current model params will be saved now.")

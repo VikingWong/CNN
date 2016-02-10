@@ -24,10 +24,11 @@ def resize(image, size):
 def create_predictor(dataset, model_config, model_params, batch_size):
     x = T.matrix('x')
     y = T.imatrix('y')
+    drop = T.iscalar('drop')
     index = T.lscalar()
     model = ConvModel(model_config, verbose=False)
-    model.build(x, batch_size, init_params=model_params)
-    return create_output_func(dataset, x, y, [index], model.get_output_layer(), batch_size)
+    model.build(x, drop, batch_size, init_params=model_params)
+    return create_output_func(dataset, x, y, drop, [index], model.get_output_layer(), batch_size)
 
 
 def batch_predict(predictor, dataset, dim, batch_size):

@@ -47,7 +47,6 @@ if '-store' in sys.argv:
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
 
-data['model'].hidden_dropout = 0 #Fix
 batch_size = data['optimization'].batch_size
 
 v = Visualizer(data['model'], data['params'], data['dataset'])

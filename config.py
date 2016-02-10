@@ -19,7 +19,7 @@ visual_params = Params({
 #TODO: Implement dropout_rate
 optimization_params = Params({
         "batch_size"                        : 32,
-        "initial_learning_rate"             : 0.0009,
+        "initial_learning_rate"             : 0.0013,
         "epoch_learning_adjustment"         : 16,
         "learning_rate_decrease"            : 0.95,
         "l2_reg"                            : 0.0002,
@@ -45,7 +45,6 @@ dataset_params = Params({
     "chunk_size"            : 2048
 })
 
-#TODO: BIg problem using stride or subsample. Should simply not use it, since gpu is not utilized
 model_params = Params({
 
     "nr_kernels"        : [64, 112, 80 ],
@@ -53,7 +52,7 @@ model_params = Params({
     "input_data_dim"    : (3, 64, 64),
     "output_label_dim"  : (16, 16),
     "hidden_layer"      : 4096,
-    "hidden_dropout"    : 0,
+    "dropout_rates"     : [0.9, 0.8, 0.8, 0.5, 1.0],
     "conv_layers"       :
         [
             {"filter": (16,16), "stride": (4, 4), "pool": (2, 2)},

@@ -95,7 +95,7 @@ class ConvModel(AbstractModel):
     def __init__(self, params, verbose=True):
         super(ConvModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
-        self.dropout_rate = params.hidden_dropout
+        self.dropout_rate = params.dropout_rates
         self.conv = params.conv_layers
         #Because of for loop -1 will disappear, but keep queue len being 2.
         self.queue = deque([self.input_data_dim[0], -1])
@@ -107,11 +107,12 @@ class ConvModel(AbstractModel):
         return list(self.queue) + list(filter)
 
 
-    def build(self, x, batch_size, init_params=None):
+    def build(self, x, drop, batch_size, init_params=None):
 
         print('Creating layers for convolutional neural network model')
         if self.verbose and init_params:
             print('---- Using supplied weights and bias')
+
         channels, width, height = self.input_data_dim
         layer_input = x.reshape((batch_size, channels, width, height))
 
@@ -136,6 +137,8 @@ class ConvModel(AbstractModel):
                 activation=T.nnet.relu,
                 W=self._weight(init_params, init_idx-1),
                 b=self._weight(init_params, init_idx),
+                drop=drop,
+                dropout_rate=self.dropout_rate[i],
                 verbose=self.verbose
             )
 
@@ -157,7 +160,8 @@ class ConvModel(AbstractModel):
             activation=T.nnet.relu,
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3),
-            dropout_rate=self.dropout_rate,
+            drop=drop,
+            dropout_rate=self.dropout_rate[-2],
             verbose=self.verbose
 
         )
