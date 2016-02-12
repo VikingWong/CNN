@@ -20,9 +20,10 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     evaluator = Evaluator(model, dataset, optimization_params)
     evaluator.run(epochs=epochs,  verbose=verbose)
     report = evaluator.get_result()
+    dataset.destroy()
 
     print_section('Evaluation precision and recall')
-
+    #TODO: Test destroy
     prc = PrecisionRecallCurve(dataset_path, model.params, model_params, dataset_params)
     datapoints = prc.get_curves_datapoints(optimization_params.batch_size)
     #Stores the model params. Model can later be restored.

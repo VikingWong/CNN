@@ -18,28 +18,29 @@ visual_params = Params({
 
 #TODO: Implement dropout_rate
 optimization_params = Params({
-        "batch_size"                        : 32,
-        "initial_learning_rate"             : 0.0013,
+        "batch_size"                        : 64,
+        "initial_learning_rate"             : 0.0009,
         "epoch_learning_adjustment"         : 16,
         "learning_rate_decrease"            : 0.95,
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
-        "improvement_threshold"             : 0.996,
+        "improvement_threshold"             : 0.995,
         "backpropagation"                   : "sgd_nesterov"
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "samples_per_image"     : 230,
+    "samples_per_image"     : 380,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
-    "reduce"                : 1,
+    "reduce_training"       : 1,
+    "reduce_testing"        : 0.5,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
@@ -52,7 +53,7 @@ model_params = Params({
     "input_data_dim"    : (3, 64, 64),
     "output_label_dim"  : (16, 16),
     "hidden_layer"      : 4096,
-    "dropout_rates"     : [0.9, 0.8, 0.8, 0.5, 1.0],
+    "dropout_rates"     : [1.0, 0.9, 0.8, 0.5, 1.0],
     "conv_layers"       :
         [
             {"filter": (16,16), "stride": (4, 4), "pool": (2, 2)},

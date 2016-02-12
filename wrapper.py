@@ -2,7 +2,7 @@ import theano
 import numpy as np
 from util import Params
 
-def create_theano_func(name, data, x,y, drop, input, output, batch_size, updates=None, dropping=False):
+def create_theano_func(name, data, x,y, drop, input, output, batch_size, updates=None, dropping=False, prefix=''):
     '''
     Wrapper for creating a theano function.
     Input must be an array and first element in the input array must be the index.
@@ -21,7 +21,7 @@ def create_theano_func(name, data, x,y, drop, input, output, batch_size, updates
         input,
         output,
         updates=updates,
-        name=name,
+        name=name + prefix,
         givens=set_givens
     )
 

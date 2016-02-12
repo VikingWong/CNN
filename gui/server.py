@@ -46,6 +46,7 @@ def append_job_update( epoch, training_loss, validation_loss, test_loss):
     url = base_url + "job/" +  current_id + "/update"
     data = json.dumps({
         "epoch": epoch,
+        "training_loss": training_loss,
         "validation_loss": validation_loss,
         "test_loss": test_loss
     })

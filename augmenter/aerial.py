@@ -11,7 +11,8 @@ class Creator(object):
     '''
     Dynamically load and convert data to appropriate format for theano.
     '''
-    def __init__(self, dataset_path, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1, mix_ratio=0.5, reduce=1):
+    def __init__(self, dataset_path, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1,
+                 mix_ratio=0.5, reduce_testing=1, reduce_training=1):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
         self.only_mixed_labels = only_mixed #Only use labels containing positive label (roads etc)
@@ -19,7 +20,8 @@ class Creator(object):
         self.preprocessing = preproccessing
         self.mix_ratio = mix_ratio
         self.std = std
-        self.reduce = reduce
+        self.reduce_testing = reduce_testing
+        self.reduce_training = reduce_training
         self.dataset_path = dataset_path
         #Load paths to all images found in dataset
 
@@ -30,8 +32,8 @@ class Creator(object):
     def load_dataset(self):
         test_path, train_path, valid_path = util.get_dataset(self.dataset_path)
         no_reduce = 1
-        self.test = Dataset("Test set", self.dataset_path, test_path, no_reduce)
-        self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce)
+        self.test = Dataset("Test set", self.dataset_path, test_path, self.reduce_testing )
+        self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
         self.valid = Dataset("Validation set", self.dataset_path, valid_path, no_reduce)
 
     def dynamically_create(self, samples_per_image):
@@ -41,6 +43,7 @@ class Creator(object):
             self.test.nr_img, self.train.nr_img, self.valid.nr_img))
 
         test = self.sample_data(self.test, samples_per_image, mixed_labels=self.only_mixed_labels)
+        #TODO: Rotation should be renamed to data augmentation, or a new parameter. Only if rotation currently.
         train = self.sample_data(self.train, samples_per_image,
                                   mixed_labels=self.only_mixed_labels, rotation=self.rotation)
         valid = self.sample_data(self.valid, samples_per_image, mixed_labels=self.only_mixed_labels)
@@ -62,7 +65,7 @@ class Creator(object):
 
         dim_data = self.dim_data
         dim_label = self.dim_label
-        max_arr_size = dataset.nr_img *samples_per_images
+        max_arr_size = dataset.nr_img * int(samples_per_images * dataset.reduce)
         data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
         label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
 
@@ -84,7 +87,7 @@ class Creator(object):
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
 
-            s = samples_per_images
+            s = int(samples_per_images * dataset.reduce)
             invalid_selection = 0
 
             #TODO: Check if can get stuck, especially mixed labels.
@@ -99,6 +102,20 @@ class Creator(object):
 
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
+
+                if(rotation):
+                    #Increase diversity of samples by flipping horizontal and vertical.
+                    #Smart for aerial imagery, because you can flip in two directions.
+                    #For natural imagery (sky etc) horizontal flips is bad. Characters all flips are probably bad.
+                    choice = random.randint(0, 2)
+                    if choice == 0:
+                        data_temp = np.flipud(data_temp)
+                        label_temp = np.flipud(label_temp)
+                    elif choice == 1:
+                        data_temp = np.fliplr(data_temp)
+                        label_temp = np.fliplr(label_temp)
+                    else:
+                        pass
 
                 data_sample =   util.from_rgb_to_arr(data_temp)
                 label_sample =  util.create_image_label(label_temp, dim_data, dim_label)
@@ -132,9 +149,19 @@ class Creator(object):
                 del im
                 del la
 
+        #TODO: Rotation creates black areas. And training set contain white areas. Can be a big chunk, so create a second pass.
         print("---- Extracted {} images from {}".format(data.shape[0], dataset.name))
         print("---- Images containing class {}/{}".format(nr_class, nr_total))
         print("---- Dropped {} images".format(dropped_images))
+
+        nr = 0
+        for i in range(data.shape[0]):
+            mi = np.amin(data[i])
+            ma = np.amax(data[i])
+            if mi == ma:
+                #No content image
+                nr += 1
+        print("---- Number of no content {} of {}, which is {}%".format(nr, data.shape[0], nr/data.shape[0]))
         return data, label
 
 
@@ -157,7 +184,8 @@ class Dataset(object):
     def __init__(self, name, base, folder, reduce):
         self.name = name
         self.base = os.path.join(base, folder)
-        self.img_paths = self._get_image_files(self.base, reduce)
+        self.img_paths = self._get_image_files(self.base)
+        self.reduce = reduce
         self.nr_img = len(self.img_paths)
 
 
@@ -168,7 +196,7 @@ class Dataset(object):
         return im, la
 
 
-    def _get_image_files(self, path, reduce_dataset):
+    def _get_image_files(self, path):
         '''
         Each path should contain a data and labels folder containing images.
         Creates a list of tuples containing path name for data and label.
@@ -177,9 +205,7 @@ class Dataset(object):
         labels = util.get_image_files(os.path.join(path, 'labels'))
 
         self._is_valid_dataset(tiles, labels)
-
-        limit = int(math.floor(reduce_dataset * len(tiles)))
-        return list(zip(tiles[0:limit], labels[0:limit]))
+        return list(zip(tiles, labels))
 
 
     def _is_valid_dataset(self, tiles, labels):

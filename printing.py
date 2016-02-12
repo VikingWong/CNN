@@ -32,6 +32,9 @@ def print_section(description):
 def print_test(loss):
     #print('Epoch {}, minibatch {}/{}'.format(epoch, idx, minibatches))
     print('---- Test error %f MSE' % (loss))
+
+def print_training(loss):
+    print('---- TRaining error %f MSE' % (loss))
     print('')
 
 

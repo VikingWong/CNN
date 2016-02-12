@@ -4,7 +4,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 from util import debug_input_data, show_debug_sample
-from printing import print_section, print_test, print_valid
+from printing import print_section, print_test, print_valid, print_training
 import random, sys, timeit
 from sdg import Backpropagation
 import gui.server
@@ -48,6 +48,7 @@ class Evaluator(object):
 
         self.test_model = create_theano_func('test', self.data, x, y, drop, [index], errors, batch_size)
         self.validate_model = create_theano_func('validation', self.data, x, y, drop, [index], errors, batch_size)
+        self.get_training_loss = create_theano_func('train', self.data, x, y, drop, [index], errors, batch_size, prefix="_loss")
 
         cost = self.model.get_cost(y) + (self.params.l2_reg * self.model.getL2())
         opt = Backpropagation.create(self.model.params)
@@ -84,6 +85,10 @@ class Evaluator(object):
         print_valid(epoch, minibatch_index + 1, self.nr_train_batches,  validation_loss)
         return validation_loss
 
+    def _get_training_score(self, nr_of_batches):
+        training_loss = np.mean( [self.get_training_loss(i) for i in range(nr_of_batches)])
+        print_training(training_loss)
+        return training_loss
 
     def _get_test_score(self, batch_size):
         test_score =  np.mean( [self.test_model(i) for i in range(self.nr_test_batches)] )
@@ -125,12 +130,14 @@ class Evaluator(object):
         iter = 0
 
         #==== INITIAL PERFORMANCE ====
+        chunk_batches = self.data.get_elements( 0 ) / batch_size
         validation_score = self._get_validation_score(batch_size, epoch, 0)
         test_score = self._get_test_score(batch_size)
+        training_score = self._get_training_score(chunk_batches)
 
         #==== UPDATE GUI ====
         if visual_params.gui_enabled:
-                gui.server.append_job_update(epoch, None, validation_score, test_score)
+                gui.server.append_job_update(epoch, training_score, validation_score, test_score)
 
         try:
             while (epoch < max_epochs) and (not done_looping):
@@ -168,10 +175,11 @@ class Evaluator(object):
                             #==== CURRENT PERFORMANCE ====
                             validation_score = self._get_validation_score(batch_size, epoch, minibatch_index)
                             test_score = self._get_test_score(batch_size)
+                            train_score = self._get_training_score(chunk_batches) #No other purpose than charting
 
                             #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(epoch, cost_ij, validation_score, test_score)
+                                    gui.server.append_job_update(epoch, train_score, validation_score, test_score)
 
                             #==== EARLY STOPPING ====
                             if validation_score < best_validation_loss:

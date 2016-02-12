@@ -27,6 +27,13 @@ class AbstractDataset(object):
         """Loading and transforming logic for dataset"""
         return
 
+    def destroy(self):
+        #Remove contents from GPU
+        self.set['train'].set_value([[]])
+        self.set['validation'].set_value([[]])
+        self.set['test'].set_value([[]])
+        del self.all_training
+        del self.active
 
     def get_chunk_number(self):
         return len(self.all_training)
@@ -147,7 +154,8 @@ class AerialDataset(AbstractDataset):
         samples_per_image = params.samples_per_image
         preprocessing = params.use_preprocessing
         use_rotation = params.use_rotation
-        reduce = params.reduce
+        reduce_training = params.reduce_training
+        reduce_testing = params.reduce_testing
         dim = (params.input_dim, params.output_dim)
         self.std = params.dataset_std
         mixed = params.only_mixed_labels
@@ -161,7 +169,14 @@ class AerialDataset(AbstractDataset):
             train, valid, test = pickle.load(f, encoding='latin1')
             f.close()
         else:
-            creator = Creator(dataset_path, dim=dim, rotation=use_rotation, preproccessing=preprocessing, std=self.std, only_mixed=mixed, reduce=reduce)
+            creator = Creator(dataset_path,
+                              dim=dim,
+                              rotation=use_rotation,
+                              preproccessing=preprocessing,
+                              std=self.std,
+                              only_mixed=mixed,
+                              reduce_testing=reduce_testing,
+                              reduce_training=reduce_training)
             train, valid, test = creator.dynamically_create(samples_per_image)
 
         #Testing dataset size requirements

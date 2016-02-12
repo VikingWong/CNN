@@ -39,7 +39,7 @@ class Visualizer(object):
 
 
     def _create_hit_image(self, prediction_image, input_image, label_image):
-        best_trade_off = 0.0801
+        best_trade_off = 0.10010000000000001
         thresh = 255 * 0.1
         w, h = input_image.size
         w = int(w/self.dim_label)*self.dim_label
