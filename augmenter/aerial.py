@@ -15,7 +15,7 @@ class Creator(object):
                  mix_ratio=0.5, reduce_testing=1, reduce_training=1):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
-        self.only_mixed_labels = only_mixed #Only use labels containing positive label (roads etc)
+        self.only_mixed_labels = only_mixed # Only use labels containing positive label (roads etc)
         self.rotation = rotation
         self.preprocessing = preproccessing
         self.mix_ratio = mix_ratio
@@ -23,7 +23,7 @@ class Creator(object):
         self.reduce_testing = reduce_testing
         self.reduce_training = reduce_training
         self.dataset_path = dataset_path
-        #Load paths to all images found in dataset
+        # Load paths to all images found in dataset
 
 
         self.print_verbose()
@@ -56,25 +56,35 @@ class Creator(object):
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
         '''
-        #TODO: Support several samplers, IE, random and fully. Change behavior of sampling.
         nr_class = 0
         nr_total = 0
 
         dropped_images = 0
-        idx = 0
+        nr_opened_images = 0
 
         dim_data = self.dim_data
         dim_label = self.dim_label
-        max_arr_size = dataset.nr_img * int(samples_per_images * dataset.reduce)
+
+        max_image_samples = int(samples_per_images * dataset.reduce)
+        max_arr_size = dataset.nr_img * max_image_samples
         data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
         label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
-
 
         print('')
         print('Sampling examples for {}'.format(dataset.base))
 
-        for i in range(dataset.nr_img):
-            im, la = dataset.open_image(i)
+        # Images are opened, rotated and max_image_Samples examples are extracted per image.
+        image_queue = list(range(dataset.nr_img))
+        example_counter = max_arr_size
+        idx = 0
+
+        while example_counter > 0:
+            # rotating queue
+            image_idx = image_queue.pop(0)
+            image_queue.append(image_idx)
+            nr_opened_images += 1
+
+            im, la = dataset.open_image(image_idx)
 
             width, height = im.size
             width = width - dim_data
@@ -87,26 +97,22 @@ class Creator(object):
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
 
-            s = int(samples_per_images * dataset.reduce)
-            invalid_selection = 0
-
-            #TODO: Check if can get stuck, especially mixed labels.
-            while s>0:
-                #if invalid_selection > 300:
-                #    print("INDVALID SELECTION")
-                #    dropped_images += 1
-                #    break
+            # Some selections will definitely fail, but because of the rotating queue,
+            # eventually we have enough examples.
+            # This will also mean images that have a lot of no-content will have less samples.
+            for i in range(max_image_samples):
 
                 x = random.randint(0, width)
                 y = random.randint( 0, height)
 
-                data_temp =     image_img[y : y+dim_data, x : x+dim_data,]
+                data_temp =     image_img[y : y+dim_data, x : x+dim_data]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
 
+                #TODO: new config parameter
                 if(rotation):
-                    #Increase diversity of samples by flipping horizontal and vertical.
-                    #Smart for aerial imagery, because you can flip in two directions.
-                    #For natural imagery (sky etc) horizontal flips is bad. Characters all flips are probably bad.
+                    # Increase diversity of samples by flipping horizontal and vertical.
+                    # Smart for aerial imagery, because you can flip in two directions.
+                    # For natural imagery (sky etc) horizontal flips is bad. Characters all flips are probably bad.
                     choice = random.randint(0, 2)
                     if choice == 0:
                         data_temp = np.flipud(data_temp)
@@ -123,45 +129,43 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                #TODO: must shrink numpy.array to reintroduce this
-                #if(data_sample.max() == 0 or data_sample.min() == 1):
-                #    invalid_selection += 1
-                #    continue
-
+                # Count percentage of labels contain roads.
                 nr_total += 1
                 contains_class = not label_sample.max() == 0
                 nr_class += int(contains_class)
-                if mixed_labels and contains_class and nr_class/float(nr_total) < self.mix_ratio:
-                    nr_total -= 1
-                    nr_class -= int(contains_class)
-                    invalid_selection += 1
-                    continue
+                # if mixed_labels and contains_class and nr_class/float(nr_total) < self.mix_ratio:
+                #    nr_total -= 1
+                #    nr_class -= int(contains_class)
+                #    continue
 
-                data[idx] = data_sample
-                label[idx] = label_sample
-                idx += 1
-                s -= 1
+                max_element = data_sample.max()
+                min_element = data_sample.min()
 
-            if i % 50 == 0:
-                print('---- Input image: {}/{}'.format(i, dataset.nr_img))
+                # will filter out a whole lot of images.
+                if max_element != min_element:
+                    data[idx] = data_sample
+                    label[idx] = label_sample
+                    idx += 1
+                    example_counter -= 1
+                else:
+                    dropped_images += 1
 
-            if im and la:
-                del im
-                del la
+                if example_counter <= 0:
+                    break
 
-        #TODO: Rotation creates black areas. And training set contain white areas. Can be a big chunk, so create a second pass.
+            # Reduce samples per image after first pass through
+            if nr_opened_images % dataset.nr_img == 0:
+                max_image_samples = int(max_image_samples/2)
+                print(max_image_samples)
+
+            if nr_opened_images % 50 == 0:
+                print('---- Input image: {}/{}'.format(nr_opened_images, dataset.nr_img))
+                print('---- Patches remaining: {}'.format(example_counter))
+
         print("---- Extracted {} images from {}".format(data.shape[0], dataset.name))
-        print("---- Images containing class {}/{}".format(nr_class, nr_total))
+        print("---- Images containing class {}/{}, which is {}%".format(nr_class, nr_total, nr_class*100/float(nr_total)))
         print("---- Dropped {} images".format(dropped_images))
 
-        nr = 0
-        for i in range(data.shape[0]):
-            mi = np.amin(data[i])
-            ma = np.amax(data[i])
-            if mi == ma:
-                #No content image
-                nr += 1
-        print("---- Number of no content {} of {}, which is {}%".format(nr, data.shape[0], nr/data.shape[0]))
         return data, label
 
 

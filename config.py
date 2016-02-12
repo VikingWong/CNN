@@ -3,20 +3,19 @@ import secret
 
 token = secret.token
 verbose = True
-number_of_epochs = 200
+number_of_epochs = 1
 dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
 
     })
-#TODO: Use this for something
+
 visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
         "gui_enabled"           : True
     })
 
-#TODO: Implement dropout_rate
 optimization_params = Params({
         "batch_size"                        : 64,
         "initial_learning_rate"             : 0.0009,

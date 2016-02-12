@@ -20,6 +20,10 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     evaluator = Evaluator(model, dataset, optimization_params)
     evaluator.run(epochs=epochs,  verbose=verbose)
     report = evaluator.get_result()
+
+    storage = ParamStorage(path=filename_params.network_save_name)
+    storage.store_params(model.params, model_params, dataset_params, optimization_params, number_of_epochs)
+
     dataset.destroy()
 
     print_section('Evaluation precision and recall')
@@ -28,8 +32,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     datapoints = prc.get_curves_datapoints(optimization_params.batch_size)
     #Stores the model params. Model can later be restored.
     print_section('Storing model parameters')
-    storage = ParamStorage(path=filename_params.network_save_name)
-    storage.store_params(model.params, model_params, dataset_params, optimization_params, number_of_epochs)
+
     if visual_params.gui_enabled:
         gui.server.send_precision_recall_data(datapoints)
         gui.server.stop_job(report)

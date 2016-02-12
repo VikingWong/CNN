@@ -29,9 +29,9 @@ class AbstractDataset(object):
 
     def destroy(self):
         #Remove contents from GPU
-        self.set['train'].set_value([[]])
-        self.set['validation'].set_value([[]])
-        self.set['test'].set_value([[]])
+        for key in self.set:
+            self.set[key][0].set_value([[]])
+            self.set[key][1].set_value([[]])
         del self.all_training
         del self.active
 
