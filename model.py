@@ -17,6 +17,7 @@ class AbstractModel(object):
         self.input_data_dim = params.input_data_dim
         self.hidden = params.hidden_layer
         self.output_label_dim = params.output_label_dim
+        self.model_config = params
 
 
     def get_output_layer(self):
@@ -177,6 +178,8 @@ class ConvModel(AbstractModel):
             n_out=output_dim,
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1),
+            factor= self.model_config.factor,
+            loss=  self.model_config.loss,
             verbose=self.verbose
         )
 

@@ -47,7 +47,8 @@ dataset_params = Params({
 })
 
 model_params = Params({
-
+    "loss"              : "crossentropy",
+    "factor"            : 0.8,
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),
