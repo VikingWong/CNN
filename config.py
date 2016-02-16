@@ -18,16 +18,14 @@ visual_params = Params({
 
 optimization_params = Params({
         "batch_size"                        : 64,
-        "initial_learning_rate"             : 0.0012,
-        "epoch_learning_adjustment"         : 30,
-        "learning_rate_decrease"            : 0.95,
+        "learning_rate"                     : {"rate": 0.0012, "adjustment": 30, "decrease": 0.95 },
         "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "backpropagation"                   : "sgd_nesterov",
-        "factor"                            : {"rate": 1, "adjustment": 10, "decrease": 0.95}
+        "factor"                            : {"rate": 1, "adjustment": 1, "decrease": 0.995}
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset

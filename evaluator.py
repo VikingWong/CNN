@@ -126,10 +126,9 @@ class Evaluator(object):
         patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = self.params.improvement_threshold # a relative improvement of this much is considered significant
 
-        learning_rate = self.params.initial_learning_rate
-        learning_adjustment = self.params.epoch_learning_adjustment
-        nr_learning_adjustments = 0
-        learning_decrease = self.params.learning_rate_decrease
+        learning_rate = self.params.learning_rate.rate
+        learning_adjustment = self.params.learning_rate.adjustment
+        learning_decrease = self.params.learning_rate.decrease
         print('---- Initial learning rate {}'.format(learning_rate))
 
         max_factor = self.params.factor.rate
@@ -165,7 +164,6 @@ class Evaluator(object):
                 epoch = epoch + 1
                 if(epoch % learning_adjustment == 0):
                         learning_rate *= learning_decrease
-                        nr_learning_adjustments += 1
                         print('---- New learning rate {}'.format(learning_rate))
 
                 if(epoch % factor_adjustment == 0):
