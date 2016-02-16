@@ -92,6 +92,9 @@ class ShallowModel(AbstractModel):
 #TODO: print number of parameters
 class ConvModel(AbstractModel):
 
+    def leaky_ReLU(self, x):
+        return T.nnet.relu(x, alpha=0.01)
+
     def __init__(self, params, verbose=True):
         super(ConvModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
@@ -134,7 +137,7 @@ class ConvModel(AbstractModel):
                 filter_shape=filter,
                 strides=self.conv[i]["stride"],
                 poolsize=self.conv[i]["pool"],
-                activation=T.nnet.relu,
+                activation=self.leaky_ReLU,
                 W=self._weight(init_params, init_idx-1),
                 b=self._weight(init_params, init_idx),
                 drop=drop,
@@ -157,7 +160,7 @@ class ConvModel(AbstractModel):
             input=hidden_input,
             n_in=self.nr_kernels[-1] * inp_shape[2] * inp_shape[3],
             n_out=self.hidden,
-            activation=T.nnet.relu,
+            activation=self.leaky_ReLU,
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3),
             drop=drop,

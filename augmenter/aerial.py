@@ -42,11 +42,11 @@ class Creator(object):
         print('{}# test img, {}# train img, {}# valid img'.format(
             self.test.nr_img, self.train.nr_img, self.valid.nr_img))
 
-        test = self.sample_data(self.test, samples_per_image, mixed_labels=self.only_mixed_labels)
+        test = self.sample_data(self.test, samples_per_image)
         #TODO: Rotation should be renamed to data augmentation, or a new parameter. Only if rotation currently.
         train = self.sample_data(self.train, samples_per_image,
                                   mixed_labels=self.only_mixed_labels, rotation=self.rotation)
-        valid = self.sample_data(self.valid, samples_per_image, mixed_labels=self.only_mixed_labels)
+        valid = self.sample_data(self.valid, samples_per_image)
 
         return train, valid, test
 
@@ -57,7 +57,7 @@ class Creator(object):
         samples samples_per_images amount of images which is returned in data and label array.
         '''
         nr_class = 0
-        nr_total = 0
+        nr_total = 1
 
         dropped_images = 0
         nr_opened_images = 0
@@ -66,12 +66,17 @@ class Creator(object):
         dim_label = self.dim_label
 
         max_image_samples = int(samples_per_images * dataset.reduce)
+
         max_arr_size = dataset.nr_img * max_image_samples
         data = np.empty((max_arr_size, dim_data*dim_data*3), dtype=theano.config.floatX)
         label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
 
         print('')
         print('Sampling examples for {}'.format(dataset.base))
+
+        #If mixed labels , there will be a lot of trial and
+        #if mixed_labels:
+        #    max_image_samples *= 2
 
         # Images are opened, rotated and max_image_Samples examples are extracted per image.
         image_queue = list(range(dataset.nr_img))
@@ -130,13 +135,16 @@ class Creator(object):
                     data_sample = util.normalize(data_sample, self.std)
 
                 # Count percentage of labels contain roads.
-                nr_total += 1
+
                 contains_class = not label_sample.max() == 0
+
+                if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
+                    #Will sample same amount from road and non-road class
+                    continue
+
+                nr_total += 1
                 nr_class += int(contains_class)
-                # if mixed_labels and contains_class and nr_class/float(nr_total) < self.mix_ratio:
-                #    nr_total -= 1
-                #    nr_class -= int(contains_class)
-                #    continue
+
 
                 max_element = data_sample.max()
                 min_element = data_sample.min()
@@ -154,9 +162,9 @@ class Creator(object):
                     break
 
             # Reduce samples per image after first pass through
-            if nr_opened_images % dataset.nr_img == 0:
-                max_image_samples = int(max_image_samples/2)
-                print(max_image_samples)
+            if not mixed_labels and nr_opened_images % dataset.nr_img == 0 :
+                max_image_samples = max(10, int(max_image_samples*0.9))
+                print('---- Reducing sampling rate to {}'.format(max_image_samples))
 
             if nr_opened_images % 50 == 0:
                 print('---- Input image: {}/{}'.format(nr_opened_images, dataset.nr_img))
@@ -166,6 +174,11 @@ class Creator(object):
         print("---- Images containing class {}/{}, which is {}%".format(nr_class, nr_total, nr_class*100/float(nr_total)))
         print("---- Dropped {} images".format(dropped_images))
 
+        print('---- Creating permutation')
+        #perm = np.random.permutation(len(data))
+        #data = data[perm]
+        #label = label[perm]
+        print('Examples shuffled')
         return data, label
 
 

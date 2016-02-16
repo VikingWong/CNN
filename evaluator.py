@@ -48,16 +48,22 @@ class Evaluator(object):
 
         self.test_model = create_theano_func('test', self.data, x, y, drop, [index], errors, batch_size)
         self.validate_model = create_theano_func('validation', self.data, x, y, drop, [index], errors, batch_size)
-        self.get_training_loss = create_theano_func('train', self.data, x, y, drop, [index], errors, batch_size, prefix="_loss")
+        self.get_training_loss = create_theano_func(
+            'train', self.data, x, y, drop, [index], errors, batch_size, prefix="_loss"
+        )
 
         cost = self.model.get_cost(y) + (self.params.l2_reg * self.model.getL2())
         opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
         updates = opt.updates(self.model.params, grads, learning_rate, self.params.momentum)
 
-        self.train_model = create_theano_func('train', self.data, x, y, drop, [index, learning_rate], cost, batch_size, updates=updates, dropping=True)
+        self.train_model = create_theano_func(
+            'train', self.data, x, y, drop, [index, learning_rate], cost, batch_size, updates=updates, dropping=True
+        )
 
-        self.tester = create_profiler_func(self.data, x, y, drop, [index], self.model.get_output_layer(), cost, batch_size)
+        self.tester = create_profiler_func(
+            self.data, x, y, drop, [index], self.model.get_output_layer(), cost, batch_size
+        )
 
 
     def _debug(self, batch_size, nr_batches):
@@ -163,7 +169,7 @@ class Evaluator(object):
                         if visual_params.gui_enabled and iter % gui_frequency == 0:
                             gui.server.get_command_status()
 
-                        if visual_params.gui_enabled and (iter - 100) % gui_frequency ==0 and gui.server.is_testing():
+                        if visual_params.gui_enabled and gui.server.is_testing():
                             self._debug(batch_size, chunk_batches)
 
                         if(np.isnan(cost_ij)):

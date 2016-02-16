@@ -29,9 +29,10 @@ class AbstractDataset(object):
 
     def destroy(self):
         #Remove contents from GPU
+        #TODO: symbolic cast operation, makes set_value not possible.
         for key in self.set:
             self.set[key][0].set_value([[]])
-            self.set[key][1].set_value([[]])
+            #self.set[key][1].set_value([[]])
         del self.all_training
         del self.active
 
@@ -64,7 +65,8 @@ class AbstractDataset(object):
 
         #If the last chunk is less than batch size, it is cut. No reason for an unnecessary swap.
         last_chunk_size = len(chunks[-1][0])
-        if(last_chunk_size < batch_size):
+        #TODO: Quick fix
+        if(last_chunk_size < batch_size*15):
             chunks.pop(-1)
             print('---- Removed last chunk. '
                   '{} elements not enough for at least one minibatch of {}'.format(last_chunk_size, batch_size))

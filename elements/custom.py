@@ -8,6 +8,7 @@ class OutputLayer(BaseLayer):
         super(OutputLayer, self).__init__(rng, input, 0.0)
         self._verbose_print(verbose, n_in, n_out)
 
+        self.negative_log_likelihood = self.crossentropy
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4
         self.set_weight(W, -W_bound, W_bound, (n_in, n_out))
@@ -19,10 +20,21 @@ class OutputLayer(BaseLayer):
         self.params = [self.W, self.b]
         self.input = input
 
-    def negative_log_likelihood(self, y):
-        #returns  averaged -((y * T.log(self.output)) + ( (1 -y ) * T.log(1-self.output) ))
+
+    def loss_crossentropy(self, y):
         return T.mean(T.nnet.binary_crossentropy(self.output, y))
 
+    def loss_bootstrapping(self, y):
+        #Customized categorical cross entropy.
+        #Based on the multibox impl.
+        factor = 0.8
+        #TODO: Does this work? Integer and matrix? TEST
+        hard = T.gt(self.output, 0.5)
+        loss = (
+            - T.sum( (factor * y) + ((1- factor) * hard) * T.log(self.output) ) -
+            T.sum( (factor * (1 - y)) + ((1- factor) * (1 - hard)) * T.log(1 - self.output) )
+        )
+        return loss
 
     def errors(self, y):
         #Returns the mean squared error.

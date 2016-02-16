@@ -34,7 +34,7 @@ def print_test(loss):
     print('---- Test error %f MSE' % (loss))
 
 def print_training(loss):
-    print('---- TRaining error %f MSE' % (loss))
+    print('---- Training error %f MSE' % (loss))
     print('')
 
 

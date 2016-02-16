@@ -23,6 +23,7 @@ def is_testing():
     global test
     if test:
         test = False
+        print('---- Conducting debug')
         return True
     else:
         return False
