@@ -25,8 +25,8 @@ class AbstractModel(object):
         return self.layer[-1]
 
 
-    def get_cost(self, y):
-        return  self.get_output_layer().negative_log_likelihood(y)
+    def get_cost(self, y, factor=1):
+        return  self.get_output_layer().negative_log_likelihood(y, factor)
 
 
     def get_errors(self, y):
@@ -178,7 +178,6 @@ class ConvModel(AbstractModel):
             n_out=output_dim,
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1),
-            factor= self.model_config.factor,
             loss=  self.model_config.loss,
             verbose=self.verbose
         )

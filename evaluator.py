@@ -42,6 +42,7 @@ class Evaluator(object):
         #Drop switch. Only train should drop units. For testing and validation all units should be used (but output rescaled)
         drop = T.iscalar('drop')
         learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
+        mix_factor = T.scalar('factor', dtype=theano.config.floatX)
 
         self.model.build(x, drop, batch_size)
         errors = self.model.get_output_layer().errors(y)
@@ -52,13 +53,22 @@ class Evaluator(object):
             'train', self.data, x, y, drop, [index], errors, batch_size, prefix="_loss"
         )
 
-        cost = self.model.get_cost(y) + (self.params.l2_reg * self.model.getL2())
+        cost = self.model.get_cost(y, mix_factor) + (self.params.l2_reg * self.model.getL2())
         opt = Backpropagation.create(self.model.params)
         grads = T.grad(cost, self.model.params)
         updates = opt.updates(self.model.params, grads, learning_rate, self.params.momentum)
 
         self.train_model = create_theano_func(
-            'train', self.data, x, y, drop, [index, learning_rate], cost, batch_size, updates=updates, dropping=True
+            'train',
+            self.data,
+            x,
+            y,
+            drop,
+            [index, learning_rate, mix_factor],
+            cost,
+            batch_size,
+            updates=updates,
+            dropping=True
         )
 
         self.tester = create_profiler_func(
@@ -116,15 +126,20 @@ class Evaluator(object):
         patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = self.params.improvement_threshold # a relative improvement of this much is considered significant
 
-        # go through this many minibatch before checking the network on the validation set
-        gui_frequency = 500
-        validation_frequency = min(self.nr_train_batches, patience / 2)
         learning_rate = self.params.initial_learning_rate
-        print('Effective learning rate {}'.format(learning_rate))
         learning_adjustment = self.params.epoch_learning_adjustment
         nr_learning_adjustments = 0
         learning_decrease = self.params.learning_rate_decrease
+        print('---- Initial learning rate {}'.format(learning_rate))
 
+        max_factor = self.params.factor.rate
+        factor_adjustment = self.params.factor.adjustment
+        factor_decrease = self.params.factor.decrease
+        print('---- Initial loss mixture ratio {}'.format(max_factor))
+
+         # go through this many minibatch before checking the network on the validation set
+        gui_frequency = 500
+        validation_frequency = min(self.nr_train_batches, patience / 2)
         best_validation_loss = np.inf
         best_iter = 0
         test_score = 0.
@@ -153,6 +168,10 @@ class Evaluator(object):
                         nr_learning_adjustments += 1
                         print('---- New learning rate {}'.format(learning_rate))
 
+                if(epoch % factor_adjustment == 0):
+                        max_factor *= max(0.8, factor_decrease)
+                        print('---- New convex combination {}'.format(max_factor))
+
                 #For current examples chunk in GPU memory
                 for chunk_index in range(nr_chunks):
                     self.data.switch_active_training_set( chunk_index )
@@ -161,7 +180,7 @@ class Evaluator(object):
 
                     #Each chunk contains a certain number of batches.
                     for minibatch_index in range(chunk_batches):
-                        cost_ij = self.train_model(minibatch_index, learning_rate)
+                        cost_ij = self.train_model(minibatch_index, learning_rate, max_factor)
 
                         if iter % 1000 == 0:
                             print('---- Training @ iter = {}. Patience = {}'.format(iter, patience))

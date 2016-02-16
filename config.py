@@ -26,7 +26,8 @@ optimization_params = Params({
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "backpropagation"                   : "sgd_nesterov"
+        "backpropagation"                   : "sgd_nesterov",
+        "factor"                            : {"rate": 1, "adjustment": 10, "decrease": 0.95}
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
@@ -48,7 +49,6 @@ dataset_params = Params({
 
 model_params = Params({
     "loss"              : "crossentropy",
-    "factor"            : 0.8,
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),

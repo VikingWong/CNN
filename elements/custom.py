@@ -4,7 +4,7 @@ import numpy as np
 from elements.util import BaseLayer
 
 class OutputLayer(BaseLayer):
-    def __init__(self, rng, input, n_in, n_out, W=None, b=None, loss='crossentropy', factor=1, verbose=True):
+    def __init__(self, rng, input, n_in, n_out, W=None, b=None, loss='crossentropy', verbose=True):
         super(OutputLayer, self).__init__(rng, input, 0.0)
         self._verbose_print(verbose, n_in, n_out)
 
@@ -13,7 +13,6 @@ class OutputLayer(BaseLayer):
         else:
              self.negative_log_likelihood = self.loss_crossentropy
 
-        self.factor = factor #If set to 1, prediction does not alter loss.
 
 
         W_bound = np.sqrt(6.0 / (n_in + n_out)) * 4
@@ -27,15 +26,14 @@ class OutputLayer(BaseLayer):
         self.input = input
 
 
-    def loss_crossentropy(self, y):
+    def loss_crossentropy(self, y, factor=1):
         return T.mean(T.nnet.binary_crossentropy(self.output, y))
 
     #TODO: Does this work? Integer and matrix? TEST
-    def loss_bootstrapping(self, y):
+    def loss_bootstrapping(self, y, factor=1):
         #Customized categorical cross entropy.
         #Based on the multibox impl.
         p = self.output
-        factor = self.factor
         hard = T.gt(p, 0.5)
         loss = (
             - T.sum( (factor * y) + ((1- factor) * hard) * T.log(p) ) -
