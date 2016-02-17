@@ -59,24 +59,16 @@ class Evaluator(object):
         updates = opt.updates(self.model.params, grads, learning_rate, self.params.momentum)
 
         self.train_model = create_theano_func(
-            'train',
-            self.data,
-            x,
-            y,
-            drop,
-            [index, learning_rate, mix_factor],
-            cost,
-            batch_size,
-            updates=updates,
-            dropping=True
+            'train', self.data, x, y, drop, [index, learning_rate, mix_factor], cost, batch_size,
+            updates=updates, dropping=True
         )
 
         self.tester = create_profiler_func(
-            self.data, x, y, drop, [index], self.model.get_output_layer(), cost, batch_size
+            self.data, x, y, drop, [index, mix_factor], self.model.get_output_layer(), cost, batch_size
         )
 
 
-    def _debug(self, batch_size, nr_batches):
+    def _debug(self, batch_size, nr_batches, factor):
         '''
         When gui has requested a debug. A random minibatch is chosen, and a number of images are displayed,
         so user can evaulate progress.
@@ -88,7 +80,7 @@ class Evaluator(object):
         for test in range(number_of_tests):
             minibatch_index = random.randint(0, nr_batches-1)
             v = random.randint(0,batch_size-1)
-            output, y, cost, errs = self.tester(minibatch_index)
+            output, y, cost, errs = self.tester(minibatch_index, factor)
             predictions.append(output[v])
             labels.append(y[v])
             data.append(self.data.set['train'][0][(minibatch_index*batch_size) + v].eval())
@@ -126,14 +118,16 @@ class Evaluator(object):
         patience_increase = self.params.patience_increase  # wait this much longer when a new best is found
         improvement_threshold = self.params.improvement_threshold # a relative improvement of this much is considered significant
 
-        learning_rate = self.params.learning_rate.rate
-        learning_adjustment = self.params.learning_rate.adjustment
-        learning_decrease = self.params.learning_rate.decrease
+        learning_rate = self.params.learning_rate
+        learning_adjustment = self.params.learning_adjustment
+        learning_decrease = self.params.learning_decrease
+        nr_learning_adjustments = 0
         print('---- Initial learning rate {}'.format(learning_rate))
 
-        max_factor = self.params.factor.rate
-        factor_adjustment = self.params.factor.adjustment
-        factor_decrease = self.params.factor.decrease
+        max_factor = self.params.factor_rate
+        factor_adjustment = self.params.factor_adjustment
+        factor_decrease = self.params.factor_decrease
+        factor_minimum = self.params.factor_minimum
         print('---- Initial loss mixture ratio {}'.format(max_factor))
 
          # go through this many minibatch before checking the network on the validation set
@@ -164,10 +158,11 @@ class Evaluator(object):
                 epoch = epoch + 1
                 if(epoch % learning_adjustment == 0):
                         learning_rate *= learning_decrease
+                        nr_learning_adjustments += 1
                         print('---- New learning rate {}'.format(learning_rate))
 
                 if(epoch % factor_adjustment == 0):
-                        max_factor *= max(0.8, factor_decrease)
+                        max_factor *= max(factor_minimum, factor_decrease)
                         print('---- New convex combination {}'.format(max_factor))
 
                 #For current examples chunk in GPU memory
@@ -187,7 +182,7 @@ class Evaluator(object):
                             gui.server.get_command_status()
 
                         if visual_params.gui_enabled and gui.server.is_testing():
-                            self._debug(batch_size, chunk_batches)
+                            self._debug(batch_size, chunk_batches, max_factor)
 
                         if(np.isnan(cost_ij)):
                             print('cost IS NAN')

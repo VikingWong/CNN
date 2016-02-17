@@ -4,9 +4,9 @@ import numpy as np
 from elements.util import BaseLayer
 
 class OutputLayer(BaseLayer):
-    def __init__(self, rng, input, n_in, n_out, W=None, b=None, loss='crossentropy', verbose=True):
+    def __init__(self, rng, input, n_in, n_out, W=None, b=None, batch_size=32, loss='crossentropy', verbose=True):
         super(OutputLayer, self).__init__(rng, input, 0.0)
-        self._verbose_print(verbose, n_in, n_out)
+        self._verbose_print(verbose, n_in, n_out, loss, batch_size)
 
         if loss == 'bootstrapping':
              self.negative_log_likelihood = self.loss_bootstrapping
@@ -24,7 +24,7 @@ class OutputLayer(BaseLayer):
 
         self.params = [self.W, self.b]
         self.input = input
-
+        self.size = n_out * batch_size
 
     def loss_crossentropy(self, y, factor=1):
         return T.mean(T.nnet.binary_crossentropy(self.output, y))
@@ -36,10 +36,10 @@ class OutputLayer(BaseLayer):
         p = self.output
         hard = T.gt(p, 0.5)
         loss = (
-            - T.sum( (factor * y) + ((1- factor) * hard) * T.log(p) ) -
-            T.sum( (factor * (1 - y)) + ((1- factor) * (1 - hard)) * T.log(1 - p) )
+            - T.sum( ((factor * y) + ((1- factor) * hard)) * T.log(p) ) -
+            T.sum( ((factor * (1 - y)) + ((1- factor) * (1 - hard))) * T.log(1 - p) )
         )
-        return loss
+        return loss/self.size
 
     def errors(self, y):
         #Returns the mean squared error.
@@ -47,9 +47,11 @@ class OutputLayer(BaseLayer):
         # Averaged by sum + divided by total number of elements. AKA - batch_size * dim * dim elements
        return T.mean(T.pow(self.output- y, 2))
 
-    def _verbose_print(self, is_verbose, n_in, n_out):
+    def _verbose_print(self, is_verbose, n_in, n_out, loss, batch_size):
         if is_verbose:
             print('Output layer with {} outputs'.format(n_out))
             print('---- Incoming connections: {}'.format(n_in))
             print('---- Sigmoidal units')
+            print('---- Loss function: {}'.format(loss))
+            print('---- Output dimension: {}'.format(n_out*batch_size))
             print('')

@@ -22,7 +22,8 @@ def create_theano_func(name, data, x,y, drop, input, output, batch_size, updates
         output,
         updates=updates,
         name=name + prefix,
-        givens=set_givens
+        givens=set_givens,
+        on_unused_input='warn'
     )
 
 

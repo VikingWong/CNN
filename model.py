@@ -81,7 +81,8 @@ class ShallowModel(AbstractModel):
             n_in=2048,
             n_out=256,
             W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
+            b=self._weight(init_params, 1),
+            batch_size=batch_size
         )
 
         self.L2_layers = [layer0, layer1]
@@ -179,6 +180,7 @@ class ConvModel(AbstractModel):
             W=self._weight(init_params, 0),
             b=self._weight(init_params, 1),
             loss=  self.model_config.loss,
+            batch_size=batch_size,
             verbose=self.verbose
         )
 
