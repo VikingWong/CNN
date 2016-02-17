@@ -3,7 +3,7 @@ import secret
 
 token = secret.token
 verbose = True
-number_of_epochs = 10
+number_of_epochs = 300
 dataset_path = '/home/olav/Pictures/Mass_roads'
 filename_params = Params({
         "results"               : "./results",
@@ -13,7 +13,7 @@ filename_params = Params({
 
 visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
-        "gui_enabled"           : False
+        "gui_enabled"           : True
     })
 
 optimization_params = Params({
@@ -27,23 +27,23 @@ optimization_params = Params({
         "learning_rate"                     : 0.0012,
         "learning_adjustment"               : 30,
         "learning_decrease"                 : 0.95,
-        "factor_rate"                       : 1.0,
+        "factor_rate"                       : 0.8,
         "factor_adjustment"                 : 2,
         "factor_decrease"                   : 0.95,
-        "factor_minimum"                    : 0.8
+        "factor_minimum"                    : 0.7
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
-    "samples_per_image"     : 200,
+    "samples_per_image"     : 400,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
-    "reduce_training"       : 1.0,
+    "reduce_training"       : 0.5,
     "reduce_testing"        : 1,
     "input_dim"             : 64,
     "output_dim"            : 16,

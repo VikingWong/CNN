@@ -94,7 +94,7 @@ class Visualizer(object):
         output = output_data.reshape(vertical, horizontal, self.dim_label, self.dim_label)
         temp = np.concatenate(output, axis=1)
         combined = np.concatenate(temp, axis=1)
-        if(threshold <1):
+        if threshold < 1:
             combined = util.create_threshold_image(combined, threshold)
 
         image = np.array(combined * 255, dtype=np.uint8)

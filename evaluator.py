@@ -23,16 +23,16 @@ class Evaluator(object):
             gui.server.start_new_job()
 
 
-    def run(self, epochs=10, verbose=False):
+    def run(self, epochs=10, verbose=False, init=None):
         batch_size = self.params.batch_size
         self.nr_train_batches = self.data.get_total_number_of_batches(batch_size)
         self.nr_valid_batches = self._get_number_of_batches('validation', batch_size)
         self.nr_test_batches = self._get_number_of_batches('test', batch_size)
-        self._build(batch_size)
+        self._build(batch_size, init)
         self._train(batch_size, epochs)
 
 
-    def _build(self, batch_size):
+    def _build(self, batch_size, init):
         print_section('Building model')
 
         index = T.lscalar()  # index to a [mini]batch
@@ -43,8 +43,8 @@ class Evaluator(object):
         drop = T.iscalar('drop')
         learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
         mix_factor = T.scalar('factor', dtype=theano.config.floatX)
-
-        self.model.build(x, drop, batch_size)
+        print(init)
+        self.model.build(x, drop, batch_size, init_params=init)
         errors = self.model.get_output_layer().errors(y)
 
         self.test_model = create_theano_func('test', self.data, x, y, drop, [index], errors, batch_size)
