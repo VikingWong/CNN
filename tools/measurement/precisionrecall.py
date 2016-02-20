@@ -43,8 +43,9 @@ class PrecisionRecallCurve(object):
         dim = (self.dataset_config.input_dim, self.dataset_config.output_dim)
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
+        print("---- Using preprossing: {}".format(preprocessing))
         std = self.dataset_config.dataset_std
-        samples_per_image = 300
+        samples_per_image = 400
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
@@ -56,7 +57,7 @@ class PrecisionRecallCurve(object):
         Using the params.pkl or instantiated model to create patch predictions.
         '''
         dim = self.dataset_config.output_dim
-        compute_output = util.create_predictor(dataset,self.model_config, self.params, batch_size)
+        compute_output = util.create_predictor(dataset, self.model_config, self.params, batch_size)
         result_output, result_label = util.batch_predict(compute_output, dataset, dim, batch_size)
 
         return result_output, result_label

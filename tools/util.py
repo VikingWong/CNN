@@ -26,7 +26,7 @@ def create_predictor(dataset, model_config, model_params, batch_size):
     y = T.imatrix('y')
     drop = T.iscalar('drop')
     index = T.lscalar()
-    model = ConvModel(model_config, verbose=False)
+    model = ConvModel(model_config, verbose=True)
     model.build(x, drop, batch_size, init_params=model_params)
     return create_output_func(dataset, x, y, drop, [index], model.get_output_layer(), batch_size)
 

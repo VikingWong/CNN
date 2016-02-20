@@ -43,7 +43,7 @@ class Evaluator(object):
         drop = T.iscalar('drop')
         learning_rate = T.scalar('learning_rate', dtype=theano.config.floatX)
         mix_factor = T.scalar('factor', dtype=theano.config.floatX)
-        print(init)
+
         self.model.build(x, drop, batch_size, init_params=init)
         errors = self.model.get_output_layer().errors(y)
 
@@ -161,8 +161,8 @@ class Evaluator(object):
                         nr_learning_adjustments += 1
                         print('---- New learning rate {}'.format(learning_rate))
 
-                if(epoch % factor_adjustment == 0):
-                        max_factor *= max(factor_minimum, factor_decrease)
+                if(epoch > factor_adjustment == 0):
+                        max_factor = max(max_factor * factor_decrease, factor_minimum)
                         print('---- New convex combination {}'.format(max_factor))
 
                 #For current examples chunk in GPU memory

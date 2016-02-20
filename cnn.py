@@ -22,14 +22,14 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
         is_init_params = bool(sys.argv[idx+1])
         if is_init_params:
             store = ParamStorage()
-            weights = store.load_params(path="./results/params.pkl")
+            weights = store.load_params(path="./results/params.pkl")['params']
         printing.print_action("Initializing model with weights from params.pkl")
 
     dataset = AerialDataset()
     dataset.load(dataset_path, dataset_params, optimization_params.batch_size) #Input stage
     model = ConvModel(model_params, verbose=True) #Create network stage
     evaluator = Evaluator(model, dataset, optimization_params)
-    evaluator.run(epochs=epochs,  verbose=verbose, init=weights['params'])
+    evaluator.run(epochs=epochs,  verbose=verbose, init=weights)
     report = evaluator.get_result()
 
     storage = ParamStorage(path=filename_params.network_save_name)
@@ -38,7 +38,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     dataset.destroy()
 
     printing.print_section('Evaluation precision and recall')
-    #TODO: Test destroy
+
     prc = PrecisionRecallCurve(dataset_path, model.params, model_params, dataset_params)
     datapoints = prc.get_curves_datapoints(optimization_params.batch_size)
     #Stores the model params. Model can later be restored.

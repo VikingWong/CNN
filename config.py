@@ -24,13 +24,13 @@ optimization_params = Params({
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "backpropagation"                   : "sgd_nesterov",
-        "learning_rate"                     : 0.0012,
+        "learning_rate"                     : 0.0009,
         "learning_adjustment"               : 30,
         "learning_decrease"                 : 0.95,
-        "factor_rate"                       : 0.8,
-        "factor_adjustment"                 : 2,
-        "factor_decrease"                   : 0.95,
-        "factor_minimum"                    : 0.7
+        "factor_rate"                       : 1,
+        "factor_adjustment"                 : 100,
+        "factor_decrease"                   : 0.998,
+        "factor_minimum"                    : 0.8
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset
@@ -41,10 +41,10 @@ dataset_params = Params({
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
-    "only_mixed_labels"     : False,
+    "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5,
-    "reduce_training"       : 0.5,
-    "reduce_testing"        : 1,
+    "reduce_training"       : 1,
+    "reduce_testing"        : 0.3,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
