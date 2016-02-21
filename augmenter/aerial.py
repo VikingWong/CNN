@@ -12,7 +12,7 @@ class Creator(object):
     Dynamically load and convert data to appropriate format for theano.
     '''
     def __init__(self, dataset_path, dim=(64, 16), rotation=False, preproccessing=True, only_mixed=False, std=1,
-                 mix_ratio=0.5, reduce_testing=1, reduce_training=1):
+                 mix_ratio=0.5, reduce_testing=1, reduce_training=1, reduce_validation=1):
         self.dim_data = dim[0]
         self.dim_label = dim[1]
         self.only_mixed_labels = only_mixed # Only use labels containing positive label (roads etc)
@@ -22,6 +22,7 @@ class Creator(object):
         self.std = std
         self.reduce_testing = reduce_testing
         self.reduce_training = reduce_training
+        self.reduce_validation = reduce_validation
         self.dataset_path = dataset_path
         # Load paths to all images found in dataset
 
@@ -31,10 +32,9 @@ class Creator(object):
 
     def load_dataset(self):
         test_path, train_path, valid_path = util.get_dataset(self.dataset_path)
-        no_reduce = 1
         self.test = Dataset("Test set", self.dataset_path, test_path, self.reduce_testing )
         self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
-        self.valid = Dataset("Validation set", self.dataset_path, valid_path, no_reduce)
+        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.self.reduce_validation)
 
     def dynamically_create(self, samples_per_image):
         self.load_dataset()

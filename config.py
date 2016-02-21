@@ -1,6 +1,6 @@
 from util import Params
 import secret
-
+#Create secret python file and variable token
 token = secret.token
 verbose = True
 number_of_epochs = 300
@@ -18,17 +18,17 @@ visual_params = Params({
 
 optimization_params = Params({
         "batch_size"                        : 64,
-        "l2_reg"                            : 0.0001,
+        "l2_reg"                            : 0.00018,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "backpropagation"                   : "sgd_nesterov",
-        "learning_rate"                     : 0.0009,
-        "learning_adjustment"               : 30,
-        "learning_decrease"                 : 0.95,
+        "learning_rate"                     : 0.0010,
+        "learning_adjustment"               : 20,
+        "learning_decrease"                 : 0.93,
         "factor_rate"                       : 1,
-        "factor_adjustment"                 : 100,
+        "factor_adjustment"                 : 130,
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8
     })
@@ -37,14 +37,15 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
-    "samples_per_image"     : 400,
+    "samples_per_image"     : 417,
     "dataset_std"           : 0.233174571944,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
-    "mix_ratio"             : 0.5,
+    "mix_ratio"             : 0.4,
     "reduce_training"       : 1,
     "reduce_testing"        : 0.3,
+    "reduce_validation"     : 0.9,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048

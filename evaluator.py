@@ -161,7 +161,7 @@ class Evaluator(object):
                         nr_learning_adjustments += 1
                         print('---- New learning rate {}'.format(learning_rate))
 
-                if(epoch > factor_adjustment == 0):
+                if(epoch > factor_adjustment):
                         max_factor = max(max_factor * factor_decrease, factor_minimum)
                         print('---- New convex combination {}'.format(max_factor))
 

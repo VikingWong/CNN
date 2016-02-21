@@ -158,6 +158,7 @@ class AerialDataset(AbstractDataset):
         use_rotation = params.use_rotation
         reduce_training = params.reduce_training
         reduce_testing = params.reduce_testing
+        reduce_validation = params.reduce_validation
         dim = (params.input_dim, params.output_dim)
         self.std = params.dataset_std
         mixed = params.only_mixed_labels
@@ -178,7 +179,8 @@ class AerialDataset(AbstractDataset):
                               std=self.std,
                               only_mixed=mixed,
                               reduce_testing=reduce_testing,
-                              reduce_training=reduce_training)
+                              reduce_training=reduce_training,
+                              reduce_validation=reduce_validation)
             train, valid, test = creator.dynamically_create(samples_per_image)
 
         #Testing dataset size requirements
