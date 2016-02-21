@@ -34,7 +34,8 @@ class Creator(object):
         test_path, train_path, valid_path = util.get_dataset(self.dataset_path)
         self.test = Dataset("Test set", self.dataset_path, test_path, self.reduce_testing )
         self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
-        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.self.reduce_validation)
+        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
+        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
 
     def dynamically_create(self, samples_per_image):
         self.load_dataset()
@@ -125,8 +126,7 @@ class Creator(object):
                     elif choice == 1:
                         data_temp = np.fliplr(data_temp)
                         label_temp = np.fliplr(label_temp)
-                    else:
-                        pass
+                    #Otherwise no further agumentation (choice == 2)
 
                 data_sample =   util.from_rgb_to_arr(data_temp)
                 label_sample =  util.create_image_label(label_temp, dim_data, dim_label)

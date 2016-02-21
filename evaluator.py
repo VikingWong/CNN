@@ -10,6 +10,7 @@ from sdg import Backpropagation
 import gui.server
 from config import visual_params
 from wrapper import create_theano_func, create_profiler_func
+from storage import ParamStorage
 
 class Evaluator(object):
 
@@ -138,6 +139,8 @@ class Evaluator(object):
         test_score = 0.
         self.start_time = timeit.default_timer()
 
+        storage = ParamStorage()
+
         nr_chunks = self.data.get_chunk_number()
         epoch = 0
         done_looping = False
@@ -164,6 +167,10 @@ class Evaluator(object):
                 if(epoch > factor_adjustment):
                         max_factor = max(max_factor * factor_decrease, factor_minimum)
                         print('---- New convex combination {}'.format(max_factor))
+
+                if(epoch % 20 == 0):
+                    print('---- Storing temp model')
+                    storage.store_params(self.model.params)
 
                 #For current examples chunk in GPU memory
                 for chunk_index in range(nr_chunks):

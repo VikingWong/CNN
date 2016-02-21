@@ -33,7 +33,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     report = evaluator.get_result()
 
     storage = ParamStorage(path=filename_params.network_save_name)
-    storage.store_params(model.params, model_params, dataset_params, optimization_params, number_of_epochs)
+    storage.store_params(model.params)
 
     dataset.destroy()
 
