@@ -37,8 +37,8 @@ class OutputLayer(BaseLayer):
         p = self.output
         hard = T.gt(p, 0.5)
         loss = (
-            - T.sum( ((factor * y) + ((1- factor) * hard)) * T.log(p) ) -
-            T.sum( ((factor * (1 - y)) + ((1- factor) * (1 - hard))) * T.log(1 - p) )
+            - T.sum( ((factor * y) + ((1.0- factor) * hard)) * T.log(p) ) -
+            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * (1.0 - hard))) * T.log(1.0 - p) )
         )
         return loss/self.size
 
@@ -51,8 +51,8 @@ class OutputLayer(BaseLayer):
         b = factor
         hard = T.gt(p, 0.5)
         cross = - (
-            (( b * y * T.log(p) ) + ((1-b) * hard * T.log(p) )) +
-             (( b* (1-y) * T.log(1-p) ) + ( (1-b) * (1-hard) * T.log(1-p) ))
+            (( b * y * T.log(p) ) + ((1.0-b) * hard * T.log(p) )) +
+             (( b* (1.0-y) * T.log(1.0-p) ) + ( (1.0-b) * (1.0-hard) * T.log(1.0-p) ))
         )
         return T.mean(cross)
 
