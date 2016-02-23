@@ -10,6 +10,8 @@ class OutputLayer(BaseLayer):
 
         if loss == 'bootstrapping':
              self.negative_log_likelihood = self.loss_bootstrapping
+        elif loss == 'crosstrapping':
+            self.negative_log_likelihood = self.loss_crosstrapping
         else:
              self.negative_log_likelihood = self.loss_crossentropy
 
@@ -29,10 +31,9 @@ class OutputLayer(BaseLayer):
     def loss_crossentropy(self, y, factor=1):
         return T.mean(T.nnet.binary_crossentropy(self.output, y))
 
-    #TODO: Does this work? Integer and matrix? TEST
     def loss_bootstrapping(self, y, factor=1):
         #Customized categorical cross entropy.
-        #Based on the multibox impl.
+        #Based on the multibox impl. More tuned to paper.
         p = self.output
         hard = T.gt(p, 0.5)
         loss = (
@@ -40,6 +41,20 @@ class OutputLayer(BaseLayer):
             T.sum( ((factor * (1 - y)) + ((1- factor) * (1 - hard))) * T.log(1 - p) )
         )
         return loss/self.size
+
+    def loss_crosstrapping(self, y, factor=1):
+        #Almost the same as bootstrapping, except mean used for overall result.
+        #More closely follows crossentropy implementation.
+        #When factor is 1, crossentropy equals this implementation. So performance
+        #without decreasing factor should be the same!
+        p = self.output
+        b = factor
+        hard = T.gt(p, 0.5)
+        cross = - (
+            (( b * y * T.log(p) ) + ((1-b) * hard * T.log(p) )) +
+             (( b* (1-y) * T.log(1-p) ) + ( (1-b) * (1-hard) * T.log(1-p) ))
+        )
+        return T.mean(cross)
 
     def errors(self, y):
         #Returns the mean squared error.
