@@ -20,6 +20,7 @@ class Creator(object):
         self.preprocessing = preproccessing
         self.mix_ratio = mix_ratio
         self.std = std
+        self.img_have_alpha = True #TODO: config
         self.reduce_testing = reduce_testing
         self.reduce_training = reduce_training
         self.reduce_validation = reduce_validation
@@ -113,7 +114,15 @@ class Creator(object):
 
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
-
+                if self.img_have_alpha:
+                    alpha_min = np.amin(data_temp[0: dim_data, 0: dim_data, 3])
+                    if alpha_min <= 0:
+                        #If a single pixel is transparent, the patch is outside the border.
+                        dropped_images += 1
+                        continue
+                    #Convert to RGB
+                    data_temp = data_temp[0: dim_data, 0: dim_data, 0:3]
+                    print(data_temp.shape)
                 #TODO: new config parameter
                 if(rotation):
                     # Increase diversity of samples by flipping horizontal and vertical.
@@ -145,19 +154,25 @@ class Creator(object):
                 nr_total += 1
                 nr_class += int(contains_class)
 
+                if not self.img_have_alpha:
+                    #RGB only. Only filters out entirely white or black areas
+                    max_element = data_sample.max()
+                    min_element = data_sample.min()
 
-                max_element = data_sample.max()
-                min_element = data_sample.min()
-
-                # will filter out a whole lot of images.
-                if max_element != min_element:
+                    # will filter out a whole lot of images.
+                    if max_element != min_element:
+                        data[idx] = data_sample
+                        label[idx] = label_sample
+                        idx += 1
+                        example_counter -= 1
+                    else:
+                        dropped_images += 1
+                else:
+                    #RGBA. Filters out areas that is determined to be non-content. (Bigger white areas set to transparent)
                     data[idx] = data_sample
                     label[idx] = label_sample
                     idx += 1
                     example_counter -= 1
-                else:
-                    dropped_images += 1
-
                 if example_counter <= 0:
                     break
 

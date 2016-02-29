@@ -7,7 +7,9 @@ import augmenter.util as loader
 #When rotating and sampling , the sample can be checked for alpha values of 0. If one exists the image can be removed.
 #This effectively reduce the amount of eligble samples, but will help the model avoid learning useless things like,
 #if there are any image borders in the sample.
-
+#
+# LABELS NEEDS TO BE MANUALLY COPIED
+#
 def check(data, x, y):
     for i in range(3):
         if data[x,y][0] < 255:
@@ -49,7 +51,7 @@ def create_dataset_structure(dest, subsets):
 dataset_base = "/home/olav/Pictures/Mass_roads"
 dataset_dest = "/home/olav/Pictures/Mass_roads_alpha"
 datasets = loader.get_dataset(dataset_base)
-content = ["data", "labels"]
+content = ["data"]
 
 create_dataset_structure(dataset_dest, datasets)
 

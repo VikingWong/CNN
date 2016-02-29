@@ -4,7 +4,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 300
-dataset_path = '/home/olav/Pictures/Mass_roads'
+dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl"
