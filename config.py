@@ -18,7 +18,7 @@ visual_params = Params({
 
 optimization_params = Params({
         "batch_size"                        : 64,
-        "l2_reg"                            : 0.00018,
+        "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
@@ -42,7 +42,7 @@ dataset_params = Params({
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
-    "mix_ratio"             : 0.4,
+    "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
     "reduce_testing"        : 0.2,
     "reduce_validation"     : 0.8,
@@ -58,7 +58,7 @@ model_params = Params({
     "input_data_dim"    : (3, 64, 64),
     "output_label_dim"  : (16, 16),
     "hidden_layer"      : 4096,
-    "dropout_rates"     : [0.9, 0.85, 0.75, 0.5, 1.0],
+    "dropout_rates"     : [1.0, 0.9, 0.8, 0.5, 1.0],
     "conv_layers"       :
         [
             {"filter": (16,16), "stride": (4, 4), "pool": (2, 2)},

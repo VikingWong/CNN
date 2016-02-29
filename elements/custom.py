@@ -9,11 +9,14 @@ class OutputLayer(BaseLayer):
         self._verbose_print(verbose, n_in, n_out, loss, batch_size)
 
         if loss == 'bootstrapping':
-             self.negative_log_likelihood = self.loss_bootstrapping
+            print('bootstrapping')
+            self.negative_log_likelihood = self.loss_bootstrapping
         elif loss == 'crosstrapping':
+            print('crosstrapping')
             self.negative_log_likelihood = self.loss_crosstrapping
         else:
-             self.negative_log_likelihood = self.loss_crossentropy
+            print('crossentropy')
+            self.negative_log_likelihood = self.loss_crossentropy
 
 
 
