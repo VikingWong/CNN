@@ -103,6 +103,9 @@ class Creator(object):
 
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
+            #if nr_opened_images % 200 == 0:
+            #    img2 = Image.fromarray(image_img)
+            #    img2.save("./test.tiff")
 
             # Some selections will definitely fail, but because of the rotating queue,
             # eventually we have enough examples.
@@ -122,7 +125,7 @@ class Creator(object):
                         continue
                     #Convert to RGB
                     data_temp = data_temp[0: dim_data, 0: dim_data, 0:3]
-                    print(data_temp.shape)
+
                 #TODO: new config parameter
                 if(rotation):
                     # Increase diversity of samples by flipping horizontal and vertical.
@@ -155,6 +158,7 @@ class Creator(object):
                 nr_class += int(contains_class)
 
                 if not self.img_have_alpha:
+                    print("NOT HERE")
                     #RGB only. Only filters out entirely white or black areas
                     max_element = data_sample.max()
                     min_element = data_sample.min()
@@ -223,7 +227,7 @@ class Dataset(object):
 
     def open_image(self, i):
         image_path, label_path = self.img_paths[i]
-        im = Image.open(os.path.join(self.base, 'data',  image_path), 'r')
+        im = Image.open(os.path.join(self.base, 'data',  image_path), 'r').convert('RGBA')
         la = Image.open(os.path.join(self.base, 'labels',  label_path), 'r').convert('L')
         return im, la
 
