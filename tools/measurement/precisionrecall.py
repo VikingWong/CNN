@@ -73,7 +73,7 @@ class PrecisionRecallCurve(object):
         #Results in a slack of 3 pixels.
         labels_with_slack = self._apply_buffer(labels, 3)
 
-        tests = np.arange(0.0001 , 0.980, 0.01)
+        tests = np.arange(0.0001 , 0.995, 0.01)
         datapoints = []
         for threshold in tests:
             binary_arr = util.create_threshold_image(predictions, threshold)

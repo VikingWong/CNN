@@ -99,13 +99,11 @@ class Creator(object):
 
             rot = 0
             if rotation:
+                print("ROTATE")
                 rot = random.uniform(0.0, 360.0)
-
+            print(rot)
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
-            #if nr_opened_images % 200 == 0:
-            #    img2 = Image.fromarray(image_img)
-            #    img2.save("./test.tiff")
 
             # Some selections will definitely fail, but because of the rotating queue,
             # eventually we have enough examples.

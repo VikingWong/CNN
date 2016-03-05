@@ -18,7 +18,7 @@ visual_params = Params({
 
 optimization_params = Params({
         "batch_size"                        : 64,
-        "l2_reg"                            : 0.0002,
+        "l2_reg"                            : 0.0001,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
