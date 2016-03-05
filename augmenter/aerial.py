@@ -117,6 +117,7 @@ class Creator(object):
 
                 data_temp =     image_img[y : y+dim_data, x : x+dim_data]
                 label_temp =    label_img[y : y+dim_data, x : x+dim_data]
+
                 if self.img_have_alpha:
                     alpha_min = np.amin(data_temp[0: dim_data, 0: dim_data, 3])
                     if alpha_min <= 0:
@@ -124,6 +125,7 @@ class Creator(object):
                         dropped_images += 1
                         continue
                     #Convert to RGB
+
                     data_temp = data_temp[0: dim_data, 0: dim_data, 0:3]
 
                 #TODO: new config parameter

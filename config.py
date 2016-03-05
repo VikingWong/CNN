@@ -24,7 +24,7 @@ optimization_params = Params({
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "backpropagation"                   : "sgd_nesterov",
-        "learning_rate"                     : 0.0009,
+        "learning_rate"                     : 0.0012,
         "learning_adjustment"               : 25,
         "learning_decrease"                 : 0.94,
         "factor_rate"                       : 1,
@@ -38,7 +38,7 @@ optimization_params = Params({
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
     "samples_per_image"     : 400,
-    "dataset_std"           : 0.233174571944,
+    "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
