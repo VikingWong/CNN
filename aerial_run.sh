@@ -1,2 +1,3 @@
 #!/bin/sh
-python ./tools/visualize/aerial.py
+
+python ./tools/visualize/run.py "$@"

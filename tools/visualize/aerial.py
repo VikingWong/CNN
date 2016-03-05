@@ -6,109 +6,127 @@ import math, sys, os
 
 sys.path.append(os.path.abspath("./"))
 
-from model import ShallowModel, ConvModel
-from storage.store import ParamStorage
-from util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
+import tools.util as util
+from data import AerialDataset
+
+from augmenter import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
 class Visualizer(object):
-    LABEL_SIZE = 16
-    IMAGE_SIZE = 64
-
-    def __init__(self, model, params, std= 1):
-        self.model = model
-        self.params = params
-        self.std = std
-        print("STD:", self.std)
 
 
-
-    def visualize(self):
-        data, dim = self.create_data_from_image()
-        print(data.nbytes / 1000000, "mb")
-        x, shared_x = self.build_model(data, data.shape[0])
-        predict = self.model.create_predict_function(x, shared_x)
-        output = predict()
-        image = self.combine_to_image(output, dim)
-        self.show_individual_predictions(data, output)
-        return image
+    def __init__(self, model_config, model_params, dataset_config):
+        self.model_config = model_config
+        self.model_params = model_params
+        self.dim_data = dataset_config.input_dim
+        self.dim_label = dataset_config.output_dim
+        self.padding = (self.dim_data - self.dim_label) / 2
+        self.normalize = dataset_config.use_preprocessing
+        self.std = dataset_config.dataset_std
 
 
-    def build_model(self, data, number):
-        print("Build model and predict function")
-        x = T.matrix('x')
-        shared_x = theano.shared(np.asarray(data, dtype=theano.config.floatX), borrow=True)
-        self.model.build(x,number, init_params=self.params)
-        return x, shared_x
+    def visualize(self, image_path, batch_size, threshold=1):
+        dataset, dim = self.create_data_from_image(image_path)
+
+        compute_output = util.create_predictor(dataset, self.model_config, self.model_params, batch_size)
+        predictions, labels = util.batch_predict(compute_output, dataset, self.dim_label, batch_size)
+        image = self.combine_to_image(predictions, dim, threshold)
+
+        #Need to have Mass_road structure TODO: argument
+        dir = os.path.abspath(image_path + "../../../")
+        label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
+        hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
+        return image, hit_image
 
 
-    def show_individual_predictions(self, images, predictions):
+    def _create_hit_image(self, prediction_image, input_image, label_image):
+        best_trade_off =0.0301
+        thresh = 255 * 0.1
+        w, h = input_image.size
+        w = int(w/self.dim_label)*self.dim_label
+        h = int(h/self.dim_label)*self.dim_label
+        p = self.padding
+
+        input_image = input_image.crop((p, p, w-p, h-p))
+        label_image = label_image.crop((p, p, w-p, h-p))
+
+        pred = np.array(prediction_image)
+        label = np.array(label_image)
+        pixdata = input_image.load()
+
+        print("---- Creating hit/miss image")
+        for y in xrange(input_image.size[1]):
+            for x in xrange(input_image.size[0]):
+                #print(y, x)
+                if(pred[y][x] > thresh or label[y][x] > thresh):
+                    if pred[y][x] > thresh and label[y][x] >thresh:
+                        pixdata[x, y] = (0, 255, 0)
+                    elif label[y][x] > thresh:
+                        pixdata[x, y] = (255, 0, 0)
+                    else:
+                         pixdata[x, y] = (0, 0, 255)
+
+        return input_image
+
+    def show_individual_predictions(self, dataset, predictions, std=1):
         print("Show each individual prediction")
-        for i in range(124, images.shape[0]):
+        images = np.array(dataset[0].eval())
+        for i in range(images.shape[0]):
+            min_val = np.amin(images[i])
+            img =from_arr_to_data((images[i]*std + min_val), 64)
 
-            img =from_arr_to_data(images[i], 64)
             pred = predictions[i]
-            print(i)
-
-
             clip_idx = pred < 0.3
             pred[clip_idx] = 0
             lab = from_arr_to_label(pred, 16)
 
-            #img.paste(lab, (24, 24), lab)
-            lab.show()
+            img.paste(lab, (24, 24), lab)
+            img = img.resize((256, 256))
             img.show()
-            del img
-            del lab
             user = raw_input('Proceed?')
             if user == 'no':
                 break
 
 
-    def combine_to_image(self, output_data, dim):
+    def combine_to_image(self, output_data, dim, threshold):
         print("Combine output to an image")
-        #Assume square tiles so sqrt will get dimensions.
-        label_image_dim = (int)(math.sqrt(output_data.shape[0]))
-        label_size = Visualizer.LABEL_SIZE
-        output = output_data.reshape(label_image_dim, label_image_dim, label_size, label_size)
 
-        #Output is a matrix of 16x16 patches. Is combined to one image below.
-        l = []
-        for i in range(0, label_image_dim):
-            arr = output[i][0]
-            for j in range(1, label_image_dim):
-                arr = np.hstack((arr, output[i][j]))
-            l.append(arr)
+        vertical, horizontal = dim
+        output = output_data.reshape(vertical, horizontal, self.dim_label, self.dim_label)
+        temp = np.concatenate(output, axis=1)
+        combined = np.concatenate(temp, axis=1)
+        if threshold < 1:
+            combined = util.create_threshold_image(combined, threshold)
 
-        output = np.vstack(l)
-
-        output = output * 255
-        image = np.array(output, dtype=np.uint8)
+        image = np.array(combined * 255, dtype=np.uint8)
         return Image.fromarray(image)
 
 
-    def create_data_from_image(self):
+    def create_data_from_image(self ,image_path):
         print("Create data patches for model")
-        image = self.open_image('/home/olav/Pictures/Mass_roads/test/data/18478735_15.tiff')
-        image = image[0:1024, 0: 1024, :]
-        #Need to be a multiply of 2 for now.
-        label_size = Visualizer.LABEL_SIZE
-        padding = 24
-        data = []
+        dim = self.dim_label
+        image = self.open_image(image_path)
+        dp = 2* self.padding
 
-        d = (image.shape[0]- (2*padding), image.shape[1] - (2 * padding))
-        for i in range(padding, image.shape[0]-padding, label_size):
-            for j in range(padding, image.shape[1]-padding, label_size):
-                temp = image[i- padding: i+Visualizer.IMAGE_SIZE -padding, j-padding:j+Visualizer.IMAGE_SIZE-padding]
-                image_data = from_rgb_to_arr(temp)
+        vertical = int((image.shape[0] - dp) / dim)
+        horizontal = int((image.shape[1] - dp) / dim)
+        number_of_patches = vertical * horizontal
 
-                #TODO: Store preprocessing in params file as well. Will have concequences if config is out of sync with stored values.
-                if True:
-                    image_data = normalize(image_data, self.std)
-                data.append(image_data)
+        data = np.empty((number_of_patches, self.dim_data*self.dim_data*3), dtype=theano.config.floatX)
+        label = np.empty((number_of_patches, dim*dim), dtype=theano.config.floatX)
 
-        data = np.array(data)
+        idx = 0
+        for i in range(vertical):
+            for j in range(horizontal):
+                img_i = i * dim
+                img_j = j * dim
+                image_patch = from_rgb_to_arr(image[img_i: img_i + dim + dp, img_j: img_j + dim + dp])
 
-        return data, d
+                if self.normalize:
+                    image_patch = normalize(image_patch, self.std)
+                data[idx] = image_patch
+                idx += 1
+
+        return AerialDataset.shared_dataset([data, label], cast_to_int=True), (vertical, horizontal)
 
 
     def open_image(self, path):
@@ -120,14 +138,3 @@ class Visualizer(object):
 
 
 
-print(sys.path)
-store = ParamStorage()
-data = store.load_params(path="./results/params.pkl")
-print(data)
-m = ConvModel(data['model'])
-dataset_std = data['dataset'].dataset_std
-
-v = Visualizer(m, data['params'], std=dataset_std)
-img = v.visualize()
-img.show()
-img.save('./tools/visualize/tester.jpg')

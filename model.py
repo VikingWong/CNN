@@ -17,6 +17,7 @@ class AbstractModel(object):
         self.input_data_dim = params.input_data_dim
         self.hidden = params.hidden_layer
         self.output_label_dim = params.output_label_dim
+        self.model_config = params
 
 
     def get_output_layer(self):
@@ -24,8 +25,8 @@ class AbstractModel(object):
         return self.layer[-1]
 
 
-    def get_cost(self, y):
-        return  self.get_output_layer().negative_log_likelihood(y)
+    def get_cost(self, y, factor=1):
+        return  self.get_output_layer().negative_log_likelihood(y, factor)
 
 
     def get_errors(self, y):
@@ -80,7 +81,8 @@ class ShallowModel(AbstractModel):
             n_in=2048,
             n_out=256,
             W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
+            b=self._weight(init_params, 1),
+            batch_size=batch_size
         )
 
         self.L2_layers = [layer0, layer1]
@@ -92,14 +94,17 @@ class ShallowModel(AbstractModel):
 #TODO: print number of parameters
 class ConvModel(AbstractModel):
 
-    def __init__(self, params, verbose=False):
+    def leaky_ReLU(self, x):
+        return T.nnet.relu(x, alpha=0.01)
+
+    def __init__(self, params, verbose=True):
         super(ConvModel, self).__init__(params, verbose)
         self.nr_kernels = params.nr_kernels
-        self.dropout_rate = params.hidden_dropout
+        self.dropout_rate = params.dropout_rates
         self.conv = params.conv_layers
         #Because of for loop -1 will disappear, but keep queue len being 2.
         self.queue = deque([self.input_data_dim[0], -1])
-
+        self.verbose = verbose
 
     def _get_filter(self, next_kernel, filter):
         self.queue.appendleft(next_kernel)
@@ -107,9 +112,12 @@ class ConvModel(AbstractModel):
         return list(self.queue) + list(filter)
 
 
-    def build(self, x, batch_size, init_params=None):
+    def build(self, x, drop, batch_size, init_params=None):
 
         print('Creating layers for convolutional neural network model')
+        if self.verbose and init_params:
+            print('---- Using supplied weights and bias')
+
         channels, width, height = self.input_data_dim
         layer_input = x.reshape((batch_size, channels, width, height))
 
@@ -131,9 +139,12 @@ class ConvModel(AbstractModel):
                 filter_shape=filter,
                 strides=self.conv[i]["stride"],
                 poolsize=self.conv[i]["pool"],
-                activation=T.nnet.relu,
+                activation=self.leaky_ReLU,
                 W=self._weight(init_params, init_idx-1),
-                b=self._weight(init_params, init_idx)
+                b=self._weight(init_params, init_idx),
+                drop=drop,
+                dropout_rate=self.dropout_rate[i],
+                verbose=self.verbose
             )
 
             layer_input = layer.output
@@ -151,10 +162,12 @@ class ConvModel(AbstractModel):
             input=hidden_input,
             n_in=self.nr_kernels[-1] * inp_shape[2] * inp_shape[3],
             n_out=self.hidden,
-            activation=T.nnet.relu,
+            activation=self.leaky_ReLU,
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3),
-            dropout_rate=self.dropout_rate
+            drop=drop,
+            dropout_rate=self.dropout_rate[-2],
+            verbose=self.verbose
 
         )
 
@@ -165,7 +178,10 @@ class ConvModel(AbstractModel):
             n_in=self.hidden,
             n_out=output_dim,
             W=self._weight(init_params, 0),
-            b=self._weight(init_params, 1)
+            b=self._weight(init_params, 1),
+            loss=  self.model_config.loss,
+            batch_size=batch_size,
+            verbose=self.verbose
         )
 
         self.L2_layers = [hidden_layer, output_layer]

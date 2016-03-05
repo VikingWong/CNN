@@ -1,13 +1,15 @@
 import theano
 from theano import tensor as T
 from theano.tensor.nnet import conv
+from theano.sandbox.cuda import dnn
 from theano.tensor.signal import downsample
 import numpy as np
 from elements.util import BaseLayer
 
+#TODO: uses deprecated conv and downsample methods. Bleeding edge Theano have convOp and pool2d something.
 class ConvPoolLayer(BaseLayer):
-    def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2,2), strides=(1, 1),
-                 activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=0.0):
+    def __init__(self, rng, input, filter_shape, image_shape, drop, poolsize=(2,2), strides=(1, 1),
+                 activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=1.0):
         '''
         :param rng: random number generator used to initialize weights
         :param input: symbolic image tensor
@@ -22,7 +24,7 @@ class ConvPoolLayer(BaseLayer):
         '''
         super(ConvPoolLayer, self).__init__(rng, input, dropout_rate)
         assert image_shape[1] == filter_shape[1]
-        self._verbose_print(verbose, filter_shape, poolsize, image_shape, strides)
+        self._verbose_print(verbose, filter_shape, poolsize, image_shape, strides, dropout_rate)
 
         fan_in = np.prod(filter_shape[1:])
         # each unit in the lower layer receives a gradient from:
@@ -36,27 +38,34 @@ class ConvPoolLayer(BaseLayer):
         self.set_weight(W, -W_bound, W_bound, filter_shape)
         self.set_bias(b, filter_shape[0])
 
-        conv_out = conv.conv2d(
+        if strides[0] == 1 and strides[1] == 1:
+            #Strides make the system run impossibly slow because of legacy OP.
+
+            conv_out = conv.conv2d(
             input=input,
             filters=self.W,
             filter_shape=filter_shape,
             image_shape=image_shape,
-        )
+            )
+        else:
+            #When using stride/subsample the system require a GPU and CUDA. Using GPU OP directly.
+            #he memory layout to use is bc01, that is batch, channel, first dim, second dim in that order.
+            conv_out = dnn.dnn_conv(input, self.W, subsample=strides)
 
         pooled_out = downsample.max_pool_2d(
             input=conv_out,
             ds=poolsize,
             ignore_border=True
         )
-        pooled_out = pooled_out + self.b.dimshuffle('x', 0, 'x', 'x')
-        pooled_out = self.dropout(pooled_out, dropout_rate)
+        out = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        droppedOutput = self.dropout(out, dropout_rate)
 
-        self.output = activation(pooled_out)
+        self.output = T.switch(T.neq(drop, 0), droppedOutput, out)
 
         self.params = [self.W, self.b]
 
 
-    def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides):
+    def _verbose_print(self, is_verbose, filter_shape, poolsize, image_shape, strides, dropout_rate):
         if is_verbose:
             print('Convolutional layer with {} kernels'.format(filter_shape[0]))
             print('---- Kernel size \t {}x{}'.format(filter_shape[2], filter_shape[3]))
@@ -64,4 +73,5 @@ class ConvPoolLayer(BaseLayer):
             print('---- Input size \t {}x{}'.format(image_shape[2],image_shape[3]))
             print('---- Stride \t \t {}x{}'.format(strides[0],strides[1]))
             print('---- Input number of feature maps is {}'.format(image_shape[1]))
+            print('---- Dropout rate is {}'.format(dropout_rate))
             print('')

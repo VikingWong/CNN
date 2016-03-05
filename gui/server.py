@@ -2,8 +2,8 @@ import unirest
 import json
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, token
-from util import print_error
-
+from printing import print_error
+import base64
 
 
 base_url = visual_params.endpoint
@@ -14,6 +14,7 @@ default_headers = {
 }
 current_id = "none"
 
+
 def is_testing():
     '''
     If test flag is set via get command status, test contain an epoch number.
@@ -22,25 +23,31 @@ def is_testing():
     global test
     if test:
         test = False
+        print('---- Conducting debug')
         return True
     else:
         return False
 
+
 def get_command_status():
-    print("---- Retrieve command status")
+
     url = base_url + "job/" + current_id + "/status"
     def callback(response):
         global stop, test
         if not response.body['running']:
             stop = True
+            print("---- Received stop message from GUI")
         if response.body['test']:
             test = response.body['test']
+            print("---- Received debug message from GUI")
     thread = unirest.get(url, headers=default_headers, callback=callback)
+
 
 def append_job_update( epoch, training_loss, validation_loss, test_loss):
     url = base_url + "job/" +  current_id + "/update"
     data = json.dumps({
         "epoch": epoch,
+        "training_loss": training_loss,
         "validation_loss": validation_loss,
         "test_loss": test_loss
     })
@@ -48,6 +55,7 @@ def append_job_update( epoch, training_loss, validation_loss, test_loss):
     def callback(response):
         pass
     thread = unirest.post(url, headers=default_headers, callback=callback, params=data)
+
 
 def start_new_job():
 
@@ -71,6 +79,23 @@ def start_new_job():
 
     thread = unirest.post(url, headers=default_headers, params=data, callback=callback)
 
+
 def stop_job(report):
     url = base_url + "job/" + current_id + "/stop"
     thread = unirest.post(url, headers=default_headers, params=json.dumps(report))
+
+
+def send_precision_recall_data(datapoints, job_id=None):
+    if not job_id:
+        job_id = current_id
+    url = base_url + "job/" + job_id + "/precision-recall-curve"
+    def callback(response):
+        print(response.body)
+    thread = unirest.post(url, headers=default_headers, params=json.dumps(datapoints), callback=callback)
+
+def send_result_image(job_id, image):
+    url = base_url + "job/" + job_id + "/result-image"
+    def callback(response):
+        print(response.body)
+    data = {"image": base64.b64encode(image)}
+    thread = unirest.post(url, headers=default_headers, params=json.dumps(data), callback=callback)
