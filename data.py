@@ -210,6 +210,7 @@ class AerialDataset(AbstractDataset):
         print('---- Testing: \t {}mb'.format(test_size))
 
         training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
+        training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
         print('---- Actual number of training chunks: {}'.format(len(training_chunks)))
         print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
         print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))

@@ -7,7 +7,8 @@ number_of_epochs = 300
 dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
-        "network_save_name"     : "./results/params.pkl"
+        "network_save_name"     : "./results/params.pkl",
+        "curriculum_teacher"    : "./results/curriculum.pkl"
 
     })
 
@@ -24,13 +25,17 @@ optimization_params = Params({
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "backpropagation"                   : "sgd_nesterov",
-        "learning_rate"                     : 0.0012,
-        "learning_adjustment"               : 25,
+        "learning_rate"                     : 0.0008,
+        "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.94,
         "factor_rate"                       : 1,
-        "factor_adjustment"                 : 150,
+        "factor_adjustment"                 : 200,
         "factor_decrease"                   : 0.998,
-        "factor_minimum"                    : 0.8
+        "factor_minimum"                    : 0.8,
+        "curriculum_enable"                 : True,
+        "curriculum_adjustment"             : 20,
+        "curriculum_rate"                   : 0.1,
+        "curriculum_increase"               : 0.1
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset

@@ -171,7 +171,6 @@ class Evaluator(object):
                 if(epoch % 20 == 0):
                     print('---- Storing temp model')
                     storage.store_params(self.model.params)
-
                 #For current examples chunk in GPU memory
                 for chunk_index in range(nr_chunks):
                     self.data.switch_active_training_set( chunk_index )

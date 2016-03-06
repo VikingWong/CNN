@@ -46,8 +46,8 @@ class AbstractModel(object):
 
     def getL2(self):
         v = 0
-        for layer in self.L2_layers:
-            v += (layer.W ** 2).sum()
+        for layer in self.layer:
+            v += T.sum(layer.W ** 2)
         return v
 
 

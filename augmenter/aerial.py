@@ -99,9 +99,7 @@ class Creator(object):
 
             rot = 0
             if rotation:
-                print("ROTATE")
                 rot = random.uniform(0.0, 360.0)
-            print(rot)
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
 
@@ -158,7 +156,6 @@ class Creator(object):
                 nr_class += int(contains_class)
 
                 if not self.img_have_alpha:
-                    print("NOT HERE")
                     #RGB only. Only filters out entirely white or black areas
                     max_element = data_sample.max()
                     min_element = data_sample.min()

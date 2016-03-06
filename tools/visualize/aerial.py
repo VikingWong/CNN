@@ -35,11 +35,11 @@ class Visualizer(object):
         dir = os.path.abspath(image_path + "../../../")
         label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
         hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
-        return image, hit_image
+        return image, hit_image, Image.open(image_path, 'r')
 
 
     def _create_hit_image(self, prediction_image, input_image, label_image):
-        best_trade_off =0.0301
+        best_trade_off =0.0801
         thresh = 255 * 0.1
         w, h = input_image.size
         w = int(w/self.dim_label)*self.dim_label
@@ -130,7 +130,7 @@ class Visualizer(object):
 
 
     def open_image(self, path):
-        image = Image.open(path, 'r')
+        image = Image.open(path, 'r').convert('RGB')
         arr =  np.array(image)
         if image:
             del image

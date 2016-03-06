@@ -3,7 +3,6 @@ import sys, os
 sys.path.append(os.path.abspath("./"))
 
 from printing import print_section, print_action
-import numpy as np
 from storage import ParamStorage
 from precisionrecall import PrecisionRecallCurve
 from gui.server import send_precision_recall_data
