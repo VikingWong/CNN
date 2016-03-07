@@ -17,18 +17,22 @@ class CurriculumDataset(object):
         self.dataset_config = dataset_config
         self.evaluate = util.create_simple_predictor(teacher['model'], teacher['params'])
 
-
-    def create_dataset(self):
         dim = (self.dataset_config.input_dim, self.dataset_config.output_dim)
-        path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
         print("---- Using preprossing: {}".format(preprocessing))
         std = self.dataset_config.dataset_std
-        samples_per_image = 400 #TODO: USE CONFIG
-        creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
-        creator.load_dataset()
-        creator.sample_data(creator.test, samples_per_image, curriculum=self.evaluate)
+        self.creator = Creator(self.dataset_path, dim=dim, preproccessing=preprocessing, std=std)
+        self.creator.load_dataset()
 
+
+    def create_dataset(self, is_baseline):
+        print("---- Starting sampling. WARNING: this might take a while.")
+        base_sampling = self.dataset_config.samples_per_image
+        self._generate_stage("main", 0.1, base_sampling)
+
+    def _generate_stage(self, name, threshold, samples):
+        #TODO: generate folder, create dataset, then store samples in directory of NAME.
+        self.creator.sample_data(self.creator.train, samples, curriculum=self.evaluate, curriculum_threshold=threshold)
 
 
     #a = np.array([0,1,2,3])

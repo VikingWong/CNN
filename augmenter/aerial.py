@@ -53,7 +53,7 @@ class Creator(object):
         return train, valid, test
 
 
-    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None):
+    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None, curriculum_threshold=1.0):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -145,8 +145,14 @@ class Creator(object):
                     data_sample = util.normalize(data_sample, self.std)
 
                 if curriculum:
+                    #TODO: CONSIDER LETTING GPU do sum and abs etc.
+                    #This slows down sampling considerably, so only running once, and storing dataset is a given.
+                    #If threshold is 1, only random sampling, with normal dataset distribution.
                     output = curriculum(np.array([data_sample]))
-                    #shape is 1, 256
+                    diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
+                    if diff > curriculum_threshold:
+                        print(diff)
+                        continue
 
                 # Count percentage of labels contain roads.
                 contains_class = not label_sample.max() == 0

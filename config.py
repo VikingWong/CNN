@@ -43,7 +43,7 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
-    "samples_per_image"     : 400,
+    "samples_per_image"     : 10,
     "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,

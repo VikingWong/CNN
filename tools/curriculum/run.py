@@ -29,4 +29,4 @@ store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
 
 generator = CurriculumDataset(teacher, dataset_path, filename_params.curriculum_location, dataset_params)
-generator.create_dataset()
+generator.create_dataset(is_baseline)
