@@ -8,7 +8,8 @@ dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
-        "curriculum_teacher"    : "./results/curriculum.pkl"
+        "curriculum_teacher"    : "./results/curriculum.pkl",
+        "curriculum_location"   : "./results/curriculum"
 
     })
 

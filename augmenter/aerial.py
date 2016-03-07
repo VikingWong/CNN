@@ -53,7 +53,7 @@ class Creator(object):
         return train, valid, test
 
 
-    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False):
+    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -144,10 +144,12 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
+                if curriculum:
+                    output = curriculum(np.array([data_sample]))
+                    #shape is 1, 256
+
                 # Count percentage of labels contain roads.
-
                 contains_class = not label_sample.max() == 0
-
                 if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
                     #Will sample same amount from road and non-road class
                     continue
@@ -182,7 +184,7 @@ class Creator(object):
                 max_image_samples = max(10, int(max_image_samples*0.9))
                 print('---- Reducing sampling rate to {}'.format(max_image_samples))
 
-            if nr_opened_images % 50 == 0:
+            if nr_opened_images % 10 == 0:
                 print('---- Input image: {}/{}'.format(nr_opened_images, dataset.nr_img))
                 print('---- Patches remaining: {}'.format(example_counter))
 
@@ -190,11 +192,11 @@ class Creator(object):
         print("---- Images containing class {}/{}, which is {}%".format(nr_class, nr_total, nr_class*100/float(nr_total)))
         print("---- Dropped {} images".format(dropped_images))
 
-        print('---- Creating permutation')
+        #print('---- Creating permutation')
         #perm = np.random.permutation(len(data))
         #data = data[perm]
         #label = label[perm]
-        print('Examples shuffled')
+        #print('Examples shuffled')
         return data, label
 
 
