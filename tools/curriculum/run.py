@@ -8,12 +8,8 @@ from config import filename_params, optimization_params, dataset_params, dataset
 from dataset_create import CurriculumDataset
 
 #TODO: Dataset_create utilize augmenter for training dataset, also valid and testing. New data loader.
-#TODO: Store all samples, store 100 in each file.
-#TODO: Estimate sample
-#TODO: Load dataset on
 #TODO: Must be prepared for each dataset taking in the order of 60gb.
 #TODO: Read file-list, shuffle it, so each run do not have exactly the same order.
-#TODO: File structure is : curriculum --> main , 1, 2, 3, 4, 5, 6, 7, 8, 9. Main have the most , while 1, 2, 3 contains 10% or something of the main size.
 
 print_section("Creating curriculum learning dataset")
 

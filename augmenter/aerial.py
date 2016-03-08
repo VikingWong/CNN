@@ -36,7 +36,6 @@ class Creator(object):
         self.test = Dataset("Test set", self.dataset_path, test_path, self.reduce_testing )
         self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
         self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
-        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
 
     def dynamically_create(self, samples_per_image):
         self.load_dataset()
@@ -63,6 +62,7 @@ class Creator(object):
 
         dropped_images = 0
         curriculum_dropped = 0
+        curriculum_road_dropped = 0
         nr_opened_images = 0
 
 
@@ -146,6 +146,12 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
+                 # Count percentage of labels contain roads.
+                contains_class = not label_sample.max() == 0
+                if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
+                    #Will sample same amount from road and non-road class
+                    continue
+
                 if curriculum and curriculum_threshold < 1.0:
                     #TODO: CONSIDER LETTING GPU do sum and abs etc.
                     #This slows down sampling considerably, so only running once, and storing dataset is a given.
@@ -153,15 +159,13 @@ class Creator(object):
                     output = curriculum(np.array([data_sample]))
                     diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
 
-                    if diff > curriculum_threshold:
+                    #Patches with roads, are automatically harder, and have a a bit more lenient threshold.
+                    if diff > curriculum_threshold + (0.15*int(contains_class)):
+                        curriculum_road_dropped += int(contains_class)
                         curriculum_dropped += 1
                         continue
 
-                # Count percentage of labels contain roads.
-                contains_class = not label_sample.max() == 0
-                if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
-                    #Will sample same amount from road and non-road class
-                    continue
+
 
                 nr_total += 1
                 nr_class += int(contains_class)
@@ -193,7 +197,7 @@ class Creator(object):
                 max_image_samples = max(10, int(max_image_samples*0.9))
                 print('---- Reducing sampling rate to {}'.format(max_image_samples))
 
-            if nr_opened_images % 10 == 0:
+            if nr_opened_images % 50 == 0:
                 print('---- Input image: {}/{}'.format(nr_opened_images, dataset.nr_img))
                 print('---- Patches remaining: {}'.format(example_counter))
 
@@ -203,6 +207,7 @@ class Creator(object):
 
         if curriculum:
             print("---- Dropped {} patches because of curriculum".format(curriculum_dropped))
+            print("---- Dropped {} road patches because of curriculum".format(curriculum_road_dropped/float(curriculum_dropped)))
         #print('---- Creating permutation')
         #perm = np.random.permutation(len(data))
         #data = data[perm]

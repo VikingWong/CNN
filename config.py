@@ -9,7 +9,7 @@ filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "./results/curriculum"
+        "curriculum_location"   : "/home/olav/Pictures/Mass_roads_curriculum"
 
     })
 
@@ -43,15 +43,15 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
-    "samples_per_image"     : 20,
+    "samples_per_image"     : 100,
     "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
-    "reduce_testing"        : 0.2,
-    "reduce_validation"     : 0.8,
+    "reduce_testing"        : 0.3,
+    "reduce_validation"     : 0.9,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
