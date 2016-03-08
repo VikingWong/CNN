@@ -130,25 +130,6 @@ class AbstractDataset(object):
             raise Exception('Decrease batch_size or increase samples_per_image')
 
 
-class MnistDataset(AbstractDataset):
-
-    def load(self, dataset):
-        print("Creating MNIST dataset")
-        dataset = MnistDataset._get_file_path(dataset)
-        f = gzip.open(dataset, 'rb')
-        train_set, valid_set, test_set = pickle.load(f , encoding='latin1')
-        f.close()
-
-        #All the shared variables in a simple datastructure for easier access.
-        self.set['test'] = MnistDataset.shared_dataset(test_set, cast_to_int=True)
-        self.set['validation'] = MnistDataset.shared_dataset(valid_set, cast_to_int=True)
-        self.set['train'] = MnistDataset.shared_dataset(train_set, cast_to_int=True)
-
-
-        return True #TODO: Implement boolean for whether everything went ok or not
-
-
-
 class AerialDataset(AbstractDataset):
 
     def load(self, dataset_path, params, batch_size=1):
