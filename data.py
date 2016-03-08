@@ -72,6 +72,10 @@ class AbstractDataset(object):
                   '{} elements not enough for at least one minibatch of {}'.format(last_chunk_size, batch_size))
         return chunks
 
+    def set_nr_examples(self, train, valid, test):
+        self.nr_examples['train'] = train[0].shape[0]
+        self.nr_examples['valid'] = valid[0].shape[0]
+        self.nr_examples['test'] = test[0].shape[0]
 
     def get_report(self):
         return self.nr_examples
@@ -190,9 +194,7 @@ class AerialCurriculumDataset(AbstractDataset):
 
         AerialCurriculumDataset.dataset_shared_stats(train[0].shape, train[1].shape, chunks)
 
-        self.nr_examples['train'] = train[0].shape[0]
-        self.nr_examples['valid'] = valid[0].shape[0]
-        self.nr_examples['test'] = test[0].shape[0]
+        self.set_nr_examples(train, valid, test)
 
         nr_of_chunks = AerialCurriculumDataset.dataset_sizes(train, valid, test, chunks)
 
@@ -237,9 +239,7 @@ class AerialDataset(AbstractDataset):
 
         AerialDataset.dataset_shared_stats(train[0].shape, train[1].shape, chunks)
 
-        self.nr_examples['train'] = train[0].shape[0]
-        self.nr_examples['valid'] = valid[0].shape[0]
-        self.nr_examples['test'] = test[0].shape[0]
+        self.set_nr_examples(train, valid, test)
 
         nr_of_chunks = AerialDataset.dataset_sizes(train, valid, test, chunks)
 
