@@ -65,7 +65,6 @@ class CurriculumDataset(object):
         '''
         data, labels = self.creator.sample_data(dataset, samples)
         stage_path = os.path.join(self.store_path, set_name)
-        os.makedirs(stage_path)
         os.makedirs(os.path.join(stage_path, "labels"))
         os.makedirs(os.path.join(stage_path, "data"))
         np.save(os.path.join(stage_path, "labels", "examples"), labels)

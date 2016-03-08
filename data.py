@@ -122,62 +122,15 @@ class AbstractDataset(object):
 
 
     @staticmethod
-    def _dataset_check(name, dataset, batch_size):
+    def dataset_check(name, dataset, batch_size):
         #If there are are to few examples for at least one batch, the dataset is invalid.
         if len(dataset[0]) < batch_size:
             print_error('Insufficent examples in {}. '
                         '{} examples not enough for at least one minibatch'.format(name, len(dataset[0])))
             raise Exception('Decrease batch_size or increase samples_per_image')
 
-
-class AerialDataset(AbstractDataset):
-
-    def load(self, dataset_path, params, batch_size=1):
-        print_section('Creating aerial image dataset')
-        samples_per_image = params.samples_per_image
-        preprocessing = params.use_preprocessing
-        use_rotation = params.use_rotation
-        reduce_training = params.reduce_training
-        reduce_testing = params.reduce_testing
-        reduce_validation = params.reduce_validation
-        dim = (params.input_dim, params.output_dim)
-        self.std = params.dataset_std
-        mixed = params.only_mixed_labels
-        chunks = params.chunk_size
-
-        #TODO: Handle premade datasets. Later on when dataset structure is finalized
-        #get image and label folder from dataset, if valid
-        if dataset_path.endswith('.pkl'):
-            raise NotImplementedError('Not tested yet')
-            f = open(dataset_path, 'rb')
-            train, valid, test = pickle.load(f, encoding='latin1')
-            f.close()
-        else:
-            creator = Creator(dataset_path,
-                              dim=dim,
-                              rotation=use_rotation,
-                              preproccessing=preprocessing,
-                              std=self.std,
-                              only_mixed=mixed,
-                              reduce_testing=reduce_testing,
-                              reduce_training=reduce_training,
-                              reduce_validation=reduce_validation)
-            train, valid, test = creator.dynamically_create(samples_per_image)
-
-        #Testing dataset size requirements
-        AerialDataset._dataset_check('train', train, batch_size)
-        AerialDataset._dataset_check('valid', valid, batch_size)
-        AerialDataset._dataset_check('test', test, batch_size)
-
-        print('')
-        print('Preparing shared variables for datasets')
-        print('---- Image data shape: {}, label data shape: {}'.format(train[0].shape, train[1].shape))
-        print('---- Max chunk size of {}mb'.format(chunks))
-
-        self.nr_examples['train'] = train[0].shape[0]
-        self.nr_examples['valid'] = valid[0].shape[0]
-        self.nr_examples['test'] = test[0].shape[0]
-
+    @staticmethod
+    def dataset_sizes(train, valid, test, chunks):
         mb = 1000000.0
         train_size = sum(data.nbytes for data in train) / mb
         valid_size = sum(data.nbytes for data in valid) / mb
@@ -189,20 +142,118 @@ class AerialDataset(AbstractDataset):
         print('---- Training: \t {}mb'.format(train_size))
         print('---- Validation: {}mb'.format(valid_size))
         print('---- Testing: \t {}mb'.format(test_size))
+        return nr_of_chunks
+
+    @staticmethod
+    def dataset_shared_stats(image_shape, label_shape, chunks):
+        print('')
+        print('Preparing shared variables for datasets')
+        print('---- Image data shape: {}, label data shape: {}'.format(image_shape, label_shape))
+        print('---- Max chunk size of {}mb'.format(chunks))
+
+    @staticmethod
+    def dataset_chunk_stats(nr_training_chunks, elements_pr_chunk, elements_last_chunk):
+        print('---- Actual number of training chunks: {}'.format(nr_training_chunks))
+        print('---- Elements per chunk: {}'.format(elements_pr_chunk))
+        print('---- Last chunk size: {}'.format(elements_last_chunk))
+
+
+class AerialCurriculumDataset(AbstractDataset):
+    '''
+    Data loader for pre-generated dataset for curriculum learning.
+    '''
+
+    def load_set(self, path, set, stage=None):
+        base_path = ""
+        if stage:
+            base_path = os.path.join(path, set, stage)
+        else:
+            base_path = os.path.join(path, set)
+
+        labels = np.load(os.path.join(base_path, "labels"))
+        data = np.load(os.path.join(base_path, "data"))
+        return data, labels
+
+
+    def load(self, dataset_path, params, batch_size=1):
+        print_section('Loading aerial curriculum dataset')
+        chunks = params.chunk_size
+
+        train = self.load_set(dataset_path, "train", stage="stage0")
+        valid = self.load_set(dataset_path, "valid")
+        test = self.load_set(dataset_path, "test")
+
+        #Testing dataset size requirements
+        AerialCurriculumDataset.dataset_check('train', train, batch_size)
+        AerialCurriculumDataset.dataset_check('valid', valid, batch_size)
+        AerialCurriculumDataset.dataset_check('test', test, batch_size)
+
+        AerialCurriculumDataset.dataset_shared_stats(train[0].shape, train[1].shape, chunks)
+
+        self.nr_examples['train'] = train[0].shape[0]
+        self.nr_examples['valid'] = valid[0].shape[0]
+        self.nr_examples['test'] = test[0].shape[0]
+
+        nr_of_chunks = AerialCurriculumDataset.dataset_sizes(train, valid, test, chunks)
 
         training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
-        training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
-        print('---- Actual number of training chunks: {}'.format(len(training_chunks)))
-        print('---- Elements per chunk: {}'.format(len(training_chunks[0][0])))
-        print('---- Last chunk size: {}'.format(len(training_chunks[-1][0])))
 
-        #TODO: Chunkify for validation and testing as well?
+        AerialCurriculumDataset.dataset_chunk_stats(len(training_chunks), len(training_chunks[0][0]), len(training_chunks[-1][0]))
+
         self.active = AerialDataset.shared_dataset(training_chunks[0], cast_to_int=False)
         self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
         self.set['validation'] = AerialDataset.shared_dataset(valid, cast_to_int=True )
         self.set['test'] = AerialDataset.shared_dataset(test, cast_to_int=True)
 
-        self.all_training = training_chunks #Not stored on the GPU, unlike the shared variables defined above.
+        #Not stored on the GPU, unlike the shared variables defined above.
+        self.all_training = training_chunks
+        return True
+
+
+class AerialDataset(AbstractDataset):
+
+    def load(self, dataset_path, params, batch_size=1):
+        print_section('Creating aerial image dataset')
+
+        self.std = params.dataset_std
+        chunks = params.chunk_size
+
+        #TODO: ensure that the dataset is as expected.
+        creator = Creator(dataset_path,
+                          dim=(params.input_dim, params.output_dim),
+                          rotation=params.use_rotation,
+                          preproccessing=params.use_preprocessing,
+                          std=self.std,
+                          only_mixed=params.only_mixed_labels,
+                          reduce_testing=params.reduce_testing,
+                          reduce_training=params.reduce_training,
+                          reduce_validation=params.reduce_validation)
+        train, valid, test = creator.dynamically_create(params.samples_per_image)
+
+        #Testing dataset size requirements
+        AerialDataset.dataset_check('train', train, batch_size)
+        AerialDataset.dataset_check('valid', valid, batch_size)
+        AerialDataset.dataset_check('test', test, batch_size)
+
+        AerialDataset.dataset_shared_stats(train[0].shape, train[1].shape, chunks)
+
+        self.nr_examples['train'] = train[0].shape[0]
+        self.nr_examples['valid'] = valid[0].shape[0]
+        self.nr_examples['test'] = test[0].shape[0]
+
+        nr_of_chunks = AerialDataset.dataset_sizes(train, valid, test, chunks)
+
+        training_chunks = self._chunkify(train, nr_of_chunks, batch_size)
+
+        AerialDataset.dataset_chunk_stats(len(training_chunks), len(training_chunks[0][0]), len(training_chunks[-1][0]))
+
+        self.active = AerialDataset.shared_dataset(training_chunks[0], cast_to_int=False)
+        self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
+        self.set['validation'] = AerialDataset.shared_dataset(valid, cast_to_int=True )
+        self.set['test'] = AerialDataset.shared_dataset(test, cast_to_int=True)
+
+        #Not stored on the GPU, unlike the shared variables defined above.
+        self.all_training = training_chunks
         return True
 
 
