@@ -28,11 +28,24 @@ class CurriculumDataset(object):
     def create_dataset(self, is_baseline):
         print("---- Starting sampling. WARNING: this might take a while.")
         base_sampling = self.dataset_config.samples_per_image
-        self._generate_stage("main", 0.1, base_sampling)
+        curriculum_sampling = np.ceil(base_sampling/10)
+
+        #Sampling at different thresholds.
+        thresholds = np.arange(0.01 , 0.6, 0.05)
+        if is_baseline:
+            thresholds = np.ones(thresholds.shape)
+
+        print("---- Main dataset")
+        self._generate_stage("main", thresholds[0], base_sampling)
+        for i in range(1, thresholds.shape[0]):
+            print("---- Stage{} dataset".format(i))
+            self._generate_stage("stage{}".format(i), thresholds[i], curriculum_sampling)
+
+
 
     def _generate_stage(self, name, threshold, samples):
         #TODO: generate folder, create dataset, then store samples in directory of NAME.
-        self.creator.sample_data(self.creator.train, samples, curriculum=self.evaluate, curriculum_threshold=threshold)
+        data, label = self.creator.sample_data(self.creator.test, samples, curriculum=self.evaluate, curriculum_threshold=threshold)
 
 
     #a = np.array([0,1,2,3])

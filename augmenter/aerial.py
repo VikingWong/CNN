@@ -62,7 +62,9 @@ class Creator(object):
         nr_total = 1
 
         dropped_images = 0
+        curriculum_dropped = 0
         nr_opened_images = 0
+
 
         dim_data = self.dim_data
         dim_label = self.dim_label
@@ -144,14 +146,15 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                if curriculum:
+                if curriculum and curriculum_threshold < 1.0:
                     #TODO: CONSIDER LETTING GPU do sum and abs etc.
                     #This slows down sampling considerably, so only running once, and storing dataset is a given.
                     #If threshold is 1, only random sampling, with normal dataset distribution.
                     output = curriculum(np.array([data_sample]))
                     diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
+
                     if diff > curriculum_threshold:
-                        print(diff)
+                        curriculum_dropped += 1
                         continue
 
                 # Count percentage of labels contain roads.
@@ -198,6 +201,8 @@ class Creator(object):
         print("---- Images containing class {}/{}, which is {}%".format(nr_class, nr_total, nr_class*100/float(nr_total)))
         print("---- Dropped {} images".format(dropped_images))
 
+        if curriculum:
+            print("---- Dropped {} patches because of curriculum".format(curriculum_dropped))
         #print('---- Creating permutation')
         #perm = np.random.permutation(len(data))
         #data = data[perm]
