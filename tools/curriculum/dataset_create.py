@@ -33,7 +33,8 @@ class CurriculumDataset(object):
             dim=(self.dataset_config.input_dim, self.dataset_config.output_dim),
             preproccessing=self.dataset_config.use_preprocessing,
             std=self.dataset_config.dataset_std,
-            reduce_training=self.dataset_config.reduce_testing,
+            reduce_training=self.dataset_config.reduce_training,
+            reduce_testing=self.dataset_config.reduce_testing,
             reduce_validation=self.dataset_config.reduce_validation
         )
         self.creator.load_dataset()

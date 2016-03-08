@@ -210,6 +210,7 @@ class Creator(object):
             if curriculum_dropped == 0:
                 print("---- No road patches dropped")
             else:
+                print("---- {} road patches dropped".format(curriculum_road_dropped))
                 print("---- Dropped {} road patches because of curriculum".format(curriculum_road_dropped/float(curriculum_dropped)))
         #print('---- Creating permutation')
         #perm = np.random.permutation(len(data))

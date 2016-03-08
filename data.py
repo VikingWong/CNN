@@ -4,8 +4,20 @@ import numpy as np
 import theano
 import theano.tensor as T
 
+from config import dataset_params
 from printing import print_section, print_error
 from augmenter import Creator
+
+class DataLoader:
+
+    @staticmethod
+    def create():
+        '''
+        Factory method create object by a string argument found in the
+        config file. The config must specify the correct class name of the loader class that should be initialized.
+        '''
+        loader = dataset_params.loader
+        return getattr(sys.modules[__name__], loader)()
 
 
 class AbstractDataset(object):
@@ -174,8 +186,8 @@ class AerialCurriculumDataset(AbstractDataset):
         else:
             base_path = os.path.join(path, set)
 
-        labels = np.load(os.path.join(base_path, "labels"))
-        data = np.load(os.path.join(base_path, "data"))
+        labels = np.load(os.path.join(base_path, "labels", "examples.npy"))
+        data = np.load(os.path.join(base_path, "data", "examples.npy"))
         return data, labels
 
 

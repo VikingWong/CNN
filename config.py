@@ -4,7 +4,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 300
-dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
+dataset_path = '/home/olav/Pictures/Mass_roads_curriculum'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
@@ -19,13 +19,13 @@ visual_params = Params({
     })
 
 optimization_params = Params({
+        "backpropagation"                   : "sgd_nesterov",
         "batch_size"                        : 64,
         "l2_reg"                            : 0.0001,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "backpropagation"                   : "sgd_nesterov",
         "learning_rate"                     : 0.0008,
         "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.94,
@@ -43,7 +43,8 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 #TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
-    "samples_per_image"     : 100,
+    "loader"                : "AerialCurriculumDataset",
+    "samples_per_image"     : 200,
     "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,

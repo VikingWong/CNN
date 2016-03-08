@@ -3,7 +3,7 @@ import StringIO
 
 from evaluator import Evaluator
 from model import ConvModel
-from data import AerialDataset
+from data import DataLoader
 from storage.store import ParamStorage
 import gui.server
 import printing
@@ -25,7 +25,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
             weights = store.load_params(path="./results/params.pkl")['params']
         printing.print_action("Initializing model with weights from params.pkl")
 
-    dataset = AerialDataset()
+    dataset = DataLoader.create()
     dataset.load(dataset_path, dataset_params, optimization_params.batch_size) #Input stage
     model = ConvModel(model_params, verbose=True) #Create network stage
     evaluator = Evaluator(model, dataset, optimization_params)
