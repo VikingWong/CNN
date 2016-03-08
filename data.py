@@ -190,6 +190,12 @@ class AerialCurriculumDataset(AbstractDataset):
         data = np.load(os.path.join(base_path, "data", "examples.npy"))
         return data, labels
 
+    def mix_in_next_stage(self):
+        print("MIXING IT UP GOOOOD")
+        #TODO: for each example , replace example of the training data.
+        #TODO: Maybe replace only non-road examples?
+        #TODO: Keep track of stages, and after all stages has been opened, return without mixing anymore.
+        pass
 
     def load(self, dataset_path, params, batch_size=1):
         print_section('Loading aerial curriculum dataset')

@@ -4,7 +4,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 300
-dataset_path = '/home/olav/Pictures/Mass_roads_curriculum'
+dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
@@ -34,9 +34,8 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_adjustment"             : 20,
-        "curriculum_rate"                   : 0.1,
-        "curriculum_increase"               : 0.1
+        "curriculum_start"                  : 80,
+        "curriculum_adjustment"             : 10
     })
 
 #Reduce is for dev purposes. Use a fraction of train dataset

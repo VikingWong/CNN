@@ -7,9 +7,6 @@ from storage import ParamStorage
 from config import filename_params, optimization_params, dataset_params, dataset_path
 from dataset_create import CurriculumDataset
 
-#TODO: Dataset_create utilize augmenter for training dataset, also valid and testing. New data loader.
-#TODO: Must be prepared for each dataset taking in the order of 60gb.
-#TODO: Read file-list, shuffle it, so each run do not have exactly the same order.
 
 print_section("Creating curriculum learning dataset")
 

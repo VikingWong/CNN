@@ -8,7 +8,6 @@ from data import AerialDataset
 import tools.util as util
 
 #TODO: Store in smaller files (Maybe)
-#TODO: Create loader for dataset.
 
 class CurriculumDataset(object):
 

@@ -131,6 +131,10 @@ class Evaluator(object):
         factor_minimum = self.params.factor_minimum
         print('---- Initial loss mixture ratio {}'.format(max_factor))
 
+        curriculum = self.params.curriculum_enable
+        curriculum_start = self.params.curriculum_start
+        curriculum_adjustment = self.params.curriculum_adjustment
+
          # go through this many minibatch before checking the network on the validation set
         gui_frequency = 500
         validation_frequency = min(self.nr_train_batches, patience / 2)
@@ -171,6 +175,11 @@ class Evaluator(object):
                 if(epoch % 20 == 0):
                     print('---- Storing temp model')
                     storage.store_params(self.model.params)
+
+                if(curriculum and epoch % curriculum_adjustment == 0 and epoch >= curriculum_start):
+                    print("---- Mixing examples from next stage with training data")
+                    self.data.mix_in_next_stage()
+
                 #For current examples chunk in GPU memory
                 for chunk_index in range(nr_chunks):
                     self.data.switch_active_training_set( chunk_index )
