@@ -4,12 +4,13 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 300
-dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/home/olav/Pictures/Mass_roads_curriculum"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_mini"
 
     })
 
@@ -37,28 +38,26 @@ optimization_params = Params({
         "curriculum_start"                  : 80,
         "curriculum_adjustment"             : 10
     })
-
-#Reduce is for dev purposes. Use a fraction of train dataset
+#Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
-#TODO: last chunk so small so training loss is misleading
 dataset_params = Params({
     "loader"                : "AerialCurriculumDataset",
-    "samples_per_image"     : 200,
+    "samples_per_image"     : 50,
     "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
-    "reduce_testing"        : 0.3,
-    "reduce_validation"     : 0.9,
+    "reduce_testing"        : 1,
+    "reduce_validation"     : 1,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
 })
 
 model_params = Params({
-    "loss"              : "crosstrapping",
+    "loss"              : "crossentropy",
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),

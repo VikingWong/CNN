@@ -8,6 +8,7 @@ from data import AerialDataset
 import tools.util as util
 
 #TODO: Store in smaller files (Maybe)
+#TODO: Calculate distribution of diffs maybe? Plot it to get at better understanding how to make stages.
 
 class CurriculumDataset(object):
 

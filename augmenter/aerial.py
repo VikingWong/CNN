@@ -88,6 +88,10 @@ class Creator(object):
         idx = 0
 
         while example_counter > 0:
+            if(nr_opened_images % dataset.nr_img == 0):
+                #Shuffle image queue list, so there is no pattern in order.
+                random.shufle(image_queue)
+
             # rotating queue
             image_idx = image_queue.pop(0)
             image_queue.append(image_idx)

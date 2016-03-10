@@ -192,16 +192,30 @@ class AerialCurriculumDataset(AbstractDataset):
 
     def mix_in_next_stage(self):
         print("MIXING IT UP GOOOOD")
-        #TODO: for each example , replace example of the training data.
         #TODO: Maybe replace only non-road examples?
-        #TODO: Keep track of stages, and after all stages has been opened, return without mixing anymore.
-        pass
+        if self.nr_of_stages <= self.stage:
+            return
+        self.stage += 1
+        current_stage = "stage{}".format(self.stage)
+        labels = np.load(os.path.join(self.stage_path, current_stage, "labels", "examples.npy"))
+        data = np.load(os.path.join(self.stage_path, current_stage, "data", "examples.npy"))
+        print(labels.shape)
+        print(data.shape)
+        #TODO: loop through data, find random index into chunk, and chunkexamples. Replace individually data.
+        #TODO: for each example , replace example of the training data.
+
+
 
     def load(self, dataset_path, params, batch_size=1):
         print_section('Loading aerial curriculum dataset')
         chunks = params.chunk_size
 
-        train = self.load_set(dataset_path, "train", stage="stage0")
+        #For later stage loading
+        self.stage = 0
+        self.stage_path = os.path.join(dataset_path, "train")
+        self.nr_of_stages = len(os.listdir(os.path.join(dataset_path, "train")))
+
+        train = self.load_set(dataset_path, "train", stage="stage{}".format(self.stage))
         valid = self.load_set(dataset_path, "valid")
         test = self.load_set(dataset_path, "test")
 
