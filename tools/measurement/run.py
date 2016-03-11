@@ -1,4 +1,6 @@
 import sys, os
+import matplotlib.pyplot as plt
+
 #Makes sh scripts find modules.
 sys.path.append(os.path.abspath("./"))
 
@@ -35,6 +37,14 @@ batch_size = data['optimization'].batch_size
 
 measurer = PrecisionRecallCurve(dataset_path, data['params'], data['model'], data['dataset'])
 datapoints = measurer.get_curves_datapoints(batch_size)
+#datapoints.sort(key=lambda p: p['recall'])
 
 if store_gui:
     send_precision_recall_data(datapoints, job_id=job_id)
+
+plt.suptitle('Precision and recall')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.grid(True)
+plt.plot([p['recall'] for p in datapoints], [p['precision'] for p in datapoints])
+plt.show()

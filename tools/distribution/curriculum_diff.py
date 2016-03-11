@@ -25,7 +25,13 @@ if '-t' in sys.argv:
     idx = sys.argv.index('-t')
     threshold = float(sys.argv[idx+1])
     print_action("threshold set to {}".format(threshold))
-    
+
+samples = 100
+if '-s' in sys.argv:
+    idx = sys.argv.index('-s')
+    samples = int(sys.argv[idx+1])
+    print_action("samples set to {}".format(samples))
+
 store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
 evaluate = util.create_simple_predictor(teacher['model'], teacher['params'])
@@ -43,12 +49,14 @@ creator.load_dataset()
 
 data, labels = creator.sample_data(
     creator.train,
-    threshold,
+    samples,
     rotation=dataset_params.use_rotation
 )
 
 road_diff = []
 non_road_diff = []
+all_diff = []
+
 nr_of_examples = data.shape[0]
 for i in range(nr_of_examples):
 
@@ -65,14 +73,22 @@ for i in range(nr_of_examples):
         road_diff.append(diff)
     else:
         non_road_diff.append(diff)
+    all_diff.append(diff)
 
 road_arr = np.array(road_diff)
 non_road_arr = np.array(non_road_diff)
+all_arr = np.array(all_diff)
+
 print("Road diff mean: {}".format(np.average(road_arr)))
 print("Non Road diff mean: {}".format(np.average(non_road_arr)))
+print("All diff mean: {}".format(np.average(all_arr)))
+print("Percentage roads: {}".format(len(road_diff)/float(len(all_diff))*100))
+
 plt.figure(1)
-plt.subplot(121)
+plt.subplot(311)
 n, bins, patches = plt.hist(road_arr, 100, normed=1, color='green')
-plt.subplot(122)
+plt.subplot(312)
 n, bins, patches = plt.hist(non_road_arr, 100, normed=1, color='red')
+plt.subplot(313)
+n, bins, patches = plt.hist(all_arr, 100, normed=1, color='blue')
 plt.show()

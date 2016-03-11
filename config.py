@@ -35,7 +35,7 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 20,
+        "curriculum_start"                  : 30,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
@@ -66,7 +66,7 @@ model_params = Params({
     "dropout_rates"     : [1.0, 0.9, 0.8, 0.5, 1.0],
     "conv_layers"       :
         [
-            {"filter": (16,16), "stride": (4, 4), "pool": (2, 2)},
+            {"filter": (12,12), "stride": (4, 4), "pool": (2, 2)},
             {"filter": (4, 4), "stride": (1, 1), "pool": (1, 1)},
             {"filter": (3,3), "stride": (1, 1), "pool": (1, 1)}
         ],
