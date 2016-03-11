@@ -157,7 +157,6 @@ class Creator(object):
                     continue
 
                 if curriculum and curriculum_threshold < 1.0:
-                    #TODO: CONSIDER LETTING GPU do sum and abs etc.
                     #This slows down sampling considerably, so only running once, and storing dataset is a given.
                     #If threshold is 1, only random sampling, with normal dataset distribution.
                     output = curriculum(np.array([data_sample]))
