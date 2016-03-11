@@ -3,14 +3,14 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 300
+number_of_epochs = 600
 dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_mini"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_big"
 
     })
 
@@ -27,7 +27,7 @@ optimization_params = Params({
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "learning_rate"                     : 0.0008,
+        "learning_rate"                     : 0.0015,
         "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.94,
         "factor_rate"                       : 1,
@@ -35,22 +35,22 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 80,
+        "curriculum_start"                  : 20,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
     "loader"                : "AerialCurriculumDataset",
-    "samples_per_image"     : 50,
+    "samples_per_image"     : 400,
     "dataset_std"           : 0.448638984229,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
-    "reduce_testing"        : 1,
-    "reduce_validation"     : 1,
+    "reduce_testing"        : 0.3,
+    "reduce_validation"     : 0.9,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048

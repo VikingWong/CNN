@@ -4,7 +4,6 @@ import sys, os
 sys.path.append(os.path.abspath("./"))
 
 from augmenter import Creator
-from data import AerialDataset
 import tools.util as util
 
 #TODO: Store in smaller files (Maybe)
@@ -46,7 +45,7 @@ class CurriculumDataset(object):
         curriculum_sampling = np.ceil(base_sampling/10)
 
         #Sampling at different thresholds.
-        thresholds = np.arange(0.01 , 0.8, 0.05)
+        thresholds = np.arange(0.03 , 1, 0.05)
         if is_baseline:
             thresholds = np.ones(thresholds.shape)
 

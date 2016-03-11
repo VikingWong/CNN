@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-import os, gzip, pickle, math,sys
+import os, math,sys, random
 import numpy as np
 import theano
 import theano.tensor as T
@@ -191,24 +191,32 @@ class AerialCurriculumDataset(AbstractDataset):
         return data, labels
 
     def mix_in_next_stage(self):
-        print("MIXING IT UP GOOOOD")
-        #TODO: Maybe replace only non-road examples?
-        if self.nr_of_stages <= self.stage:
-            return
         self.stage += 1
+        if self.nr_of_stages <= self.stage:
+            print("No more stages available")
+            return
+
+
         current_stage = "stage{}".format(self.stage)
+
         labels = np.load(os.path.join(self.stage_path, current_stage, "labels", "examples.npy"))
         data = np.load(os.path.join(self.stage_path, current_stage, "data", "examples.npy"))
-        print(labels.shape)
-        print(data.shape)
-        #TODO: loop through data, find random index into chunk, and chunkexamples. Replace individually data.
-        #TODO: for each example , replace example of the training data.
+        print("---- Mixing in {} with {} examples".format(current_stage, data.shape[0]))
+
+        nr_chunks = len(self.all_training)
+        for i in range(data.shape[0]):
+            c = random.randint(0,nr_chunks-1)
+            nr_chunk_examples =  self.all_training[c][0].shape[0]
+            x = random.randint(0, nr_chunk_examples-1)
+            self.all_training[c][0][x] = data[i]
+            self.all_training[c][1][x] = labels[i]
 
 
 
     def load(self, dataset_path, params, batch_size=1):
         print_section('Loading aerial curriculum dataset')
         chunks = params.chunk_size
+        self.std = params.dataset_std #Need for debug
 
         #For later stage loading
         self.stage = 0
