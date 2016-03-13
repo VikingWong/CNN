@@ -45,7 +45,7 @@ class CurriculumDataset(object):
         curriculum_sampling = np.ceil(base_sampling/10)
 
         #Sampling at different thresholds.
-        thresholds = np.arange(0.03 , 1, 0.05)
+        thresholds = np.arange(0.5 , 1, 0.05)
         if is_baseline:
             thresholds = np.ones(thresholds.shape)
 

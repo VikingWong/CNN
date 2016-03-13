@@ -166,6 +166,7 @@ class Evaluator(object):
                 if(epoch % learning_adjustment == 0):
                         learning_rate *= learning_decrease
                         nr_learning_adjustments += 1
+                        learning_adjustment = max(10, int(learning_adjustment/2))
                         print('---- New learning rate {}'.format(learning_rate))
 
                 if(epoch > factor_adjustment):
@@ -212,7 +213,12 @@ class Evaluator(object):
 
                             #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(epoch, train_score, validation_score, test_score)
+                                    gui.server.append_job_update(
+                                        epoch,
+                                        train_score,
+                                        validation_score,
+                                        test_score,
+                                        learning_rate)
 
                             #==== EARLY STOPPING ====
                             if validation_score < best_validation_loss:

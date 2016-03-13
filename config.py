@@ -29,14 +29,14 @@ optimization_params = Params({
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "learning_rate"                     : 0.0014,
-        "learning_adjustment"               : 50,
-        "learning_decrease"                 : 0.94,
+        "learning_adjustment"               : 100,
+        "learning_decrease"                 : 0.9,
         "factor_rate"                       : 1,
         "factor_adjustment"                 : 200,
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 30,
+        "curriculum_start"                  : 20,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU

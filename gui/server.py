@@ -43,13 +43,14 @@ def get_command_status():
     thread = unirest.get(url, headers=default_headers, callback=callback)
 
 
-def append_job_update( epoch, training_loss, validation_loss, test_loss):
+def append_job_update( epoch, training_loss, validation_loss, test_loss, training_rate):
     url = base_url + "job/" +  current_id + "/update"
     data = json.dumps({
         "epoch": epoch,
         "training_loss": training_loss,
         "validation_loss": validation_loss,
-        "test_loss": test_loss
+        "test_loss": test_loss,
+        "training_rate": training_rate
     })
 
     def callback(response):

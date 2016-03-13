@@ -52,7 +52,10 @@ road_diff = []
 non_road_diff = []
 all_diff = []
 pred_diff = []
+nr_with_road = 0
+nr_with_pred = 0
 
+best_trade_off = 0.0801
 nr_of_examples = data.shape[0]
 for i in range(nr_of_examples):
 
@@ -62,13 +65,18 @@ for i in range(nr_of_examples):
     data_sample = data[i]
     label_sample = labels[i]
     output = evaluate(np.array([data_sample]))
+    output = util.create_threshold_image(output, best_trade_off)
     diff = np.sum(np.abs(output[0] - label_sample))/(dataset_params.output_dim*dataset_params.output_dim)
 
     has_road = not (np.max(label_sample) == 0)
     pred_has_road = not (np.max(output) == 0)
     if pred_has_road:
-        pred_diff.append(diff)
-    if(has_road):
+        nr_with_pred +=1
+        if not has_road:
+            pred_diff.append(diff)
+
+    if has_road :
+        nr_with_road +=1
         road_diff.append(diff)
     else:
         non_road_diff.append(diff)
@@ -82,15 +90,20 @@ pred_arr = np.array(pred_diff)
 print("Road diff mean: {}".format(np.average(road_arr)))
 print("Non Road diff mean: {}".format(np.average(non_road_arr)))
 print("All diff mean: {}".format(np.average(all_arr)))
-print("Percentage roads: {}".format(len(road_diff)/float(len(all_diff))*100))
+print("")
+print("Percentage roads: {}".format(nr_with_road/float(nr_of_examples)*100))
+print("Percentage pred: {}".format(nr_with_pred/float(nr_of_examples)*100))
+
+del creator
+del evaluate
 
 plt.figure(1)
 plt.subplot(411)
-n, bins, patches = plt.hist(road_arr, 120, normed=0, color='green')
+n, bins, patches = plt.hist(road_arr, 60, normed=True, color='green')
 plt.subplot(412)
-n, bins, patches = plt.hist(non_road_arr, 120, normed=0, color='red')
+n, bins, patches = plt.hist(non_road_arr, 60, normed=True, color='red')
 plt.subplot(413)
-n, bins, patches = plt.hist(all_arr, 120, normed=0, color='blue')
+n, bins, patches = plt.hist(all_arr, 60, normed=True, color='blue')
 plt.subplot(414)
-n, bins, patches = plt.hist(pred_arr, 120, normed=0, color='grey')
+n, bins, patches = plt.hist(pred_arr, 60, normed=True, color='grey')
 plt.show()
