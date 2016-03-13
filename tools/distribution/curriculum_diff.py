@@ -1,4 +1,3 @@
-
 import numpy as np
 import sys, os
 import matplotlib.pyplot as plt
@@ -11,12 +10,8 @@ from augmenter import Creator
 import tools.util as util
 
 '''
-Use sampler and curriculum to create distribution of diffs
-    -For all
-    -For road diffs
-    -For non road diffs
-
-Use this to determine how to create a curriculum learning scheme.
+Create histograms of difference between prediction and label for dataset.
+Allow finetuning of curriculum strategy.
 '''
 print_section('Generating plot of diff distribution between label and prediction')
 threshold = 1.0
@@ -56,6 +51,7 @@ data, labels = creator.sample_data(
 road_diff = []
 non_road_diff = []
 all_diff = []
+pred_diff = []
 
 nr_of_examples = data.shape[0]
 for i in range(nr_of_examples):
@@ -69,6 +65,9 @@ for i in range(nr_of_examples):
     diff = np.sum(np.abs(output[0] - label_sample))/(dataset_params.output_dim*dataset_params.output_dim)
 
     has_road = not (np.max(label_sample) == 0)
+    pred_has_road = not (np.max(output) == 0)
+    if pred_has_road:
+        pred_diff.append(diff)
     if(has_road):
         road_diff.append(diff)
     else:
@@ -78,6 +77,7 @@ for i in range(nr_of_examples):
 road_arr = np.array(road_diff)
 non_road_arr = np.array(non_road_diff)
 all_arr = np.array(all_diff)
+pred_arr = np.array(pred_diff)
 
 print("Road diff mean: {}".format(np.average(road_arr)))
 print("Non Road diff mean: {}".format(np.average(non_road_arr)))
@@ -85,10 +85,12 @@ print("All diff mean: {}".format(np.average(all_arr)))
 print("Percentage roads: {}".format(len(road_diff)/float(len(all_diff))*100))
 
 plt.figure(1)
-plt.subplot(311)
-n, bins, patches = plt.hist(road_arr, 100, normed=1, color='green')
-plt.subplot(312)
-n, bins, patches = plt.hist(non_road_arr, 100, normed=1, color='red')
-plt.subplot(313)
-n, bins, patches = plt.hist(all_arr, 100, normed=1, color='blue')
+plt.subplot(411)
+n, bins, patches = plt.hist(road_arr, 120, normed=0, color='green')
+plt.subplot(412)
+n, bins, patches = plt.hist(non_road_arr, 120, normed=0, color='red')
+plt.subplot(413)
+n, bins, patches = plt.hist(all_arr, 120, normed=0, color='blue')
+plt.subplot(414)
+n, bins, patches = plt.hist(pred_arr, 120, normed=0, color='grey')
 plt.show()

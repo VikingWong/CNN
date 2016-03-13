@@ -24,23 +24,22 @@ class Visualizer(object):
         self.std = dataset_config.dataset_std
 
 
-    def visualize(self, image_path, batch_size, threshold=1):
+    def visualize(self, image_path, batch_size, best_trade_off=0.1):
         dataset, dim = self.create_data_from_image(image_path)
 
         compute_output = util.create_predictor(dataset, self.model_config, self.model_params, batch_size)
         predictions, labels = util.batch_predict(compute_output, dataset, self.dim_label, batch_size)
-        image = self.combine_to_image(predictions, dim, threshold)
+        image = self.combine_to_image(predictions, dim)
 
         #Need to have Mass_road structure TODO: argument
         dir = os.path.abspath(image_path + "../../../")
         label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
-        hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'))
+        hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'), best_trade_off)
         return image, hit_image, Image.open(image_path, 'r')
 
 
-    def _create_hit_image(self, prediction_image, input_image, label_image):
-        best_trade_off =0.0801
-        thresh = 255 * 0.1
+    def _create_hit_image(self, prediction_image, input_image, label_image, best_trade_off):
+        thresh = 255 * best_trade_off
         w, h = input_image.size
         w = int(w/self.dim_label)*self.dim_label
         h = int(h/self.dim_label)*self.dim_label
@@ -87,15 +86,13 @@ class Visualizer(object):
                 break
 
 
-    def combine_to_image(self, output_data, dim, threshold):
+    def combine_to_image(self, output_data, dim):
         print("Combine output to an image")
 
         vertical, horizontal = dim
         output = output_data.reshape(vertical, horizontal, self.dim_label, self.dim_label)
         temp = np.concatenate(output, axis=1)
         combined = np.concatenate(temp, axis=1)
-        if threshold < 1:
-            combined = util.create_threshold_image(combined, threshold)
 
         image = np.array(combined * 255, dtype=np.uint8)
         return Image.fromarray(image)

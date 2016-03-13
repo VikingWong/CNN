@@ -37,6 +37,9 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
 
     dataset.destroy()
 
+    if visual_params.gui_enabled:
+         gui.server.stop_job(report)
+
     printing.print_section('Evaluation precision and recall')
 
     prc = PrecisionRecallCurve(pr_path, model.params, model_params, dataset_params)
@@ -46,7 +49,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
 
     if visual_params.gui_enabled:
         gui.server.send_precision_recall_data(datapoints)
-        gui.server.stop_job(report)
+
 
 
 run_cnn(

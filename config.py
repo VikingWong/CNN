@@ -1,10 +1,11 @@
 from util import Params
 import secret
+
 #Create secret python file and variable token
 token = secret.token
 verbose = True
 number_of_epochs = 600
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_big'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -27,7 +28,7 @@ optimization_params = Params({
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "learning_rate"                     : 0.0015,
+        "learning_rate"                     : 0.0014,
         "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.94,
         "factor_rate"                       : 1,
@@ -66,7 +67,7 @@ model_params = Params({
     "dropout_rates"     : [1.0, 0.9, 0.8, 0.5, 1.0],
     "conv_layers"       :
         [
-            {"filter": (12,12), "stride": (4, 4), "pool": (2, 2)},
+            {"filter": (13,13), "stride": (4, 4), "pool": (2, 2)},
             {"filter": (4, 4), "stride": (1, 1), "pool": (1, 1)},
             {"filter": (3,3), "stride": (1, 1), "pool": (1, 1)}
         ],

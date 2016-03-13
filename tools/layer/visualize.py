@@ -1,12 +1,9 @@
-__author__ = 'olav'
-
 import numpy as np
 import sys, os
 from PIL import Image
 
 sys.path.append(os.path.abspath("./"))
 from storage import ParamStorage
-import augmenter.util as ImageUtil
 
 def make_visual(layer_weights):
     max_scale = layer_weights.max(axis=-1).max(axis=-1)[...,

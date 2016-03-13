@@ -18,7 +18,7 @@ if '-data' in sys.argv:
     dataset_path = sys.argv[idx+1]
     print_action("using {} as image path".format(dataset_path))
 else:
-    dataset_path = '/home/olav/Pictures/Mass_roads'
+    dataset_path = '/home/olav/Pictures/Mass_roads_alpha'
 
 
 store_gui = False

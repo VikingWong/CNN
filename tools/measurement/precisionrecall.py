@@ -47,7 +47,7 @@ class PrecisionRecallCurve(object):
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
-        return AerialDataset.shared_dataset(creator.sample_data(creator.valid, samples_per_image), cast_to_int=True)
+        return AerialDataset.shared_dataset(creator.sample_data(creator.test, samples_per_image), cast_to_int=True)
 
 
     def _predict_patches(self, dataset, batch_size):
