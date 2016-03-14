@@ -5,13 +5,13 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 600
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_big'
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_big"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_noncurriculum_big"
 
     })
 
@@ -36,8 +36,8 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 20,
-        "curriculum_adjustment"             : 10
+        "curriculum_start"                  : 30,
+        "curriculum_adjustment"             : 15
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.

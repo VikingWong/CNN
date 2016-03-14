@@ -69,3 +69,4 @@ def create_threshold_image(image, threshold):
     low_values_indices = image <= threshold  # Where values are low
     binary_arr[low_values_indices] = 0  # All low values set to 0
     return binary_arr
+
