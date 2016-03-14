@@ -39,15 +39,15 @@ class AbstractModel(object):
         return params[idx]
 
 
-    def create_predict_function(self, x, data):
-        return theano.function([], self.get_output_layer().output,
-                   givens={x: data})
+    def create_predict_function(self, x, drop, data):
+        return theano.function([data], self.get_output_layer().output,
+                   givens={x: data, drop: np.cast['int32'](int(False))})
 
 
     def getL2(self):
         v = 0
-        for layer in self.L2_layers:
-            v += (layer.W ** 2).sum()
+        for layer in self.layer:
+            v += T.sum(layer.W ** 2)
         return v
 
 

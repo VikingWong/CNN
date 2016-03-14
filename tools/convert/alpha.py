@@ -1,6 +1,8 @@
 from PIL import Image
 import sys, os
+
 sys.path.append(os.path.abspath("./"))
+
 import augmenter.util as loader
 
 #If areas of the dataset is contains artificial white areas. It is beneficial to convert them into RGBA.

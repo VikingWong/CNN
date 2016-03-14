@@ -131,6 +131,10 @@ class Evaluator(object):
         factor_minimum = self.params.factor_minimum
         print('---- Initial loss mixture ratio {}'.format(max_factor))
 
+        curriculum = self.params.curriculum_enable
+        curriculum_start = self.params.curriculum_start
+        curriculum_adjustment = self.params.curriculum_adjustment
+
          # go through this many minibatch before checking the network on the validation set
         gui_frequency = 500
         validation_frequency = min(self.nr_train_batches, patience / 2)
@@ -162,6 +166,7 @@ class Evaluator(object):
                 if(epoch % learning_adjustment == 0):
                         learning_rate *= learning_decrease
                         nr_learning_adjustments += 1
+                        learning_adjustment = max(10, int(learning_adjustment/2))
                         print('---- New learning rate {}'.format(learning_rate))
 
                 if(epoch > factor_adjustment):
@@ -171,6 +176,10 @@ class Evaluator(object):
                 if(epoch % 20 == 0):
                     print('---- Storing temp model')
                     storage.store_params(self.model.params)
+
+                if(curriculum and epoch % curriculum_adjustment == 0 and epoch >= curriculum_start):
+                    print("---- Mixing examples from next stage with training data")
+                    self.data.mix_in_next_stage()
 
                 #For current examples chunk in GPU memory
                 for chunk_index in range(nr_chunks):
@@ -204,7 +213,12 @@ class Evaluator(object):
 
                             #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(epoch, train_score, validation_score, test_score)
+                                    gui.server.append_job_update(
+                                        epoch,
+                                        train_score,
+                                        validation_score,
+                                        test_score,
+                                        learning_rate)
 
                             #==== EARLY STOPPING ====
                             if validation_score < best_validation_loss:

@@ -30,6 +30,16 @@ def create_predictor(dataset, model_config, model_params, batch_size):
     model.build(x, drop, batch_size, init_params=model_params)
     return create_output_func(dataset, x, y, drop, [index], model.get_output_layer(), batch_size)
 
+def create_simple_predictor(model_config, model_params):
+    #TODO: Does this single predictor even work?
+    data = T.matrix('data')
+    x = T.matrix('x')
+    drop = T.iscalar('drop')
+    batch_size = 1
+    model = ConvModel(model_config, verbose=True)
+    model.build(x, drop, batch_size, init_params=model_params)
+    return model.create_predict_function(x, drop, data)
+
 
 def batch_predict(predictor, dataset, dim, batch_size):
     examples = dataset[0].eval().shape[0]

@@ -11,8 +11,6 @@ from data import AerialDataset
 import tools.util as util
 
 '''
-TODO: All patches instead of random samples per image (optional) in creator
-TODO: Implement within x pixel , done by Hinton and Minh.
 TODO: Save points to file.
 '''
 

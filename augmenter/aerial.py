@@ -36,7 +36,6 @@ class Creator(object):
         self.test = Dataset("Test set", self.dataset_path, test_path, self.reduce_testing )
         self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
         self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
-        self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
 
     def dynamically_create(self, samples_per_image):
         self.load_dataset()
@@ -53,7 +52,7 @@ class Creator(object):
         return train, valid, test
 
 
-    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False):
+    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None, curriculum_threshold=1.0):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -62,7 +61,10 @@ class Creator(object):
         nr_total = 1
 
         dropped_images = 0
+        curriculum_dropped = 0
+        curriculum_road_dropped = 0
         nr_opened_images = 0
+
 
         dim_data = self.dim_data
         dim_label = self.dim_label
@@ -86,10 +88,15 @@ class Creator(object):
         idx = 0
 
         while example_counter > 0:
+            if(nr_opened_images % dataset.nr_img == 0):
+                #Shuffle image queue list, so there is no pattern in order.
+                random.shuffle(image_queue)
+
             # rotating queue
             image_idx = image_queue.pop(0)
             image_queue.append(image_idx)
             nr_opened_images += 1
+            best_trade_off = 0.801
 
             im, la = dataset.open_image(image_idx)
 
@@ -99,9 +106,7 @@ class Creator(object):
 
             rot = 0
             if rotation:
-                print("ROTATE")
                 rot = random.uniform(0.0, 360.0)
-            print(rot)
             image_img = np.asarray(im.rotate(rot))
             label_img = np.asarray(la.rotate(rot))
 
@@ -146,19 +151,31 @@ class Creator(object):
                 if self.preprocessing:
                     data_sample = util.normalize(data_sample, self.std)
 
-                # Count percentage of labels contain roads.
-
+                 # Count percentage of labels contain roads.
                 contains_class = not label_sample.max() == 0
-
                 if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
                     #Will sample same amount from road and non-road class
                     continue
+
+                if curriculum and curriculum_threshold < 1.0:
+                    #This slows down sampling considerably, so only running once, and storing dataset is a given.
+                    #If threshold is 1, only random sampling, with normal dataset distribution.
+                    output = curriculum(np.array([data_sample]))
+                    output = util.create_threshold_image(output, best_trade_off)
+                    diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
+
+                    #Patches with roads, are automatically harder, and have a a bit more lenient threshold.
+                    if diff > curriculum_threshold + (0.1*int(contains_class)):
+                        curriculum_road_dropped += int(contains_class)
+                        curriculum_dropped += 1
+                        continue
+
+
 
                 nr_total += 1
                 nr_class += int(contains_class)
 
                 if not self.img_have_alpha:
-                    print("NOT HERE")
                     #RGB only. Only filters out entirely white or black areas
                     max_element = data_sample.max()
                     min_element = data_sample.min()
@@ -193,11 +210,18 @@ class Creator(object):
         print("---- Images containing class {}/{}, which is {}%".format(nr_class, nr_total, nr_class*100/float(nr_total)))
         print("---- Dropped {} images".format(dropped_images))
 
-        print('---- Creating permutation')
+        if curriculum:
+            print("---- Dropped {} patches because of curriculum".format(curriculum_dropped))
+            if curriculum_dropped == 0:
+                print("---- No road patches dropped")
+            else:
+                print("---- {} road patches dropped".format(curriculum_road_dropped))
+                print("---- Dropped {} road patches because of curriculum".format(curriculum_road_dropped/float(curriculum_dropped)))
+        #print('---- Creating permutation')
         #perm = np.random.permutation(len(data))
         #data = data[perm]
         #label = label[perm]
-        print('Examples shuffled')
+        #print('Examples shuffled')
         return data, label
 
 
