@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath("./"))
 import tools.util as util
 from data import AerialDataset
 
-from augmenter import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
+from augmenter.util import from_rgb_to_arr, from_arr_to_data, from_arr_to_label, normalize
 
 class Visualizer(object):
 

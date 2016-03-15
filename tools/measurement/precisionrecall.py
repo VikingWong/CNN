@@ -3,12 +3,13 @@ __author__ = 'olav'
 import numpy as np
 import sys, os
 import scipy.ndimage as morph
-
+from PIL import Image
 sys.path.append(os.path.abspath("./"))
 
-from augmenter import Creator
+from augmenter.aerial import Creator
 from data import AerialDataset
 import tools.util as util
+import augmenter.util as aug
 
 '''
 TODO: Save points to file.
@@ -69,15 +70,28 @@ class PrecisionRecallCurve(object):
         '''
 
         #Results in a slack of 3 pixels.
-        labels_with_slack = self._apply_buffer(labels, 3)
+        labels_with_slack = self._apply_buffer(labels, 1)
 
         tests = np.arange(0.0001 , 0.995, 0.01)
         datapoints = []
+        ttt = 0
         for threshold in tests:
             binary_arr = util.create_threshold_image(predictions, threshold)
+            for i in range(labels.shape[0]):
+                if np.max(labels[i]) > 0 and ttt < 10:
+                    l = labels[i]
+                    l2 = labels_with_slack[i]
+                    blank_image = Image.new("L", (32, 16))
+                    im = aug.from_arr_to_label(l, 16)
+                    im2 = aug.from_arr_to_label(l2, 16)
+                    blank_image.paste(im, (0,0))
+                    blank_image.paste(im2, (16,0))
+                    blank_image.show()
+                    ttt += 1
+
 
             precision = self._get_precision(labels_with_slack, binary_arr)
-            recall = self._get_recall(labels_with_slack, binary_arr)
+            recall = self._get_recall(labels, binary_arr, labels_with_slack)
             datapoints.append({"precision": precision, "recall": recall, "threshold": threshold})
         return datapoints
 
@@ -96,6 +110,7 @@ class PrecisionRecallCurve(object):
             #    print(labels2D[i].astype(np.uint8))
             #    print(morph.binary_dilation(labels2D[i], structure=struct).astype(np.uint8))
             #    raise
+
         labels_with_slack = labels2D.reshape(nr_labels, dim*dim)
         return labels_with_slack
 
@@ -108,16 +123,16 @@ class PrecisionRecallCurve(object):
         in the label and the output. All positives minus true positive gives the false positives. That is predicted
         road pixels which is not marked on the label.
         '''
-        total_positive = np.count_nonzero(thresholded_output)
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
+        all_pred_positive = np.count_nonzero(thresholded_output)
 
-        if total_positive == 0:
+        if all_pred_positive == 0:
             return 0.0
 
-        return true_positive / float(total_positive)
+        return true_positive / float(all_pred_positive)
 
 
-    def _get_recall(self, labels, thresholded_output):
+    def _get_recall(self, labels, thresholded_output, labels_with_slack):
         '''
         Recall between label and output at threshold t.
         See the degree of which the prediction include all positive examples in label.
@@ -126,11 +141,17 @@ class PrecisionRecallCurve(object):
         considered an successful extraction. If output cells are all 1, for all postive pixels in label, the
         recall rate will be 1. If output misses some road pixels this rate will decline.
         '''
-        total_positive = np.count_nonzero(labels)
+        #TODO: Slack variable does not make sense (completely)
+        # - If slack used for both true_positive and total_relevant_positive , increasing slack decrease precision recal
+        # - There is more pixels the prediction must cover. This is wrong
+        # - Using slack only in true_positive, gives no lower precision than 0.7, which seems weird.
+        # - TODO: why cant slack be used only for true_positive?
         true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
+        total_relevant_positive = np.count_nonzero(labels)
 
-        if total_positive == 0:
+        if total_relevant_positive == 0:
             return 0.0
-
-        return true_positive / float(total_positive)
+        if true_positive / float(total_relevant_positive) > 1:
+            return 1.0
+        return true_positive / float(total_relevant_positive)
 

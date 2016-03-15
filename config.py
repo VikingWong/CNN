@@ -5,7 +5,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 600
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_big'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -23,13 +23,13 @@ visual_params = Params({
 optimization_params = Params({
         "backpropagation"                   : "sgd_nesterov",
         "batch_size"                        : 64,
-        "l2_reg"                            : 0.0001,
+        "l2_reg"                            : 0.00015,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
         "learning_rate"                     : 0.0014,
-        "learning_adjustment"               : 100,
+        "learning_adjustment"               : 120,
         "learning_decrease"                 : 0.9,
         "factor_rate"                       : 1,
         "factor_adjustment"                 : 200,
@@ -45,6 +45,9 @@ dataset_params = Params({
     "loader"                : "AerialCurriculumDataset",
     "samples_per_image"     : 400,
     "dataset_std"           : 0.448638984229,
+    "valid_std"             : 0.19088566314428751,
+    "test_std"              : 0.18411163301559019,
+    ""
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : False,

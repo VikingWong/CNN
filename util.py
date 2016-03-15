@@ -1,5 +1,5 @@
 import time, pickle, gzip
-from augmenter import  from_arr_to_data, from_arr_to_label
+from augmenter.util import from_arr_to_data, from_arr_to_label
 import numpy as np
 import Image
 

@@ -158,7 +158,7 @@ class Evaluator(object):
 
         #==== UPDATE GUI ====
         if visual_params.gui_enabled:
-                gui.server.append_job_update(epoch, training_score, validation_score, test_score)
+                gui.server.append_job_update(epoch, training_score, validation_score, test_score, learning_rate)
 
         try:
             while (epoch < max_epochs) and (not done_looping):

@@ -6,7 +6,7 @@ import theano.tensor as T
 
 from config import dataset_params
 from printing import print_section, print_error
-from augmenter import Creator
+from augmenter.aerial import Creator
 
 class DataLoader:
 

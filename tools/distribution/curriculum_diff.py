@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath("./"))
 from printing import print_section, print_action
 from storage import ParamStorage
 from config import filename_params, dataset_params, pr_path
-from augmenter import Creator
+from augmenter.aerial import Creator
 import tools.util as util
 
 '''

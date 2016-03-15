@@ -3,7 +3,7 @@ import sys, os
 
 sys.path.append(os.path.abspath("./"))
 
-from augmenter import Creator
+from augmenter.aerial import Creator
 import tools.util as util
 
 #TODO: Store in smaller files (Maybe)

@@ -103,7 +103,7 @@ class Creator(object):
             width, height = im.size
             width = width - dim_data
             height = height - dim_data
-
+            print("sampling", width, height)
             rot = 0
             if rotation:
                 rot = random.uniform(0.0, 360.0)
@@ -153,7 +153,7 @@ class Creator(object):
 
                  # Count percentage of labels contain roads.
                 contains_class = not label_sample.max() == 0
-                if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and  not contains_class):
+                if(mixed_labels and nr_class/float(nr_total) < self.mix_ratio and not contains_class):
                     #Will sample same amount from road and non-road class
                     continue
 
