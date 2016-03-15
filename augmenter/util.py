@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from printing import print_error
 
 def normalize(data, std):
@@ -70,3 +70,41 @@ def create_threshold_image(image, threshold):
     binary_arr[low_values_indices] = 0  # All low values set to 0
     return binary_arr
 
+def get_sum_road(image):
+    arr = np.array(image)
+    return np.sum(arr == 255)
+
+def get_road_position(image):
+    arr = np.array(image)
+    return np.where(arr == 255)
+
+def add_artificial_road_noise(image, threshold):
+    label = image.copy()
+    nr_road = get_sum_road(label)
+    #If there are no road class there is no use in removing some.
+    if nr_road == 0:
+        return label
+
+    dr = ImageDraw.Draw(label)
+    shape_max = int(image.size[0] / 10)
+    shape_min = int(image.size[0]/20)
+    locations = get_road_position(label)
+    location_x = label.size[0]
+    location_y = label.size[1]
+
+    removed_threshold = np.clip(threshold, 0.0, 1.0)
+    print(removed_threshold)
+    p_roads_removed = 0.0
+    while p_roads_removed < removed_threshold:
+        i = random.randint(0, locations[0].shape[0])
+        y = locations[0][i]
+        x = locations[1][i]
+        w = int(random.randint(shape_min, shape_max)/2)
+        h = int(random.randint(shape_min, shape_max)/2)
+        cor = (x-w, y-h, x+w, y+h)
+        dr.ellipse(cor, fill="black")
+        nr_artificial_road = get_sum_road(label)
+        p_roads_removed = 1.0 - (nr_artificial_road/ float(nr_road))
+
+
+    return label, p_roads_removed

@@ -270,7 +270,12 @@ class AerialDataset(AbstractDataset):
                           reduce_testing=params.reduce_testing,
                           reduce_training=params.reduce_training,
                           reduce_validation=params.reduce_validation)
-        train, valid, test = creator.dynamically_create(params.samples_per_image)
+        train, valid, test = creator.dynamically_create(
+            params.samples_per_image,
+            enable_label_noise=params.use_label_noise,
+            label_noise=params.label_noise,
+            only_mixed=params.only_mixed_labels
+        )
 
         #Testing dataset size requirements
         AerialDataset.dataset_check('train', train, batch_size)

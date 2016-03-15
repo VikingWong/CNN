@@ -12,8 +12,8 @@ def get_sum_road(image):
 def get_road_position(image):
     arr = np.array(image)
     return np.where(arr == 255)
+
 def add_artificial_road_noise(image, threshold):
-    #TODO: get all locations of road pixels, random selection from these for x, y. Better erasing
     label = image.copy()
     nr_road = get_sum_road(label)
     #If there are no road class there is no use in removing some.

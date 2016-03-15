@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath("./"))
 
 from printing import print_section, print_action
 from storage import ParamStorage
-from config import filename_params, optimization_params, dataset_params, dataset_path
+from config import filename_params, dataset_params, dataset_path
 from dataset_create import CurriculumDataset
 
 

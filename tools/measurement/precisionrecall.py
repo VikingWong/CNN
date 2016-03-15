@@ -70,24 +70,24 @@ class PrecisionRecallCurve(object):
         '''
 
         #Results in a slack of 3 pixels.
-        labels_with_slack = self._apply_buffer(labels, 1)
+        labels_with_slack = self._apply_buffer(labels, 3)
 
         tests = np.arange(0.0001 , 0.995, 0.01)
         datapoints = []
-        ttt = 0
+        #ttt = 0
         for threshold in tests:
             binary_arr = util.create_threshold_image(predictions, threshold)
-            for i in range(labels.shape[0]):
-                if np.max(labels[i]) > 0 and ttt < 10:
-                    l = labels[i]
-                    l2 = labels_with_slack[i]
-                    blank_image = Image.new("L", (32, 16))
-                    im = aug.from_arr_to_label(l, 16)
-                    im2 = aug.from_arr_to_label(l2, 16)
-                    blank_image.paste(im, (0,0))
-                    blank_image.paste(im2, (16,0))
-                    blank_image.show()
-                    ttt += 1
+            #for i in range(labels.shape[0]):
+            #    if np.max(labels[i]) > 0 and ttt < 10:
+            #        l = labels[i]
+            #        l2 = labels_with_slack[i]
+            #        blank_image = Image.new("L", (32, 16))
+            #        im = aug.from_arr_to_label(l, 16)
+            #        im2 = aug.from_arr_to_label(l2, 16)
+            #        blank_image.paste(im, (0,0))
+            #        blank_image.paste(im2, (16,0))
+            #        blank_image.show()
+            #        ttt += 1
 
 
             precision = self._get_precision(labels_with_slack, binary_arr)
@@ -101,7 +101,7 @@ class PrecisionRecallCurve(object):
         nr_labels = labels.shape[0]
         labels2D = np.array(labels)
         labels2D  = labels2D.reshape(nr_labels, dim, dim)
-        struct_dim = (buffer * 2) + 1
+        struct_dim = (buffer * 2) - 1
         struct = np.ones((struct_dim, struct_dim), dtype=np.uint8)
 
         for i in range(nr_labels):

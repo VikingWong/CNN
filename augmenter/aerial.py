@@ -37,7 +37,8 @@ class Creator(object):
         self.train = Dataset("Training set", self.dataset_path, train_path, self.reduce_training )
         self.valid = Dataset("Validation set", self.dataset_path, valid_path, self.reduce_validation)
 
-    def dynamically_create(self, samples_per_image):
+
+    def dynamically_create(self, samples_per_image, enable_label_noise=False, label_noise=0.0, only_mixed=False):
         self.load_dataset()
 
         print('{}# test img, {}# train img, {}# valid img'.format(
@@ -45,14 +46,21 @@ class Creator(object):
 
         test = self.sample_data(self.test, samples_per_image)
         #TODO: Rotation should be renamed to data augmentation, or a new parameter. Only if rotation currently.
-        train = self.sample_data(self.train, samples_per_image,
-                                  mixed_labels=self.only_mixed_labels, rotation=self.rotation)
+        #TODO: only_mixed_labels not in init!
+        train = self.sample_data(self.train,
+                                 samples_per_image,
+                                 mixed_labels=self.only_mixed_labels,
+                                 rotation=self.rotation,
+                                 label_noise=label_noise,
+                                 label_noise_enable=enable_label_noise
+                                 )
         valid = self.sample_data(self.valid, samples_per_image)
 
         return train, valid, test
 
 
-    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None, curriculum_threshold=1.0):
+    def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None,
+                    curriculum_threshold=1.0, label_noise_enable=False, label_noise=0.0):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -103,7 +111,12 @@ class Creator(object):
             width, height = im.size
             width = width - dim_data
             height = height - dim_data
-            print("sampling", width, height)
+            #print("sampling", width, height)
+
+            if label_noise_enable:
+                #TODO: TEST THIS
+                la, prob = util.add_artificial_road_noise(la, label_noise)
+
             rot = 0
             if rotation:
                 rot = random.uniform(0.0, 360.0)
