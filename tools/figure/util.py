@@ -14,5 +14,13 @@ def display_precision_recall_plot(series):
     plt.show()
 
 
-def display_loss_curve_plot(data):
-    pass
+def display_loss_curve_plot(series, y_key):
+    fig, ax = plt.subplots()
+    plt.suptitle('Loss curve')
+    plt.xlabel('Epoch')
+    plt.ylabel('MSE')
+    plt.grid(True)
+    for serie in series:
+        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[y_key] for p in serie['data'][1:]], label=serie['name'])
+    ax.legend(loc='lower left', shadow=True)
+    plt.show()

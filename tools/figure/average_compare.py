@@ -16,7 +16,7 @@ path = '/home/olav/Documents/Results/curr100/'
 folders = ['baseline', 'curriculum']
 pr_key_x = 'threshold'
 lc_key_x = 'epoch'
-lc_key_y = 'validation'
+lc_key_y = 'validation_loss'
 
 
 def average(series, series_key, x_align_key):
@@ -45,7 +45,7 @@ def average(series, series_key, x_align_key):
     for k in keys:
         for j in range(nr_datapoints):
             values = []
-            for s in range(len(series)):
+            for s in range(len(1)):
                 values.append(series[s][series_key][j][k])
             #print(k)
             #print(sum(values)/len(values))
@@ -77,4 +77,7 @@ pr_avg_test = average(data[folders[1]], 'curve', pr_key_x)
 series = [{"name": folders[0], "data": pr_avg_baseline}, {"name": folders[1], "data": pr_avg_test}]
 util.display_precision_recall_plot(series)
 
-loss_avg_data = average(data[folders[0]], 'events', lc_key_x)
+loss_avg_baseline = average(data[folders[0]], 'events', lc_key_x)
+loss_avg_test = average(data[folders[1]], 'events', lc_key_x)
+series = [{"name": folders[0], "data": loss_avg_baseline}, {"name": folders[1], "data": loss_avg_test}]
+util.display_loss_curve_plot(series, lc_key_y)
