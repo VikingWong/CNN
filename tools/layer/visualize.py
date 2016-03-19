@@ -11,7 +11,7 @@ def make_visual(layer_weights):
     min_scale = layer_weights.min(axis=-1).min(axis=-1)[...,
                                                         np.newaxis, np.newaxis]
     return (255 * (layer_weights - min_scale) /
-            (max_scale - min_scale)).astype('uint8')
+            (max_scale - min_scale)).astype(np.uint8)
 
 #TODO: Visualize first layer. Read paper.
 #First undestanding. take snapshots of filters, average input of image to see what the neuron reponds to.
@@ -28,11 +28,11 @@ i = 0
 for filter in first_layer:
     print(filter.shape)
     filter_image = make_visual(filter)
-    #filter_image = np.rollaxis(filter_image, 2)
-    #filter_image = np.rollaxis(filter_image, 2)
+    filter_image = np.rollaxis(filter_image, 2)
+    filter_image = np.rollaxis(filter_image, 2)
     image = Image.fromarray(filter_image)
     image = image.resize((256, 256), Image.ANTIALIAS)
     image.show()
     i += 1
-    if i > 10:
+    if i > 20:
         break

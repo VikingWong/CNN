@@ -41,13 +41,15 @@ class CurriculumDataset(object):
         self.creator.load_dataset()
 
 
-    def create_dataset(self, is_baseline):
+    def create_dataset(self, is_baseline, thresholds=None):
         print("---- Starting sampling. WARNING: this might take a while.")
         base_sampling = self.dataset_config.samples_per_image
-        curriculum_sampling = np.ceil(base_sampling/10)
+        #curriculum_sampling = np.ceil(base_sampling/10)
+        curriculum_sampling = base_sampling
 
         #Sampling at different thresholds.
-        thresholds = np.arange(0.05 , 1, 0.05)
+        if thresholds == None:
+            thresholds = np.arange(0.05 , 1, 0.05)
         if is_baseline:
             thresholds = np.ones(thresholds.shape)
 

@@ -1,4 +1,4 @@
-import os
+import os, random
 import numpy as np
 from PIL import Image, ImageDraw
 from printing import print_error
