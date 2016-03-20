@@ -30,7 +30,7 @@ class AbstractDataset(object):
         }
         self.all_training = []
         self.active = []
-
+        self.all_shared_hooks = [] #WHen casted, cannot set_value on them
         self.nr_examples = {}
 
 
@@ -45,6 +45,8 @@ class AbstractDataset(object):
         for key in self.set:
             self.set[key][0].set_value([[]])
             #self.set[key][1].set_value([[]])
+        for hook in self.all_shared_hooks:
+            hook.set_value([[]])
         del self.all_training
         del self.active
 
@@ -84,10 +86,12 @@ class AbstractDataset(object):
                   '{} elements not enough for at least one minibatch of {}'.format(last_chunk_size, batch_size))
         return chunks
 
+
     def set_nr_examples(self, train, valid, test):
         self.nr_examples['train'] = train[0].shape[0]
         self.nr_examples['valid'] = valid[0].shape[0]
         self.nr_examples['test'] = test[0].shape[0]
+
 
     def get_report(self):
         return self.nr_examples
@@ -105,6 +109,23 @@ class AbstractDataset(object):
         self.active[1].set_value(new_chunk_y)
 
 
+    def shared_dataset(self, data_xy, borrow=True, cast_to_int=True):
+        #Stored in theano shared variable to allow Theano to copy it into GPU memory
+        data_x, data_y = data_xy
+        print(data_x.shape)
+        print(data_y.shape)
+        shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
+        shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
+        self.all_shared_hooks.append(shared_y)
+        if cast_to_int:
+            print("---- Casted to int")
+            #Since labels are index integers they have to be treated as such during computations.
+            #Shared_y is therefore cast to int.
+            return shared_x, T.cast(shared_y, 'int32')
+        else:
+            return shared_x, shared_y
+
+
     @staticmethod
     def _floatX(d):
         #Creates a data representation suitable for GPU
@@ -117,24 +138,6 @@ class AbstractDataset(object):
         #TODO: Add some robustness, like checking if file is folder and correct that
         assert os.path.isfile(dataset)
         return dataset
-
-
-    @staticmethod
-    def shared_dataset(data_xy, borrow=True, cast_to_int=True):
-        #Stored in theano shared variable to allow Theano to copy it into GPU memory
-        data_x, data_y = data_xy
-        print(data_x.shape)
-        print(data_y.shape)
-        shared_x = theano.shared(AbstractDataset._floatX(data_x), borrow=borrow)
-        shared_y = theano.shared(AbstractDataset._floatX(data_y), borrow=borrow)
-
-        if cast_to_int:
-            print("---- Casted to int")
-            #Since labels are index integers they have to be treated as such during computations.
-            #Shared_y is therefore cast to int.
-            return shared_x, T.cast(shared_y, 'int32')
-        else:
-            return shared_x, shared_y
 
 
     @staticmethod
@@ -181,7 +184,7 @@ class AerialCurriculumDataset(AbstractDataset):
 
     def load_set(self, path, set, stage=None):
         base_path = ""
-        if stage:
+        if stage != None:
             base_path = os.path.join(path, set, stage)
         else:
             base_path = os.path.join(path, set)
@@ -242,10 +245,10 @@ class AerialCurriculumDataset(AbstractDataset):
 
         AerialCurriculumDataset.dataset_chunk_stats(len(training_chunks), len(training_chunks[0][0]), len(training_chunks[-1][0]))
 
-        self.active = AerialDataset.shared_dataset(training_chunks[0], cast_to_int=False)
+        self.active = self.shared_dataset(training_chunks[0], cast_to_int=False)
         self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
-        self.set['validation'] = AerialDataset.shared_dataset(valid, cast_to_int=True )
-        self.set['test'] = AerialDataset.shared_dataset(test, cast_to_int=True)
+        self.set['validation'] = self.shared_dataset(valid, cast_to_int=True )
+        self.set['test'] = self.shared_dataset(test, cast_to_int=True)
 
         #Not stored on the GPU, unlike the shared variables defined above.
         self.all_training = training_chunks
@@ -292,10 +295,10 @@ class AerialDataset(AbstractDataset):
 
         AerialDataset.dataset_chunk_stats(len(training_chunks), len(training_chunks[0][0]), len(training_chunks[-1][0]))
 
-        self.active = AerialDataset.shared_dataset(training_chunks[0], cast_to_int=False)
+        self.active = self.shared_dataset(training_chunks[0], cast_to_int=False)
         self.set['train'] = self.active[0], T.cast(self.active[1], 'int32')
-        self.set['validation'] = AerialDataset.shared_dataset(valid, cast_to_int=True )
-        self.set['test'] = AerialDataset.shared_dataset(test, cast_to_int=True)
+        self.set['validation'] = self.shared_dataset(valid, cast_to_int=True )
+        self.set['test'] = self.shared_dataset(test, cast_to_int=True)
 
         #Not stored on the GPU, unlike the shared variables defined above.
         self.all_training = training_chunks

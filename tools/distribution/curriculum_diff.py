@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath("./"))
 from printing import print_section, print_action
 from storage import ParamStorage
-from config import filename_params, dataset_params, pr_path
+from config import filename_params, dataset_params, pr_path, dataset_path
 from augmenter.aerial import Creator
+from data import AerialCurriculumDataset
 import tools.util as util
 
 '''
@@ -14,39 +15,51 @@ Create histograms of difference between prediction and label for dataset.
 Allow finetuning of curriculum strategy.
 '''
 print_section('Generating plot of diff distribution between label and prediction')
-threshold = 1.0
 
-if '-t' in sys.argv:
-    idx = sys.argv.index('-t')
+threshold = 1.0
+if '-threshold' in sys.argv:
+    idx = sys.argv.index('-threshold')
     threshold = float(sys.argv[idx+1])
     print_action("threshold set to {}".format(threshold))
 
 samples = 100
-if '-s' in sys.argv:
-    idx = sys.argv.index('-s')
+if '-samples' in sys.argv:
+    idx = sys.argv.index('-samples')
     samples = int(sys.argv[idx+1])
     print_action("samples set to {}".format(samples))
+
+stage = "stage0"
+verify = False
+if '-verify' in sys.argv:
+    idx = sys.argv.index('-verify')
+    stage = "stage" + str(sys.argv[idx+1])
+    verify = True
+    print_action("Verifying pre-generated curriculum dataset")
 
 store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
 evaluate = util.create_simple_predictor(teacher['model'], teacher['params'])
 
-creator = Creator(
-    pr_path,
-    dim=(dataset_params.input_dim, dataset_params.output_dim),
-    preproccessing=dataset_params.use_preprocessing,
-    std=dataset_params.dataset_std,
-    reduce_training=dataset_params.reduce_training,
-    reduce_testing=dataset_params.reduce_testing,
-    reduce_validation=dataset_params.reduce_validation
-)
-creator.load_dataset()
+if not verify:
+    creator = Creator(
+        pr_path,
+        dim=(dataset_params.input_dim, dataset_params.output_dim),
+        preproccessing=dataset_params.use_preprocessing,
+        std=dataset_params.dataset_std,
+        reduce_training=dataset_params.reduce_training,
+        reduce_testing=dataset_params.reduce_testing,
+        reduce_validation=dataset_params.reduce_validation
+    )
+    creator.load_dataset()
 
-data, labels = creator.sample_data(
-    creator.train,
-    samples,
-    rotation=dataset_params.use_rotation
-)
+    data, labels = creator.sample_data(
+        creator.train,
+        samples,
+        rotation=dataset_params.use_rotation
+    )
+else:
+    aerial_data = AerialCurriculumDataset()
+    data, labels = aerial_data.load_set(dataset_path, "train", stage=stage)
 
 road_diff = []
 non_road_diff = []
@@ -94,7 +107,8 @@ print("")
 print("Percentage roads: {}".format(nr_with_road/float(nr_of_examples)*100))
 print("Percentage pred: {}".format(nr_with_pred/float(nr_of_examples)*100))
 
-del creator
+if not verify:
+    del creator
 del evaluate
 
 plt.figure(1)

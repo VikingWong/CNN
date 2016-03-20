@@ -1,5 +1,6 @@
 import sys, os
 import matplotlib.pyplot as plt
+import json
 
 #Makes sh scripts find modules.
 sys.path.append(os.path.abspath("./"))
@@ -41,6 +42,9 @@ datapoints = measurer.get_curves_datapoints(batch_size)
 
 if store_gui:
     send_precision_recall_data(datapoints, job_id=job_id)
+else:
+    with open('/home/olav/Documents/Results/curr100/validation/data.json', 'w') as outfile:
+        json.dump({"curve": datapoints, "events": []}, outfile)
 
 plt.suptitle('Precision and recall')
 plt.xlabel('Recall')

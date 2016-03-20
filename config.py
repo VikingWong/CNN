@@ -36,7 +36,7 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 50,
+        "curriculum_start"                  : 100,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU

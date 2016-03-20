@@ -123,7 +123,8 @@ class Visualizer(object):
                 data[idx] = image_patch
                 idx += 1
 
-        return AerialDataset.shared_dataset([data, label], cast_to_int=True), (vertical, horizontal)
+        aerial = AerialDataset()
+        return aerial.shared_dataset([data, label], cast_to_int=True), (vertical, horizontal)
 
 
     def open_image(self, path):
