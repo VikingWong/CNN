@@ -16,6 +16,14 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     if not os.path.exists(filename_params.results):
         os.makedirs(filename_params.results)
 
+    is_batch_run = False
+    batch_index = "0"
+    if '-batch' in sys.argv:
+        is_batch_run = True
+        idx = sys.argv.index('-batch')
+        batch_index = sys.argv[idx+1]
+        printing.print_action("Starting experiment with batch index {}".format(batch_index))
+
     weights = None
     if '-params' in sys.argv:
         idx = sys.argv.index('-params')
@@ -32,7 +40,10 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     evaluator.run(epochs=epochs,  verbose=verbose, init=weights)
     report = evaluator.get_result()
 
-    storage = ParamStorage(path=filename_params.network_save_name)
+    network_store_path = filename_params.network_save_name
+    if is_batch_run:
+        network_store_path = filename_params.results + "/batch" + batch_index +  ".pkl"
+    storage = ParamStorage(path=network_store_path)
     storage.store_params(model.params)
 
     dataset.destroy()

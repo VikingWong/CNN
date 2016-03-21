@@ -4,20 +4,20 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 200
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_small'
+number_of_epochs = 2
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_50'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_small"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_50-baseline"
 
     })
 
 visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
-        "gui_enabled"           : True
+        "gui_enabled"           : False
     })
 
 optimization_params = Params({
@@ -36,14 +36,14 @@ optimization_params = Params({
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 100,
+        "curriculum_start"                  : 70,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
     "loader"                : "AerialCurriculumDataset",
-    "samples_per_image"     : 100,
+    "samples_per_image"     : 50,
     "dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751,
     "test_std"              : 0.18411163301559019,
@@ -51,11 +51,11 @@ dataset_params = Params({
     "label_noise"           : 0.1,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
-    "only_mixed_labels"     : False,
+    "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
-    "reduce_testing"        : 1,
-    "reduce_validation"     : 1,
+    "reduce_testing"        : 2,
+    "reduce_validation"     : 3,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048
