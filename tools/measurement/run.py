@@ -24,13 +24,20 @@ else:
 
 store_gui = False
 job_id = "-1"
-if '-store' in sys.argv:
-    idx = sys.argv.index('-store')
+if '-store_gui' in sys.argv:
+    idx = sys.argv.index('-store_gui')
 
     if len(sys.argv) > idx+1:
         store_gui = True
         job_id = sys.argv[idx+1]
         print_action("Storing precision recall curve in database for job {}".format(job_id))
+
+store_path = "./pr_data.json"
+if '-store_path' in sys.argv:
+    idx = sys.argv.index('-store_path')
+    if len(sys.argv) > idx+1:
+        store_path = sys.argv[idx+1]
+        print_action("Storing precision recall curve as file")
 
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
@@ -43,12 +50,12 @@ datapoints = measurer.get_curves_datapoints(batch_size)
 if store_gui:
     send_precision_recall_data(datapoints, job_id=job_id)
 else:
-    with open('/home/olav/Documents/Results/curr100/validation/data.json', 'w') as outfile:
-        json.dump({"curve": datapoints, "events": []}, outfile)
+    with open(store_path, 'w') as outfile:
+        json.dump([{"curve": datapoints, "events": []}], outfile)
 
 plt.suptitle('Precision and recall')
 plt.xlabel('Recall')
 plt.ylabel('Precision')
 plt.grid(True)
 plt.plot([p['recall'] for p in datapoints], [p['precision'] for p in datapoints])
-plt.show()
+plt.show(p)

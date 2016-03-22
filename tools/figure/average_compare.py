@@ -4,11 +4,11 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-path = '/home/olav/Documents/Results/curr100/'
+path = '/home/olav/Documents/Results/curr50/validation'
 folders = ['baseline', 'curriculum']
 pr_key_x = 'threshold'
 lc_key_x = 'epoch'
-lc_key_y = 'training_loss'
+lc_key_y = 'validation_loss'
 
 print("Creating comparison figures")
 baseline_paths = os.listdir(os.path.join(path, folders[0]))

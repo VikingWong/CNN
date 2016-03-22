@@ -5,7 +5,7 @@ import json
 def display_precision_recall_plot(series):
 
     fig, ax = plt.subplots()
-    plt.suptitle('Precision and recall')
+    #plt.suptitle('Precision and recall')
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.grid(True)
@@ -54,7 +54,8 @@ def average(series, series_key, x_align_key):
         for j in range(nr_datapoints):
             values = []
             for s in range(len(series)):
-                values.append(series[s][series_key][j][k])
+                if j < len(series[s][series_key]):
+                    values.append(series[s][series_key][j][k])
             #print(k)
             #print(sum(values)/len(values))
             combined[j][k] = sum(values)/len(values)

@@ -4,8 +4,8 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 2
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum_50'
+number_of_epochs = 200
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -17,7 +17,7 @@ filename_params = Params({
 
 visual_params = Params({
         "endpoint"              : "http://178.62.232.71/",
-        "gui_enabled"           : False
+        "gui_enabled"           : True
     })
 
 optimization_params = Params({
@@ -35,20 +35,20 @@ optimization_params = Params({
         "factor_adjustment"                 : 200,
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
-        "curriculum_enable"                 : True,
+        "curriculum_enable"                 : False,
         "curriculum_start"                  : 70,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "loader"                : "AerialCurriculumDataset",
+    "loader"                : "AerialDataset",
     "samples_per_image"     : 50,
     "dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751,
     "test_std"              : 0.18411163301559019,
-    "use_label_noise"       : False,
-    "label_noise"           : 0.1,
+    "use_label_noise"       : True,
+    "label_noise"           : 0.2,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "only_mixed_labels"     : True,
@@ -62,7 +62,7 @@ dataset_params = Params({
 })
 
 model_params = Params({
-    "loss"              : "crossentropy",
+    "loss"              : "crosstrapping",
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),
