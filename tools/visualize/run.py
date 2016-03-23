@@ -10,7 +10,7 @@ from model import ConvModel
 from aerial import Visualizer
 from printing import print_action
 import tools.util as Image
-from gui.server import send_result_image
+from interface.server import send_result_image
 
 def store_image(image, job_id, store_gui):
     out = Image.resize(image, 0.5)

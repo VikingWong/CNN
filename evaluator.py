@@ -7,7 +7,7 @@ from util import debug_input_data, show_debug_sample
 from printing import print_section, print_test, print_valid, print_training
 import random, sys, timeit
 from sdg import Backpropagation
-import gui.server
+import interface.server
 from config import visual_params
 from wrapper import create_theano_func, create_profiler_func
 from storage import ParamStorage
@@ -21,7 +21,7 @@ class Evaluator(object):
         self.params = params
         self.report = {}
         if(visual_params.gui_enabled):
-            gui.server.start_new_job()
+            interface.server.start_new_job()
 
 
     def run(self, epochs=10, verbose=False, init=None):
@@ -158,7 +158,7 @@ class Evaluator(object):
 
         #==== UPDATE GUI ====
         if visual_params.gui_enabled:
-                gui.server.append_job_update(epoch, training_score, validation_score, test_score, learning_rate)
+                interface.server.append_job_update(epoch, training_score, validation_score, test_score, learning_rate)
 
         try:
             while (epoch < max_epochs) and (not done_looping):
@@ -195,9 +195,9 @@ class Evaluator(object):
                             print('---- Training @ iter = {}. Patience = {}'.format(iter, patience))
 
                         if visual_params.gui_enabled and iter % gui_frequency == 0:
-                            gui.server.get_command_status()
+                            interface.server.get_command_status()
 
-                        if visual_params.gui_enabled and gui.server.is_testing():
+                        if visual_params.gui_enabled and interface.server.is_testing():
                             self._debug(batch_size, chunk_batches, max_factor)
 
                         if(np.isnan(cost_ij)):
@@ -213,7 +213,7 @@ class Evaluator(object):
 
                             #==== UPDATE GUI ====
                             if visual_params.gui_enabled:
-                                    gui.server.append_job_update(
+                                    interface.server.append_job_update(
                                         epoch,
                                         train_score,
                                         validation_score,
@@ -235,7 +235,7 @@ class Evaluator(object):
                         if patience <= iter:
                             done_looping = True
                             break
-                        if visual_params.gui_enabled and gui.server.stop:
+                        if visual_params.gui_enabled and interface.server.stop:
                             done_looping = True
 
                         iter += 1 #Increment interation after each batch has been processed.

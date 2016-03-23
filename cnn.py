@@ -5,7 +5,7 @@ from evaluator import Evaluator
 from model import ConvModel
 from data import DataLoader
 from storage.store import ParamStorage
-import gui.server
+import interface.server
 import printing
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, pr_path
@@ -49,7 +49,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     dataset.destroy()
 
     if visual_params.gui_enabled:
-         gui.server.stop_job(report)
+         interface.server.stop_job(report)
 
     printing.print_section('Evaluation precision and recall')
 
@@ -59,7 +59,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     printing.print_section('Storing model parameters')
 
     if visual_params.gui_enabled:
-        gui.server.send_precision_recall_data(datapoints)
+        interface.server.send_precision_recall_data(datapoints)
 
 
 

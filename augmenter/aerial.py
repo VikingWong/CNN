@@ -84,6 +84,8 @@ class Creator(object):
         label = np.empty((max_arr_size, self.dim_label*self.dim_label), dtype=theano.config.floatX)
 
         print('')
+        if label_noise_enable:
+            print('Noise added to labels: {}'.format(label_noise))
         print('Sampling examples for {}'.format(dataset.base))
 
         #If mixed labels , there will be a lot of trial and
@@ -114,7 +116,6 @@ class Creator(object):
             #print("sampling", width, height)
 
             if label_noise_enable:
-                #TODO: TEST THIS
                 la, prob = util.add_artificial_road_noise(la, label_noise)
 
             rot = 0

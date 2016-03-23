@@ -4,7 +4,7 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 200
+number_of_epochs = 150
 dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
@@ -23,16 +23,16 @@ visual_params = Params({
 optimization_params = Params({
         "backpropagation"                   : "sgd_nesterov",
         "batch_size"                        : 64,
-        "l2_reg"                            : 0.00010,
+        "l2_reg"                            : 0.0002,
         "momentum"                          : 0.9,
         "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "learning_rate"                     : 0.0014,
+        "learning_rate"                     : 0.0011,
         "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.9,
         "factor_rate"                       : 1,
-        "factor_adjustment"                 : 200,
+        "factor_adjustment"                 : 100,
         "factor_decrease"                   : 0.998,
         "factor_minimum"                    : 0.8,
         "curriculum_enable"                 : False,
@@ -48,14 +48,14 @@ dataset_params = Params({
     "valid_std"             : 0.19088566314428751,
     "test_std"              : 0.18411163301559019,
     "use_label_noise"       : True,
-    "label_noise"           : 0.2,
+    "label_noise"           : 0.5,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
-    "only_mixed_labels"     : True,
+    "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5,
     "reduce_training"       : 1,
     "reduce_testing"        : 2,
-    "reduce_validation"     : 3,
+    "reduce_validation"     : 4,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048

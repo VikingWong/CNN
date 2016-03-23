@@ -93,10 +93,9 @@ def add_artificial_road_noise(image, threshold):
     location_y = label.size[1]
 
     removed_threshold = np.clip(threshold, 0.0, 1.0)
-    print(removed_threshold)
     p_roads_removed = 0.0
     while p_roads_removed < removed_threshold:
-        i = random.randint(0, locations[0].shape[0])
+        i = random.randint(0, locations[0].shape[0] -1 )
         y = locations[0][i]
         x = locations[1][i]
         w = int(random.randint(shape_min, shape_max)/2)

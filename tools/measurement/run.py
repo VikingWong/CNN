@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath("./"))
 from printing import print_section, print_action
 from storage import ParamStorage
 from precisionrecall import PrecisionRecallCurve
-from gui.server import send_precision_recall_data
+from interface.server import send_precision_recall_data
 
 print_section("TOOLS: Measure precision and recall of model")
 print("-data: path to dataset | -store: job id to store curve in GUI")
