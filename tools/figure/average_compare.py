@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-path = '/home/olav/Documents/Results/curr50/validation'
+path = '/home/olav/Documents/Results/curr100/validation'
 folders = ['baseline', 'curriculum']
 pr_key_x = 'threshold'
 lc_key_x = 'epoch'
@@ -20,7 +20,7 @@ data = {folders[0]: [], folders[1]: []}
 for t in range(len(all_tests)):
     for data_path in all_tests[t]:
         json_data = util.open_json_result(os.path.join(path, folders[t],data_path))
-        data[folders[t]].append(json_data[0])
+        data[folders[t]].append(json_data)
 
 
 pr_avg_baseline = util.average(data[folders[0]], 'curve', pr_key_x)
