@@ -5,7 +5,7 @@ from evaluator import Evaluator
 from model import ConvModel
 from data import DataLoader
 from storage.store import ParamStorage
-import interface.server
+import interface
 import printing
 from config import model_params, optimization_params, dataset_params, filename_params, visual_params, \
     number_of_epochs, verbose, dataset_path, pr_path
@@ -16,22 +16,28 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     if not os.path.exists(filename_params.results):
         os.makedirs(filename_params.results)
 
-    is_batch_run = False
-    batch_index = "0"
-    if '-batch' in sys.argv:
-        is_batch_run = True
-        idx = sys.argv.index('-batch')
-        batch_index = sys.argv[idx+1]
-        printing.print_action("Starting experiment with batch index {}".format(batch_index))
+    is_config, config_values = interface.command.get_command("-config")
+    is_batch_run, batch_index = interface.command.get_command("-batch", default="0")
+    is_init_params, param_path = interface.command.get_command("-params")
+
+    if is_config:
+        #Assume  config is speficially for running bootstrapping batches.
+        config_arr = eval(config_values)
+        if len(config_arr) == 2:
+            loss_function = config_arr[0]
+            label_noise = float(config_arr[1])
+            dataset_params.label_noise = label_noise
+            model_params.loss = loss_function
+            batch_index = loss_function + "-" + str(label_noise) + "-" + batch_index
+            print(batch_index)
 
     weights = None
-    if '-params' in sys.argv:
-        idx = sys.argv.index('-params')
-        is_init_params = bool(sys.argv[idx+1])
-        if is_init_params:
-            store = ParamStorage()
-            weights = store.load_params(path="./results/params.pkl")['params']
-        printing.print_action("Initializing model with weights from params.pkl")
+    if is_init_params:
+        store = ParamStorage()
+        if not param_path:
+            param_path = "./results/params.pkl"
+        weights = store.load_params(path=param_path)['params']
+
 
     dataset = DataLoader.create()
     dataset.load(dataset_path, dataset_params, optimization_params.batch_size) #Input stage

@@ -1,1 +1,2 @@
-__author__ = 'olav'
+from command import *
+from server import *
