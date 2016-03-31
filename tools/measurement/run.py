@@ -48,7 +48,7 @@ datapoints = measurer.get_curves_datapoints(batch_size)
 #datapoints.sort(key=lambda p: p['recall'])
 
 if store_gui:
-    send_precision_recall_data(datapoints, job_id=job_id)
+    send_precision_recall_data(datapoints, None, job_id=job_id)
 else:
     with open(store_path, 'w') as outfile:
         json.dump([{"curve": datapoints, "events": []}], outfile)

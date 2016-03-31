@@ -25,10 +25,10 @@ class PrecisionRecallCurve(object):
         self.dataset_path = dataset_path
 
 
-    def get_curves_datapoints(self, batch_size, dataset=None):
+    def get_curves_datapoints(self, batch_size, dataset=None, set_name="test"):
         if not dataset:
             print('---- Creating dataset')
-            dataset = self._create_dataset()
+            dataset = self._create_dataset(set_name)
 
         print('---- Generating output predictions using current model')
         predictions, labels = self._predict_patches(dataset, batch_size)
@@ -38,7 +38,7 @@ class PrecisionRecallCurve(object):
         return datapoints
 
 
-    def _create_dataset(self):
+    def _create_dataset(self, set_name):
         dim = (self.dataset_config.input_dim, self.dataset_config.output_dim)
         path = self.dataset_path
         preprocessing = self.dataset_config.use_preprocessing
@@ -48,8 +48,13 @@ class PrecisionRecallCurve(object):
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data
+        raw_set = None
+        if set_name == "valid":
+            raw_set = creator.valid
+        else:
+            raw_set = creator.test
         aerial = AerialDataset()
-        return aerial.shared_dataset(creator.sample_data(creator.test, samples_per_image), cast_to_int=True)
+        return aerial.shared_dataset(creator.sample_data(raw_set, samples_per_image), cast_to_int=True)
 
 
     def _predict_patches(self, dataset, batch_size):

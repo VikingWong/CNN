@@ -1,6 +1,6 @@
 #!/bin/sh
 
-repeats=1
+repeats=2
 tests=( "bootstrapping" "crossentropy" )
 noises=( 0.0 0.1 0.2 0.3 0.4 )
 nrTests=${#tests[@]}

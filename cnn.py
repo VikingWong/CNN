@@ -60,12 +60,13 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     printing.print_section('Evaluation precision and recall')
 
     prc = PrecisionRecallCurve(pr_path, model.params, model_params, dataset_params)
-    datapoints = prc.get_curves_datapoints(optimization_params.batch_size)
+    test_datapoints = prc.get_curves_datapoints(optimization_params.batch_size, set_name="test")
+    valid_datapoints = prc.get_curves_datapoints(optimization_params.batch_size, set_name="valid")
     #Stores the model params. Model can later be restored.
     printing.print_section('Storing model parameters')
 
     if visual_params.gui_enabled:
-        interface.server.send_precision_recall_data(datapoints)
+        interface.server.send_precision_recall_data(test_datapoints, valid_datapoints)
 
 
 

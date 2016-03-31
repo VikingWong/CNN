@@ -86,13 +86,13 @@ def stop_job(report):
     thread = unirest.post(url, headers=default_headers, params=json.dumps(report))
 
 
-def send_precision_recall_data(datapoints, job_id=None):
+def send_precision_recall_data(test_datapoints, valid_datapoints, job_id=None):
     if not job_id:
         job_id = current_id
     url = base_url + "job/" + job_id + "/precision-recall-curve"
     def callback(response):
         print(response.body)
-    thread = unirest.post(url, headers=default_headers, params=json.dumps(datapoints), callback=callback)
+    thread = unirest.post(url, headers=default_headers, params=json.dumps({"test": test_datapoints, "valid": valid_datapoints}), callback=callback)
 
 def send_result_image(job_id, image):
     url = base_url + "job/" + job_id + "/result-image"
