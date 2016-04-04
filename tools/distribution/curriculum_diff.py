@@ -29,6 +29,11 @@ stage = "stage" + stage
 is_tradeoff, tradeoff = get_command('-tradeoff', default="0.5")
 tradeoff = float(tradeoff)
 
+#Dataset path. Config used if not supplied
+is_alt_dataset, alt_dataset = get_command('-dataset')
+if is_alt_dataset:
+    dataset_path = alt_dataset
+
 store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
 evaluate = util.create_simple_predictor(teacher['model'], teacher['params'])

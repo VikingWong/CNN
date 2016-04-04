@@ -5,7 +5,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 20
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-test'
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -46,7 +46,7 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
     "loader"                : "AerialDataset",
-    "samples_per_image"     : 100,
+    "samples_per_image"     : 50,
     "dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751, #Not used
     "test_std"              : 0.18411163301559019, #Not used
@@ -62,7 +62,7 @@ dataset_params = Params({
     "use_label_noise"       : False,
     "label_noise"           : 0.0,
 
-    "only_mixed_labels"     : True,
+    "only_mixed_labels"     : False,
     "mix_ratio"             : 0.5
 })
 

@@ -19,14 +19,29 @@ is_baseline, baseline = get_command('-baseline')
 is_stages, stages = get_command('-stages', default="[0.1, 1.0]")
 stages = np.array(eval(stages))
 
-#Precision recall breakeven point.
+#Precision recall breakeven point. 0.5 used as a default.
 is_tradeoff, tradeoff = get_command('-tradeoff')
 if is_tradeoff:
     tradeoff = float(tradeoff)
 
+#Dataset path. Config used if not supplied
+is_alt_dataset, alt_dataset = get_command('-dataset')
+if is_alt_dataset:
+    dataset_path = alt_dataset
+
+#Teacher params location. Config used if not supplied
+is_teacher_location, teacher_location = get_command('-teacher')
+if not is_teacher_location:
+    teacher_location = filename_params.curriculum_teacher
+
+#Curriculum dataset save path. Config used if not supplied.
+is_save_path, save_path = get_command('-save')
+if not is_save_path:
+    save_path = filename_params.curriculum_location
+
 #Load the curriculum teacher which provide consistency estimates for extracted examples.
 store = ParamStorage()
-teacher = store.load_params(path=filename_params.curriculum_teacher)
+teacher = store.load_params(path=teacher_location)
 
-generator = CurriculumDataset(teacher, dataset_path, filename_params.curriculum_location, dataset_params, tradeoff)
+generator = CurriculumDataset(teacher, dataset_path, save_path, dataset_params, tradeoff)
 generator.create_dataset(is_baseline, thresholds=stages)
