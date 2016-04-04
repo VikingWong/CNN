@@ -4,12 +4,14 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-sub_folder = "2"
-path = '/home/olav/Documents/Results/boot50'
+sub_folder = ''
+path = '/home/olav/Documents/Results/bootTestBig'
 folders = ['baseline', 'test']
 pr_key_x = 'threshold'
+pr_key_y = 'valid_curve'
 lc_key_x = 'epoch'
 lc_key_y = 'validation_loss'
+
 
 print("Creating comparison figures")
 baseline_paths = os.listdir(os.path.join(path, folders[0], sub_folder))
@@ -24,8 +26,8 @@ for t in range(len(all_tests)):
         data[folders[t]].append(json_data[0])
 
 
-pr_avg_baseline = util.average(data[folders[0]], 'curve', pr_key_x)
-pr_avg_test = util.average(data[folders[1]], 'curve', pr_key_x)
+pr_avg_baseline = util.average(data[folders[0]], pr_key_y, pr_key_x)
+pr_avg_test = util.average(data[folders[1]], pr_key_y, pr_key_x)
 series = [{"name": folders[0], "data": pr_avg_baseline}, {"name": folders[1], "data": pr_avg_test}]
 util.display_precision_recall_plot(series)
 

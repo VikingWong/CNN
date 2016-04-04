@@ -14,6 +14,9 @@ class OutputLayer(BaseLayer):
         elif loss == 'crosstrapping':
             print('crosstrapping')
             self.negative_log_likelihood = self.loss_crosstrapping
+        elif loss == 'bootstrapping_soft':
+            print('bootstrapping_soft')
+            self.negative_log_likelihood = self.loss_bootstrapping_soft
         else:
             print('crossentropy')
             self.negative_log_likelihood = self.loss_crossentropy
@@ -45,17 +48,27 @@ class OutputLayer(BaseLayer):
         )
         return loss/self.size
 
+
+    def loss_bootstrapping_soft(self, y, factor=1):
+        #Soft version of bootstrapping
+        p = self.output
+        loss = (
+            - T.sum( ((factor * y) + ((1.0- factor) * p)) * T.log(p) ) -
+            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * (1.0 - p))) * T.log(1.0 - p) )
+        )
+        return loss/self.size
+
+
     def loss_crosstrapping(self, y, factor=1):
         #Almost the same as bootstrapping, except mean used for overall result.
         #More closely follows crossentropy implementation.
         #When factor is 1, crossentropy equals this implementation. So performance
         #without decreasing factor should be the same!
         p = self.output
-        b = factor
         hard = T.gt(p, 0.5)
         cross = - (
-            (( b * y * T.log(p) ) + ((1.0-b) * hard * T.log(p) )) +
-             (( b* (1.0-y) * T.log(1.0-p) ) + ( (1.0-b) * (1.0-hard) * T.log(1.0-p) ))
+            (( factor * y * T.log(p) ) + ((1.0-factor) * hard * T.log(p) )) +
+             (( factor* (1.0-y) * T.log(1.0-p) ) + ( (1.0-factor) * (1.0-hard) * T.log(1.0-p) ))
         )
         return T.mean(cross)
 

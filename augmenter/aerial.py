@@ -106,7 +106,7 @@ class Creator(object):
             image_idx = image_queue.pop(0)
             image_queue.append(image_idx)
             nr_opened_images += 1
-            best_trade_off = 0.801
+            best_trade_off = 0.2201
 
             im, la = dataset.open_image(image_idx)
 
@@ -179,7 +179,7 @@ class Creator(object):
                     diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
 
                     #Patches with roads, are automatically harder, and have a a bit more lenient threshold.
-                    if diff > curriculum_threshold + (0.1*int(contains_class)):
+                    if diff < curriculum_threshold + (0.1*int(contains_class)):
                         curriculum_road_dropped += int(contains_class)
                         curriculum_dropped += 1
                         continue

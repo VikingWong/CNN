@@ -4,14 +4,14 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 150
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+number_of_epochs = 20
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-test'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_curriculum_50-baseline"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-test"
 
     })
 
@@ -25,44 +25,49 @@ optimization_params = Params({
         "batch_size"                        : 64,
         "l2_reg"                            : 0.0001,
         "momentum"                          : 0.9,
-        "initial_patience"                  : 80000,
+        "initial_patience"                  : 100000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
-        "learning_rate"                     : 0.0011,
-        "learning_adjustment"               : 40,
-        "learning_decrease"                 : 0.9,
-        "factor_rate"                       : 1.0,
-        "factor_adjustment"                 : 50,
-        "factor_decrease"                   : 0.9,
-        "factor_minimum"                    : 0.8,
+
+        "learning_rate"                     : 0.0005,
+        "learning_adjustment"               : 10,
+        "learning_decrease"                 : 0.7,
+
+        "factor_rate"                       : 0.95,
+        "factor_adjustment"                 : 0,
+        "factor_decrease"                   : 0.990,
+        "factor_minimum"                    : 0.95,
+
         "curriculum_enable"                 : False,
-        "curriculum_start"                  : 70,
-        "curriculum_adjustment"             : 10
+        "curriculum_start"                  : 150,
+        "curriculum_adjustment"             : 20
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
     "loader"                : "AerialDataset",
-    "samples_per_image"     : 50,
+    "samples_per_image"     : 100,
     "dataset_std"           : 0.18893923860059578,
-    "valid_std"             : 0.19088566314428751,
-    "test_std"              : 0.18411163301559019,
-    "use_label_noise"       : True,
-    "label_noise"           : 0.1,
+    "valid_std"             : 0.19088566314428751, #Not used
+    "test_std"              : 0.18411163301559019, #Not used
+    "reduce_training"       : 1.0,
+    "reduce_testing"        : 2.0,
+    "reduce_validation"     : 4.0,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
-    "only_mixed_labels"     : False,
-    "mix_ratio"             : 0.5,
-    "reduce_training"       : 1,
-    "reduce_testing"        : 2,
-    "reduce_validation"     : 4,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 2048
+    "chunk_size"            : 2048,
+
+    "use_label_noise"       : False,
+    "label_noise"           : 0.0,
+
+    "only_mixed_labels"     : True,
+    "mix_ratio"             : 0.5
 })
 
 model_params = Params({
-    "loss"              : "bootstrapping",
+    "loss"              : "crossentropy",
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),

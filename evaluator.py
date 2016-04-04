@@ -190,9 +190,8 @@ class Evaluator(object):
                     #Each chunk contains a certain number of batches.
                     for minibatch_index in range(chunk_batches):
                         cost_ij = self.train_model(minibatch_index, learning_rate, max_factor)
-
                         if iter % 1000 == 0:
-                            print('---- Training @ iter = {}. Patience = {}'.format(iter, patience))
+                            print('---- Training @ iter = {}. Patience = {}. Loss = {}'.format(iter, patience, cost_ij))
 
                         if visual_params.gui_enabled and iter % gui_frequency == 0:
                             interface.server.get_command_status()

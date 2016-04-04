@@ -57,7 +57,7 @@ data = store.load_params(path="./results/params.pkl")
 batch_size = data['optimization'].batch_size
 
 v = Visualizer(data['model'], data['params'], data['dataset'])
-bto =0.10010000000000001
+bto =0.2201
 image_prediction, image_hit, image_data = v.visualize(image_path, batch_size, best_trade_off=bto)
 
 store_image(image_prediction, job_id, store_gui)

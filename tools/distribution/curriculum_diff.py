@@ -3,6 +3,7 @@ import sys, os
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath("./"))
+from interface.command import get_command
 from printing import print_section, print_action
 from storage import ParamStorage
 from config import filename_params, dataset_params, pr_path, dataset_path
@@ -16,25 +17,17 @@ Allow finetuning of curriculum strategy.
 '''
 print_section('Generating plot of diff distribution between label and prediction')
 
-threshold = 1.0
-if '-threshold' in sys.argv:
-    idx = sys.argv.index('-threshold')
-    threshold = float(sys.argv[idx+1])
-    print_action("threshold set to {}".format(threshold))
+is_threshold, threshold = get_command('-threshold', default="1.0")
+threshold = float(threshold)
 
-samples = 100
-if '-samples' in sys.argv:
-    idx = sys.argv.index('-samples')
-    samples = int(sys.argv[idx+1])
-    print_action("samples set to {}".format(samples))
+is_samples, samples = get_command('-samples', default="100")
+samples = int(samples)
 
-stage = "stage0"
-verify = False
-if '-verify' in sys.argv:
-    idx = sys.argv.index('-verify')
-    stage = "stage" + str(sys.argv[idx+1])
-    verify = True
-    print_action("Verifying pre-generated curriculum dataset")
+verify, stage = get_command('-verify', default="0")
+stage = "stage" + stage
+
+is_tradeoff, tradeoff = get_command('-tradeoff', default="0.5")
+tradeoff = float(tradeoff)
 
 store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
@@ -68,7 +61,7 @@ pred_diff = []
 nr_with_road = 0
 nr_with_pred = 0
 
-best_trade_off = 0.0801
+best_trade_off = tradeoff
 nr_of_examples = data.shape[0]
 for i in range(nr_of_examples):
 

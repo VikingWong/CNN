@@ -33,12 +33,17 @@ class Visualizer(object):
 
         #Need to have Mass_road structure TODO: argument
         dir = os.path.abspath(image_path + "../../../")
-        label_path = dir + "/labels/" + os.path.basename(image_path)[:-1]
+        #TODO: not the same extension for labels and data. In the case of MASS.
+        file_ext = os.path.basename(image_path).split('.')[-1]
+        label_ext = os.listdir(dir + "/labels/")[0].split('.')[-1]
+        label_path = dir + "/labels/" + os.path.basename(image_path).split('.')[-2] + "." + label_ext
+
         hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'), best_trade_off)
         return image, hit_image, Image.open(image_path, 'r')
 
 
     def _create_hit_image(self, prediction_image, input_image, label_image, best_trade_off):
+        label_image = label_image.convert('L')
         thresh = 255 * best_trade_off
         w, h = input_image.size
         w = int(w/self.dim_label)*self.dim_label
@@ -55,7 +60,7 @@ class Visualizer(object):
         print("---- Creating hit/miss image")
         for y in xrange(input_image.size[1]):
             for x in xrange(input_image.size[0]):
-                #print(y, x)
+                #print("pred",label[y][x])
                 if(pred[y][x] > thresh or label[y][x] > thresh):
                     if pred[y][x] > thresh and label[y][x] >thresh:
                         pixdata[x, y] = (0, 255, 0)
