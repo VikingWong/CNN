@@ -11,12 +11,13 @@ import tools.util as util
 
 class CurriculumDataset(object):
 
-    def __init__(self, teacher, dataset_path, store_path, dataset_config):
+    def __init__(self, teacher, dataset_path, store_path, dataset_config, best_trade_off):
         self.dataset_path = dataset_path
         self.store_path = store_path
         self.teacher = teacher
         self.dataset_config = dataset_config
         self.rotate = dataset_config.use_rotation
+        self.trade_off = best_trade_off
 
         if os.path.exists(self.store_path):
             raise Exception("Store path already exists")
@@ -90,7 +91,8 @@ class CurriculumDataset(object):
             mixed_labels=True,
             curriculum=self.evaluate,
             curriculum_threshold=threshold,
-            rotation=self.rotate
+            rotation=self.rotate,
+            best_trade_off=self.trade_off
         )
         os.makedirs(os.path.join(stage_path, "labels"))
         os.makedirs(os.path.join(stage_path, "data"))

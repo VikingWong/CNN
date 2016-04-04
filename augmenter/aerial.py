@@ -60,7 +60,7 @@ class Creator(object):
 
 
     def sample_data(self, dataset, samples_per_images, mixed_labels=False, rotation=False, curriculum=None,
-                    curriculum_threshold=1.0, label_noise_enable=False, label_noise=0.0):
+                    curriculum_threshold=1.0, label_noise_enable=False, label_noise=0.0, best_trade_off = 0.5):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
@@ -106,7 +106,6 @@ class Creator(object):
             image_idx = image_queue.pop(0)
             image_queue.append(image_idx)
             nr_opened_images += 1
-            best_trade_off = 0.2201
 
             im, la = dataset.open_image(image_idx)
 
