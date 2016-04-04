@@ -11,6 +11,7 @@ from aerial import Visualizer
 from printing import print_action
 import tools.util as Image
 from interface.server import send_result_image
+from interface.command import get_command
 
 def store_image(image, job_id, store_gui):
     out = Image.resize(image, 0.5)
@@ -25,39 +26,19 @@ def store_image(image, job_id, store_gui):
 
 print_section('TOOLS: Visualize result from model')
 print("-data: Path to image you want predictions for")
-image_path = None
-if '-data' in sys.argv:
-    idx = sys.argv.index('-data')
-    image_path = sys.argv[idx+1]
-    print_action("using {} as image path".format(image_path))
+is_image_path, image_path = get_command('-data', default='/home/olav/Pictures/Mass_roads/test/data/10378780_15.tiff')
 
-else:
-    image_path = '/home/olav/Pictures/Mass_roads/test/data/10378780_15.tiff'
+store_data_image, = get_command('-storeimage')
 
-store_data_image = False
-if '-storeimage' in sys.argv:
-    print_action("Store data image")
-    store_data_image = True
+store_gui, job_id = get_command('-store', default="None")
 
-
-
-store_gui = False
-job_id = "-1"
-if '-store' in sys.argv:
-    idx = sys.argv.index('-store')
-
-    if len(sys.argv) > idx+1:
-        store_gui = True
-        job_id = sys.argv[idx+1]
-        print_action("Storing images in GUI for job {}".format(job_id))
-
+is_tradeoff, bto = get_command('-tradeoff', default="0.5")
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
 
 batch_size = data['optimization'].batch_size
 
 v = Visualizer(data['model'], data['params'], data['dataset'])
-bto =0.2201
 image_prediction, image_hit, image_data = v.visualize(image_path, batch_size, best_trade_off=bto)
 
 store_image(image_prediction, job_id, store_gui)

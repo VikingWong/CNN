@@ -23,7 +23,7 @@ stages = np.array(eval(stages))
 is_tradeoff, tradeoff = get_command('-tradeoff')
 if is_tradeoff:
     tradeoff = float(tradeoff)
-    
+
 #Load the curriculum teacher which provide consistency estimates for extracted examples.
 store = ParamStorage()
 teacher = store.load_params(path=filename_params.curriculum_teacher)
