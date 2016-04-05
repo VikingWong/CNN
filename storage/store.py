@@ -1,5 +1,6 @@
 import pickle
 from util import Params
+import json
 from config import model_params, optimization_params, dataset_params, number_of_epochs, filename_params
 
 class ParamStorage(object):
@@ -36,3 +37,13 @@ class ParamStorage(object):
         f = open(path, 'wb')
         pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         f.close()
+
+    def store_result(self, path, loss, test_pr, valid_pr):
+
+        data = [{
+            'events': loss,
+            'curve': test_pr,
+            'valid_curve': valid_pr,
+        }]
+        with open(path, 'w') as fp:
+            json.dump(data, fp)

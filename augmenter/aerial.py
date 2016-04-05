@@ -178,7 +178,9 @@ class Creator(object):
                     diff = np.sum(np.abs(output[0] - label_sample))/(dim_label*dim_label)
 
                     #Patches with roads, are automatically harder, and have a a bit more lenient threshold.
-                    if diff < curriculum_threshold: #+ (0.1*int(contains_class)):
+                    #if diff > curriculum_threshold+ (0.1*int(contains_class)):
+                    #TODO: ANTICURR CURRENTLY
+                    if diff < int(contains_class) * curriculum_threshold:
                         curriculum_road_dropped += int(contains_class)
                         curriculum_dropped += 1
                         continue

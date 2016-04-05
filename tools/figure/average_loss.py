@@ -4,8 +4,8 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-path = '/home/olav/Documents/Results/curr50/'
-folder = 'baseline'
+path = '/home/olav/Documents/Results/anticurr50/'
+folder = 'test'
 lc_key_x = 'epoch'
 
 print("Creating averaged loss figures")
@@ -15,7 +15,11 @@ data = []
 
 for data_path in paths:
     json_data = util.open_json_result(os.path.join(path, folder,data_path))
-    data.append(json_data[0])
+    if type(json_data) is list:
+            d = json_data[0]
+    else:
+        d = json_data
+    data.append(d)
 
 
 loss_avg = util.average(data, 'events', lc_key_x)

@@ -20,6 +20,8 @@ class Evaluator(object):
         self.model = model
         self.params = params
         self.report = {}
+        self.events = []
+
         if(visual_params.gui_enabled):
             interface.server.start_new_job()
 
@@ -199,8 +201,8 @@ class Evaluator(object):
                         if visual_params.gui_enabled and interface.server.is_testing():
                             self._debug(batch_size, chunk_batches, max_factor)
 
-                        if(np.isnan(cost_ij)):
-                            print('cost IS NAN')
+                        #if(np.isnan(cost_ij)):
+                        #    print('cost IS NAN')
 
                         #==== EVAULATE ====
                         if (iter + 1) % validation_frequency == 0:
@@ -218,6 +220,13 @@ class Evaluator(object):
                                         validation_score,
                                         test_score,
                                         learning_rate)
+                            self.events.append({
+                                                "epoch": epoch,
+                                                "training_loss": train_score,
+                                                "validation_loss": validation_score,
+                                                "test_loss": test_score,
+                                                "training_rate": learning_rate
+                                            })
 
                             #==== EARLY STOPPING ====
                             if validation_score < best_validation_loss:

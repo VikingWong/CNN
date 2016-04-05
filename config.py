@@ -4,8 +4,8 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 20
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+number_of_epochs = 150
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_anticurriculum100-test'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -25,28 +25,28 @@ optimization_params = Params({
         "batch_size"                        : 64,
         "l2_reg"                            : 0.0001,
         "momentum"                          : 0.9,
-        "initial_patience"                  : 100000,
+        "initial_patience"                  : 500000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
 
-        "learning_rate"                     : 0.0005,
-        "learning_adjustment"               : 10,
-        "learning_decrease"                 : 0.7,
+        "learning_rate"                     : 0.0014,
+        "learning_adjustment"               : 50,
+        "learning_decrease"                 : 0.9,
 
-        "factor_rate"                       : 0.95,
-        "factor_adjustment"                 : 0,
-        "factor_decrease"                   : 0.990,
-        "factor_minimum"                    : 0.95,
+        "factor_rate"                       : 1.0,
+        "factor_adjustment"                 : 200,
+        "factor_decrease"                   : 0.998,
+        "factor_minimum"                    : 0.9,
 
-        "curriculum_enable"                 : False,
-        "curriculum_start"                  : 150,
-        "curriculum_adjustment"             : 20
+        "curriculum_enable"                 : True,
+        "curriculum_start"                  : 50,
+        "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "loader"                : "AerialDataset",
-    "samples_per_image"     : 50,
+    "loader"                : "AerialCurriculumDataset",
+    "samples_per_image"     : 100,
     "dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751, #Not used
     "test_std"              : 0.18411163301559019, #Not used

@@ -109,13 +109,26 @@ if not verify:
     del creator
 del evaluate
 
+
+#TODO: Normalized histogram underway
 plt.figure(1)
-plt.subplot(411)
-n, bins, patches = plt.hist(road_arr, 60, normed=True, color='green')
-plt.subplot(412)
-n, bins, patches = plt.hist(non_road_arr, 60, normed=True, color='red')
-plt.subplot(413)
-n, bins, patches = plt.hist(all_arr, 60, normed=True, color='blue')
-plt.subplot(414)
-n, bins, patches = plt.hist(pred_arr, 60, normed=True, color='grey')
+plt.subplot(311)
+#n, bins, patches = plt.hist(road_arr, 60, normed=True, color='green')
+results, edges = np.histogram(road_arr, 100, normed=True)
+binWidth = edges[1] - edges[0]
+plt.bar(edges[:-1], results*binWidth, binWidth, color='green')
+
+plt.subplot(312)
+#n, bins, patches = plt.hist(non_road_arr, 60, normed=True, color='red')
+results, edges = np.histogram(non_road_arr, 100, normed=True)
+binWidth = edges[1] - edges[0]
+plt.bar(edges[:-1], results*binWidth, binWidth, color='red')
+
+plt.subplot(313)
+#n, bins, patches = plt.hist(all_arr, 60, normed=True, color='blue')
+results, edges = np.histogram(all_arr, 100, normed=True)
+binWidth = edges[1] - edges[0]
+plt.bar(edges[:-1], results*binWidth, binWidth, color='blue')
+#plt.subplot(414)
+#n, bins, patches = plt.hist(pred_arr, 60, normed=True, color='grey')
 plt.show()

@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath("./"))
 import util
 
 sub_folder = ''
-path = '/home/olav/Documents/Results/bootTestBig'
+path = '/home/olav/Documents/Results/anticurr50'
 folders = ['baseline', 'test']
 pr_key_x = 'threshold'
 pr_key_y = 'valid_curve'
@@ -23,7 +23,12 @@ print("length", len(all_tests[0]), len(all_tests[1]) )
 for t in range(len(all_tests)):
     for data_path in all_tests[t]:
         json_data = util.open_json_result(os.path.join(path, folders[t], sub_folder, data_path))
-        data[folders[t]].append(json_data[0])
+
+        if type(json_data) is list:
+            d = json_data[0]
+        else:
+            d = json_data
+        data[folders[t]].append(d)
 
 
 pr_avg_baseline = util.average(data[folders[0]], pr_key_y, pr_key_x)

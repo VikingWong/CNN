@@ -47,8 +47,11 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     report = evaluator.get_result()
 
     network_store_path = filename_params.network_save_name
+    result_path = filename_params.results + "/results.json"
     if is_batch_run:
         network_store_path = filename_params.results + "/batch" + batch_index +  ".pkl"
+        result_path =filename_params.results + "/batch" + batch_index +  ".json"
+
     storage = ParamStorage(path=network_store_path)
     storage.store_params(model.params)
 
@@ -67,7 +70,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
 
     if visual_params.gui_enabled:
         interface.server.send_precision_recall_data(test_datapoints, valid_datapoints)
-
+    storage.store_result(result_path, evaluator.events, test_datapoints, valid_datapoints)
 
 
 run_cnn(
