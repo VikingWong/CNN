@@ -4,14 +4,14 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 150
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_anticurriculum100-test'
+number_of_epochs = 100
+dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum100-test2'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
         "curriculum_teacher"    : "./results/curriculum.pkl",
-        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-test"
+        "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-baseline"
 
     })
 
