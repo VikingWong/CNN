@@ -28,11 +28,12 @@ print_section('TOOLS: Visualize result from model')
 print("-data: Path to image you want predictions for")
 is_image_path, image_path = get_command('-data', default='/home/olav/Pictures/Mass_roads/test/data/10378780_15.tiff')
 
-store_data_image, = get_command('-storeimage')
+store_data_image, temp = get_command('-storeimage')
 
 store_gui, job_id = get_command('-store', default="None")
 
 is_tradeoff, bto = get_command('-tradeoff', default="0.5")
+bto = float(bto)
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
 

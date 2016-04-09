@@ -4,13 +4,13 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 100
-dataset_path =  '/media/olav/Data storage/dataset/Mass_roads_curriculum100-test2'
-pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
+number_of_epochs = 120
+dataset_path =  '/media/olav/Data storage/dataset/Norwegian_roads_curriculum-100-retry'
+pr_path =       '/home/olav/Pictures/Norwegian_roads_dataset_vbase'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
-        "curriculum_teacher"    : "./results/curriculum.pkl",
+        "curriculum_teacher"    : "./results/5707c56c9d2760770f4937d9/curriculum.pkl",
         "curriculum_location"   : "/media/olav/Data storage/dataset/Mass_roads_anticurriculum_100-baseline"
 
     })
@@ -47,12 +47,13 @@ optimization_params = Params({
 dataset_params = Params({
     "loader"                : "AerialCurriculumDataset",
     "samples_per_image"     : 100,
-    "dataset_std"           : 0.18893923860059578,
+    "dataset_std"           : 0.18945282966287444, #Norwegian dataset
+    #"dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751, #Not used
     "test_std"              : 0.18411163301559019, #Not used
     "reduce_training"       : 1.0,
-    "reduce_testing"        : 2.0,
-    "reduce_validation"     : 4.0,
+    "reduce_testing"        : 1.0,
+    "reduce_validation"     : 2.0,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "input_dim"             : 64,
@@ -62,7 +63,7 @@ dataset_params = Params({
     "use_label_noise"       : False,
     "label_noise"           : 0.0,
 
-    "only_mixed_labels"     : False,
+    "only_mixed_labels"     : True,
     "mix_ratio"             : 0.5
 })
 

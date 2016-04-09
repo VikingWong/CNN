@@ -14,11 +14,14 @@ Need to do this before running cnn because it's expensive to go through all the 
 def get_image_estimate(image):
     image_arr = np.asarray(image)
     image_arr = image_arr.reshape(image_arr.shape[0]*image_arr.shape[1], image_arr.shape[2])
-
+    channels = image_arr.shape[1]
     #Only valid pixels that are not transparent is used to calculate STD
-    temp = image_arr[:,3] > 0
-    new_arr = image_arr[temp]
-    new_arr = new_arr[:, 0:3]
+    if channels == 4:
+        temp = image_arr[:,3] > 0
+        new_arr = image_arr[temp]
+        new_arr = new_arr[:, 0:3]
+    else:
+        new_arr = image_arr
 
     new_arr = new_arr/255.0
     arr = new_arr.reshape(new_arr.shape[0] * new_arr.shape[1])
@@ -62,7 +65,7 @@ def calculate_std_from_dataset(path, dataset):
     dataset_std = np.sqrt(np.sum(variance) / len(variance))
 
     return dataset_std
-path = '/home/olav/Pictures/Mass_roads_alpha'
+path = '/home/olav/Pictures/Norwegian_roads_dataset'
 dataset = "train"
 if not path or len(path) < 1:
     path = ""

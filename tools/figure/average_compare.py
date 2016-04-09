@@ -5,8 +5,8 @@ sys.path.append(os.path.abspath("./"))
 import util
 
 sub_folder = ''
-path = '/home/olav/Documents/Results/anticurr100'
-folders = ['baseline','curriculum','anti-curriculum' ]
+path = '/home/olav/Documents/Results/E1-norway_curr_100'
+folders = ['baseline','curriculum 0.15', 'curriculum 0.25', 'curriculum 0.35']
 pr_key_x = 'threshold'
 pr_key_y = 'valid_curve'
 lc_key_x = 'epoch'
@@ -14,13 +14,16 @@ lc_key_y = 'validation_loss'
 
 
 print("Creating comparison figures")
-baseline_paths = os.listdir(os.path.join(path, folders[0], sub_folder))
-test_paths = os.listdir(os.path.join(path, folders[1], sub_folder))
-curriculum_paths = os.listdir(os.path.join(path, folders[2], sub_folder))
-all_tests = [baseline_paths, test_paths, curriculum_paths]
+all_tests = []
+data = {}
+nr_tests = 0
+for folder in folders:
+    paths = os.listdir(os.path.join(path, folder, sub_folder))
+    nr_tests += len(paths)
+    print("Folder", folder, "length", len(paths))
+    all_tests.append(paths)
+    data[folder] = []
 
-data = {folders[0]: [], folders[1]: [], folders[2]: []}
-print("length", len(all_tests[0]), len(all_tests[1]), len(all_tests[2]) )
 for t in range(len(all_tests)):
     for data_path in all_tests[t]:
         json_data = util.open_json_result(os.path.join(path, folders[t], sub_folder, data_path))

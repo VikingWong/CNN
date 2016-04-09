@@ -72,6 +72,26 @@ class OutputLayer(BaseLayer):
         )
         return T.mean(cross)
 
+    def loss_confident_bootstrapping(self, y, factor=1):
+        #Customized categorical cross entropy.
+        #Based on the multibox impl. More tuned to paper. More strict
+        p = self.output
+        #Only confident predictions are included. Everything between 0.2 and 0.8 is disregarded. 60% of the range.
+        hardUpper = T.gt(p, 0.8)
+        hardLower = T.le(p, 0.2)
+        loss = (
+            - T.sum( ((factor * y) + ((1.0- factor) * hardUpper)) * T.log(p) ) -
+            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * (hardLower))) * T.log(1.0 - p) )
+        )
+        return loss/self.size
+
+    def loss_stochastic_union_bootstrapping(self, y, factor=1):
+        #TODO: test
+        #Stochastic union bootstrapping. If factor over threshold, the union of confident prediction and label is returned
+        random_nr = self.srng.uniform((1,))
+        ny = T.switch(T.gt(random_nr, factor), T.or_(T.gt(self.output, 0.8), y), y)
+        return T.mean(T.nnet.binary_crossentropy(self.output, ny))
+
     def errors(self, y):
         #Returns the mean squared error.
         # Prediction - label squared, for all cells in all batches and pixels.

@@ -44,7 +44,7 @@ class PrecisionRecallCurve(object):
         preprocessing = self.dataset_config.use_preprocessing
         print("---- Using preprossing: {}".format(preprocessing))
         std = self.dataset_config.dataset_std
-        samples_per_image = 400
+        samples_per_image = 200
         creator = Creator(path, dim=dim, preproccessing=preprocessing, std=std)
         creator.load_dataset()
         #Creating a shared variable of sampled test data

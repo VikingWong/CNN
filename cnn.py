@@ -17,6 +17,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
         os.makedirs(filename_params.results)
 
     is_config, config_values = interface.command.get_command("-config")
+    is_curriculum, curriculum_set = interface.command.get_command("-curriculum")
     is_batch_run, batch_index = interface.command.get_command("-batch", default="0")
     is_init_params, param_path = interface.command.get_command("-params")
 
@@ -31,6 +32,9 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
             batch_index = loss_function + "-" + str(label_noise) + "-" + batch_index
             print(batch_index)
 
+    if is_curriculum:
+        dataset_path = curriculum_set
+
     weights = None
     if is_init_params:
         store = ParamStorage()
@@ -42,7 +46,8 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     dataset = DataLoader.create()
     dataset.load(dataset_path, dataset_params, optimization_params.batch_size) #Input stage
     model = ConvModel(model_params, verbose=True) #Create network stage
-    evaluator = Evaluator(model, dataset, optimization_params)
+    #TODO: FIX: Correct datasetpath not saved propertly
+    evaluator = Evaluator(model, dataset, optimization_params, dataset_path)
     evaluator.run(epochs=epochs,  verbose=verbose, init=weights)
     report = evaluator.get_result()
 

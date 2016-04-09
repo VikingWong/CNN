@@ -86,10 +86,12 @@ for i in range(nr_of_examples):
         if not has_road:
             pred_diff.append(diff)
 
-    if has_road :
+    if has_road:
         nr_with_road +=1
         road_diff.append(diff)
     else:
+        #print(diff)
+        #print(np.max(output[0]))
         non_road_diff.append(diff)
     all_diff.append(diff)
 

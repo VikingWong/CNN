@@ -56,7 +56,7 @@ class Visualizer(object):
         pred = np.array(prediction_image)
         label = np.array(label_image)
         pixdata = input_image.load()
-
+        print(pixdata)
         print("---- Creating hit/miss image")
         for y in xrange(input_image.size[1]):
             for x in xrange(input_image.size[0]):

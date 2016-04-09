@@ -58,7 +58,9 @@ def append_job_update( epoch, training_loss, validation_loss, test_loss, trainin
     thread = unirest.post(url, headers=default_headers, callback=callback, params=data)
 
 
-def start_new_job():
+def start_new_job(path=None):
+    if path:
+        dataset_path = path
 
     url = base_url + "job/start/"
     data = {

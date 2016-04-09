@@ -15,7 +15,7 @@ from storage import ParamStorage
 class Evaluator(object):
 
 
-    def __init__(self, model, dataset, params):
+    def __init__(self, model, dataset, params, path):
         self.data = dataset
         self.model = model
         self.params = params
@@ -23,7 +23,7 @@ class Evaluator(object):
         self.events = []
 
         if(visual_params.gui_enabled):
-            interface.server.start_new_job()
+            interface.server.start_new_job(path=path)
 
 
     def run(self, epochs=10, verbose=False, init=None):

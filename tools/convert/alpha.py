@@ -50,9 +50,10 @@ def create_dataset_structure(dest, subsets):
         os.makedirs(sub_dir + "/data")
 
 
-dataset_base = "/home/olav/Pictures/Mass_roads"
-dataset_dest = "/home/olav/Pictures/Mass_roads_alpha"
+dataset_base = "/home/olav/Pictures/Norwegian_roads_dataset"
+dataset_dest = "/home/olav/Pictures/Norwegian_roads_dataset_alpha"
 datasets = loader.get_dataset(dataset_base)
+color_to_alpha = False
 content = ["data"]
 
 create_dataset_structure(dataset_dest, datasets)
@@ -69,14 +70,15 @@ for set in datasets:
 
             src_im = Image.open(src_path)
             im = src_im.convert('RGBA')
-            pixel_data = im.load()
+            if color_to_alpha:
+                pixel_data = im.load()
 
-            height = im.size[1]
-            width = im.size[0]
-            for y in xrange(height): # For each row ...
-                for x in xrange(width): # Iterate through each column ...
+                height = im.size[1]
+                width = im.size[0]
+                for y in xrange(height): # For each row ...
+                    for x in xrange(width): # Iterate through each column ...
 
-                  if check_neighborhood(pixel_data, x, y, width, height):
-                    pixel_data[x, y] = (255, 255, 255, 0)
+                      if check_neighborhood(pixel_data, x, y, width, height):
+                        pixel_data[x, y] = (255, 255, 255, 0)
 
             im.save(dest_path)

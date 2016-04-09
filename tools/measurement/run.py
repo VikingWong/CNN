@@ -16,23 +16,9 @@ print("-data: path to dataset | -store: job id to store curve in GUI")
 
 is_dataset_path, dataset_path = get_command('-data', default='/home/olav/Pictures/Mass_roads_alpha')
 
-store_gui,
-store_gui = False
-job_id = "-1"
-if '-store_gui' in sys.argv:
-    idx = sys.argv.index('-store_gui')
+store_gui, job_id = get_command('-store_gui', default='-1')
 
-    if len(sys.argv) > idx+1:
-        store_gui = True
-        job_id = sys.argv[idx+1]
-        print_action("Storing precision recall curve in database for job {}".format(job_id))
-
-store_path = "./pr_data.json"
-if '-store_path' in sys.argv:
-    idx = sys.argv.index('-store_path')
-    if len(sys.argv) > idx+1:
-        store_path = sys.argv[idx+1]
-        print_action("Storing precision recall curve as file")
+is_store_path, store_path = get_command('-store_path', default='./pr_data.json')
 
 store = ParamStorage()
 data = store.load_params(path="./results/params.pkl")
