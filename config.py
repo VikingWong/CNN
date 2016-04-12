@@ -4,9 +4,9 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 120
-dataset_path =  '/media/olav/Data storage/dataset/Norwegian_roads_curriculum-100-retry'
-pr_path =       '/home/olav/Pictures/Norwegian_roads_dataset_vbase'
+number_of_epochs = 100
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
@@ -29,23 +29,23 @@ optimization_params = Params({
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
 
-        "learning_rate"                     : 0.0014,
-        "learning_adjustment"               : 50,
+        "learning_rate"                     : 0.0011,
+        "learning_adjustment"               : 40,
         "learning_decrease"                 : 0.9,
 
         "factor_rate"                       : 1.0,
-        "factor_adjustment"                 : 200,
-        "factor_decrease"                   : 0.998,
+        "factor_adjustment"                 : 60,
+        "factor_decrease"                   : 0.90,
         "factor_minimum"                    : 0.9,
 
-        "curriculum_enable"                 : True,
+        "curriculum_enable"                 : False,
         "curriculum_start"                  : 50,
         "curriculum_adjustment"             : 10
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "loader"                : "AerialCurriculumDataset",
+    "loader"                : "AerialDataset",
     "samples_per_image"     : 100,
     "dataset_std"           : 0.18945282966287444, #Norwegian dataset
     #"dataset_std"           : 0.18893923860059578,
@@ -60,7 +60,7 @@ dataset_params = Params({
     "output_dim"            : 16,
     "chunk_size"            : 2048,
 
-    "use_label_noise"       : False,
+    "use_label_noise"       : True,
     "label_noise"           : 0.0,
 
     "only_mixed_labels"     : True,

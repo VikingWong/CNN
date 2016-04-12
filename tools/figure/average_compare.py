@@ -4,13 +4,13 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-sub_folder = ''
-path = '/home/olav/Documents/Results/E1-norway_curr_100'
-folders = ['baseline','curriculum 0.15', 'curriculum 0.25', 'curriculum 0.35']
+sub_folder = '4'
+path = '/home/olav/Documents/Results/E3-mass-boot-100'
+folders = ['baseline','bootstrapping']
 pr_key_x = 'threshold'
-pr_key_y = 'valid_curve'
+pr_key_y = 'curve'
 lc_key_x = 'epoch'
-lc_key_y = 'validation_loss'
+lc_key_y = 'test_loss'
 
 
 print("Creating comparison figures")
