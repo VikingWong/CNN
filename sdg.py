@@ -63,6 +63,7 @@ class rmsprop(object):
 class sgd_nesterov(object):
     """
     Nesterov stochastic backpropagation
+    Checked against pylearn's Nesterov implementation. Implementation is correct.
     """
     def __init__(self, params):
         self.memory_ = [theano.shared(np.zeros_like(p.get_value()))

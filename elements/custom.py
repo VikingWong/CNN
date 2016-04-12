@@ -17,6 +17,12 @@ class OutputLayer(BaseLayer):
         elif loss == 'bootstrapping_soft':
             print('bootstrapping_soft')
             self.negative_log_likelihood = self.loss_bootstrapping_soft
+        elif loss == 'bootstrapping_confident':
+            print('bootstrapping_confident')
+            self.negative_log_likelihood = self.loss_confident_bootstrapping
+        elif loss == 'bootstrapping_union':
+            print('bootstrapping_union')
+            self.negative_log_likelihood = self.loss_stochastic_union_bootstrapping
         else:
             print('crossentropy')
             self.negative_log_likelihood = self.loss_crossentropy
@@ -89,7 +95,7 @@ class OutputLayer(BaseLayer):
         #TODO: test
         #Stochastic union bootstrapping. If factor over threshold, the union of confident prediction and label is returned
         random_nr = self.srng.uniform((1,))
-        ny = T.switch(T.gt(random_nr, factor), T.or_(T.gt(self.output, 0.8), y), y)
+        ny = T.switch(T.gt(random_nr[0], factor), T.or_(T.gt(self.output, 0.8), y), y)
         return T.mean(T.nnet.binary_crossentropy(self.output, ny))
 
     def errors(self, y):

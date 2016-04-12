@@ -4,8 +4,8 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-path = '/home/olav/Documents/Results/anticurr50/'
-folder = 'test'
+path = '/home/olav/Documents/Results/E1-norway_curr_100'
+folder = 'curriculum 0.35'
 lc_key_x = 'epoch'
 
 print("Creating averaged loss figures")

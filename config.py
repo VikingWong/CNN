@@ -4,9 +4,9 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 100
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
-pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
+number_of_epochs = 140
+dataset_path =  '/home/olav/Pictures/Norwegian_roads_dataset_N50_ValidTest_vbase'
+pr_path =       '/home/olav/Pictures/Norwegian_roads_dataset_N50_ValidTest_vbase'
 filename_params = Params({
         "results"               : "./results",
         "network_save_name"     : "./results/params.pkl",
@@ -30,13 +30,13 @@ optimization_params = Params({
         "improvement_threshold"             : 0.997,
 
         "learning_rate"                     : 0.0011,
-        "learning_adjustment"               : 40,
+        "learning_adjustment"               : 80,
         "learning_decrease"                 : 0.9,
 
         "factor_rate"                       : 1.0,
-        "factor_adjustment"                 : 60,
+        "factor_adjustment"                 : 90,
         "factor_decrease"                   : 0.90,
-        "factor_minimum"                    : 0.9,
+        "factor_minimum"                    : 0.8,
 
         "curriculum_enable"                 : False,
         "curriculum_start"                  : 50,
@@ -46,21 +46,21 @@ optimization_params = Params({
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
     "loader"                : "AerialDataset",
-    "samples_per_image"     : 100,
+    "samples_per_image"     : 150,
     "dataset_std"           : 0.18945282966287444, #Norwegian dataset
     #"dataset_std"           : 0.18893923860059578,
     "valid_std"             : 0.19088566314428751, #Not used
     "test_std"              : 0.18411163301559019, #Not used
     "reduce_training"       : 1.0,
-    "reduce_testing"        : 1.0,
-    "reduce_validation"     : 2.0,
+    "reduce_testing"        : 0.8,
+    "reduce_validation"     : 1.6,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048,
 
-    "use_label_noise"       : True,
+    "use_label_noise"       : False,
     "label_noise"           : 0.0,
 
     "only_mixed_labels"     : True,
@@ -68,7 +68,7 @@ dataset_params = Params({
 })
 
 model_params = Params({
-    "loss"              : "crossentropy",
+    "loss"              : "cross_entropy",
     "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),
