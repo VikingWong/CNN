@@ -205,21 +205,31 @@ class AerialCurriculumDataset(AbstractDataset):
         labels = np.load(os.path.join(self.stage_path, current_stage, "labels", "examples.npy"))
         data = np.load(os.path.join(self.stage_path, current_stage, "data", "examples.npy"))
         print("---- Mixing in {} with {} examples".format(current_stage, data.shape[0]))
-        elements = data.shape[0]
-        shuffle_counter = 0
-        shuffled_index = range(elements)
-        random.shuffle(shuffled_index)
 
-        for c in range(len(self.all_training)):
-            nr_chunk_examples =  self.all_training[c][0].shape[0]
-            for x in range(nr_chunk_examples    ):
-                if shuffle_counter < elements:
-                    i = shuffled_index.pop()
-                    self.all_training[c][0][x] = data[i]
-                    self.all_training[c][1][x] = labels[i]
-                else:
-                    break
-                shuffle_counter += 1
+
+        if not dataset_params.with_replacement:
+            elements = data.shape[0]
+            shuffle_counter = 0
+            shuffled_index = range(elements)
+            random.shuffle(shuffled_index)
+            for c in range(len(self.all_training)):
+                nr_chunk_examples =  self.all_training[c][0].shape[0]
+                for x in range(nr_chunk_examples    ):
+                    if shuffle_counter < elements:
+                        i = shuffled_index.pop()
+                        self.all_training[c][0][x] = data[i]
+                        self.all_training[c][1][x] = labels[i]
+                    else:
+                        break
+                    shuffle_counter += 1
+        else:
+            nr_chunks = len(self.all_training)
+            for i in range(data.shape[0]):
+                c = random.randint(0,nr_chunks-1)
+                nr_chunk_examples =  self.all_training[c][0].shape[0]
+                x = random.randint(0, nr_chunk_examples-1)
+                self.all_training[c][0][x] = data[i]
+                self.all_training[c][1][x] = labels[i]
 
 
 

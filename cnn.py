@@ -50,12 +50,11 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     evaluator = Evaluator(model, dataset, optimization_params, dataset_path)
     evaluator.run(epochs=epochs,  verbose=verbose, init=weights)
     report = evaluator.get_result()
-
     network_store_path = filename_params.network_save_name
     result_path = filename_params.results + "/results.json"
     if is_batch_run:
-        network_store_path = filename_params.results + "/batch" + batch_index +  ".pkl"
-        result_path =filename_params.results + "/batch" + batch_index +  ".json"
+        network_store_path = filename_params.results + "/batch" + batch_index +  "-2.pkl"
+        result_path =filename_params.results + "/batch" + batch_index +  "-2.json"
 
     storage = ParamStorage(path=network_store_path)
     storage.store_params(model.params)

@@ -87,7 +87,7 @@ class OutputLayer(BaseLayer):
         hardLower = T.le(p, 0.2)
         loss = (
             - T.sum( ((factor * y) + ((1.0- factor) * hardUpper)) * T.log(p) ) -
-            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * (hardLower))) * T.log(1.0 - p) )
+            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * hardLower)) * T.log(1.0 - p) )
         )
         return loss/self.size
 

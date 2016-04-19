@@ -82,8 +82,9 @@ def add_artificial_road_noise(image, threshold):
     label = image.copy()
     nr_road = get_sum_road(label)
     #If there are no road class there is no use in removing some.
+
     if nr_road == 0:
-        return label
+        return label, 0
 
     dr = ImageDraw.Draw(label)
     shape_max = int(image.size[0] / 10)

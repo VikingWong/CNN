@@ -1,10 +1,10 @@
 #!/bin/sh
 
 repeats=9
-#tests=( "bootstrapping" "crossentropy" )
-tests=( "bootstrapping_union" "bootstrapping_confident" "crossentropy" "bootstrapping")
+tests=( "bootstrapping" "crossentropy" "bootstrapping_confident")
+#tests=( "bootstrapping" "crossentropy" "bootstrapping_confident")
 #noises=( 0.0 0.1 0.2 0.3 0.4 )
-noises=( 0.0)
+noises=( 0.0 0.3 )
 nrTests=${#tests[@]}
 nrNoises=${#noises[@]}
 

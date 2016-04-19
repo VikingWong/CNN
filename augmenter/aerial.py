@@ -85,7 +85,9 @@ class Creator(object):
 
         print('')
         if label_noise_enable:
+            print('==============================================')
             print('Noise added to labels: {}'.format(label_noise))
+            print('==============================================')
         print('Sampling examples for {}'.format(dataset.base))
 
         #If mixed labels , there will be a lot of trial and

@@ -40,7 +40,7 @@ class ConvPoolLayer(BaseLayer):
 
         if strides[0] == 1 and strides[1] == 1:
             #Strides make the system run impossibly slow because of legacy OP.
-
+            print("No stride, use default conv2d")
             conv_out = conv.conv2d(
             input=input,
             filters=self.W,
@@ -50,6 +50,7 @@ class ConvPoolLayer(BaseLayer):
         else:
             #When using stride/subsample the system require a GPU and CUDA. Using GPU OP directly.
             #he memory layout to use is bc01, that is batch, channel, first dim, second dim in that order.
+            print("Special convolution, stride support")
             conv_out = dnn.dnn_conv(input, self.W, subsample=strides)
 
         pooled_out = downsample.max_pool_2d(

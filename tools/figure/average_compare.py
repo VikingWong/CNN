@@ -4,9 +4,9 @@ sys.path.append(os.path.abspath("./"))
 
 import util
 
-sub_folder = '4'
-path = '/home/olav/Documents/Results/E3-mass-boot-100'
-folders = ['baseline','bootstrapping']
+sub_folder = '1'
+path = '/home/olav/Documents/Results/E5'
+folders = [ 'baseline','bootstrapping', 'confident bootstrapping']
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
