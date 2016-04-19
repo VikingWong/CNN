@@ -77,6 +77,7 @@ class PrecisionRecallCurve(object):
 
         #Results in a slack of 3 pixels.
         labels_with_slack = self._apply_buffer(labels, 3)
+        pred_with_slack = self._apply_buffer(labels, 3)
 
         tests = np.arange(0.0001 , 0.995, 0.01)
         datapoints = []
@@ -97,7 +98,7 @@ class PrecisionRecallCurve(object):
 
 
             precision = self._get_precision(labels_with_slack, binary_arr)
-            recall = self._get_recall(labels, binary_arr, labels_with_slack)
+            recall = self._get_recall(labels, binary_arr, pred_with_slack)
             datapoints.append({"precision": precision, "recall": recall, "threshold": threshold})
         return datapoints
 
@@ -138,7 +139,8 @@ class PrecisionRecallCurve(object):
         return true_positive / float(all_pred_positive)
 
 
-    def _get_recall(self, labels, thresholded_output, labels_with_slack):
+    def _get_recall(self, labels, thresholded_output, pred_with_slack):
+        #TODO: Fix text here.
         '''
         Recall between label and output at threshold t.
         See the degree of which the prediction include all positive examples in label.
@@ -152,7 +154,7 @@ class PrecisionRecallCurve(object):
         # - There is more pixels the prediction must cover. This is wrong
         # - Using slack only in true_positive, gives no lower precision than 0.7, which seems weird.
         # - TODO: why cant slack be used only for true_positive?
-        true_positive = np.count_nonzero(np.array(np.logical_and(labels,  thresholded_output), dtype=np.uint8))
+        true_positive = np.count_nonzero(np.array(np.logical_and(labels,  pred_with_slack), dtype=np.uint8))
         total_relevant_positive = np.count_nonzero(labels)
 
         if total_relevant_positive == 0:

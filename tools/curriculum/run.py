@@ -29,6 +29,14 @@ is_alt_dataset, alt_dataset = get_command('-dataset')
 if is_alt_dataset:
     dataset_path = alt_dataset
 
+#Initial stage sample size
+is_init_size, init_stage_sample = get_command('-initsamples', default=dataset_params.samples_per_image)
+init_stage_sample = int(init_stage_sample)
+
+# Stage 1 - N sample size
+is_curr_size, curr_stage_sample = get_command('-currsamples', default=dataset_params.samples_per_image)
+curr_stage_sample = int(curr_stage_sample)
+
 #Teacher params location. Config used if not supplied
 is_teacher_location, teacher_location = get_command('-teacher')
 if not is_teacher_location:
@@ -44,4 +52,5 @@ store = ParamStorage()
 teacher = store.load_params(path=teacher_location)
 
 generator = CurriculumDataset(teacher, dataset_path, save_path, dataset_params, tradeoff)
-generator.create_dataset(is_baseline, thresholds=stages)
+generator.create_dataset(is_baseline, thresholds=stages, base_sample=init_stage_sample,
+                         secondary_sample=curr_stage_sample)

@@ -42,11 +42,8 @@ class CurriculumDataset(object):
         self.creator.load_dataset()
 
 
-    def create_dataset(self, is_baseline, thresholds=None):
+    def create_dataset(self, is_baseline, thresholds=None, base_sample=100, secondary_sample=100):
         print("---- Starting sampling. WARNING: this might take a while.")
-        base_sampling = self.dataset_config.samples_per_image
-        #curriculum_sampling = np.ceil(base_sampling/10)
-        curriculum_sampling = base_sampling
 
         #Sampling at different thresholds.
         if thresholds == None:
@@ -55,13 +52,13 @@ class CurriculumDataset(object):
             thresholds = np.ones(thresholds.shape)
 
         print("---- Main dataset")
-        self._generate_stage("stage0", thresholds[0], base_sampling)
+        self._generate_stage("stage0", thresholds[0], base_sample)
         for i in range(1, thresholds.shape[0]):
             print("---- Stage{} dataset".format(i))
-            self._generate_stage("stage{}".format(i), thresholds[i], curriculum_sampling)
+            self._generate_stage("stage{}".format(i), thresholds[i], secondary_sample)
 
-        self._generate_set("test", self.creator.test, base_sampling)
-        self._generate_set("valid", self.creator.valid, base_sampling)
+        self._generate_set("test", self.creator.test, base_sample)
+        self._generate_set("valid", self.creator.valid, base_sample)
 
 
     def _generate_set(self, set_name, dataset, samples):

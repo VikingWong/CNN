@@ -38,9 +38,9 @@ optimization_params = Params({
         "factor_decrease"                   : 0.90,
         "factor_minimum"                    : 0.80,
 
-        "curriculum_enable"                 : False,
-        "curriculum_start"                  : 50,
-        "curriculum_adjustment"             : 10
+        "curriculum_enable"                 : True,
+        "curriculum_start"                  : 40,
+        "curriculum_adjustment"             : 20
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
@@ -54,14 +54,14 @@ dataset_params = Params({
     "test_std"              : 0.18411163301559019, #Not used
     "reduce_training"       : 1.0,
     "reduce_testing"        : 0.2,
-    "reduce_validation"     : 1.4,
+    "reduce_validation"     : 0.4,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 2048,
 
-    "use_label_noise"       : True,
+    "use_label_noise"       : False,
     "label_noise"           : 0.0,
 
     "only_mixed_labels"     : True,
