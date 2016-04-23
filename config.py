@@ -5,7 +5,7 @@ import secret
 token = secret.token
 verbose = True
 number_of_epochs = 300
-dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
+dataset_path =  '/media/olav/Data storage/dataset/E6-Mass_3600_performance-baseline'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -24,23 +24,23 @@ optimization_params = Params({
         "backpropagation"                   : "sgd_nesterov",
         "batch_size"                        : 128,
         "l2_reg"                            : 0.0001,
-        "momentum"                          : 0.92,
+        "momentum"                          : 0.91,
         "initial_patience"                  : 400000,
         "patience_increase"                 : 2,
         "improvement_threshold"             : 0.997,
 
-        "learning_rate"                     : 0.15,
-        "learning_adjustment"               : 10,
+        "learning_rate"                     : 0.0018,
+        "learning_adjustment"               : 50,
         "learning_decrease"                 : 0.9,
 
         "factor_rate"                       : 1.0,
-        "factor_adjustment"                 : 60,
+        "factor_adjustment"                 : 100,
         "factor_decrease"                   : 0.90,
-        "factor_minimum"                    : 0.80,
+        "factor_minimum"                    : 0.70,
 
         "curriculum_enable"                 : True,
-        "curriculum_start"                  : 40,
-        "curriculum_adjustment"             : 20
+        "curriculum_start"                  : 60,
+        "curriculum_adjustment"             : 30
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
@@ -59,7 +59,7 @@ dataset_params = Params({
     "use_preprocessing"     : True,
     "input_dim"             : 64,
     "output_dim"            : 16,
-    "chunk_size"            : 2048,
+    "chunk_size"            : 1024,
 
     "use_label_noise"       : False,
     "label_noise"           : 0.0,

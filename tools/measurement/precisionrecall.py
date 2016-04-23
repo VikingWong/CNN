@@ -77,7 +77,7 @@ class PrecisionRecallCurve(object):
 
         #Results in a slack of 3 pixels.
         labels_with_slack = self._apply_buffer(labels, 3)
-        pred_with_slack = self._apply_buffer(labels, 3)
+
 
         tests = np.arange(0.0001 , 0.995, 0.01)
         datapoints = []
@@ -98,6 +98,7 @@ class PrecisionRecallCurve(object):
 
 
             precision = self._get_precision(labels_with_slack, binary_arr)
+            pred_with_slack = self._apply_buffer(binary_arr, 3)
             recall = self._get_recall(labels, binary_arr, pred_with_slack)
             datapoints.append({"precision": precision, "recall": recall, "threshold": threshold})
         return datapoints
