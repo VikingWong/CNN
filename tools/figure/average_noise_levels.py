@@ -7,48 +7,65 @@ import util
 '''
 This tool creates a figure showing, breakeven and final loss over several levels of noise.
 Compact representation of experiments conducted for several levels of noise.
+Assume folders, contains sub-folders, with experimental results. Enter mapping between subfolder and noise percentage
+in sub_folders variable.
 '''
 
-#TODO: Find breakeven in precision and recall.
 #TODO: Read and average all folders, and map to percentage
-sub_folder = ''
-path = '/home/olav/Documents/Results/E6'
-folders = [ 'baseline', 'confident bootstrapping']
+
+path = '/home/olav/Documents/Results/E5-norway_boot_100'
+folders = [ 'baseline', 'bootstrapping', 'confident bootstrapping']
+sub_folders = [{'name': '0', 'value': 0.0}, {'name': '1', 'value': 0.1},{'name': '2', 'value': 0.2},
+               {'name': '3', 'value': 0.3}, {'name': '4', 'value': 0.4}]
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
 lc_key_y = 'test_loss'
 
 
-print("Creating comparison figures")
-all_tests = []
+
 data = {}
 nr_tests = 0
 for folder in folders:
-    paths = os.listdir(os.path.join(path, folder, sub_folder))
-    nr_tests += len(paths)
-    print("Folder", folder, "length", len(paths))
-    all_tests.append(paths)
-    data[folder] = []
+    data[folder] = {}
+    for sub in sub_folders:
+        paths = os.listdir(os.path.join(path, folder, sub['name']))
+        nr_tests += len(paths)
+        print("Folder", folder, "Sub-folder", sub['name'], "length", len(paths))
+        data[folder][sub['name']] = []
+        for data_path in paths:
+            json_data = util.open_json_result(os.path.join(path, folder, sub['name'], data_path))
+            if type(json_data) is list:
+                d = json_data[0]
+            else:
+                d = json_data
+            data[folder][sub['name']].append(d)
 
-for t in range(len(all_tests)):
-    for data_path in all_tests[t]:
-        json_data = util.open_json_result(os.path.join(path, folders[t], sub_folder, data_path))
 
-        if type(json_data) is list:
-            d = json_data[0]
-        else:
-            d = json_data
-        data[folders[t]].append(d)
-
-series = []
+#Average and find breakeven points, for final series.
+breakeven_points = {}
 for folder in folders:
-    pr_avg = util.average(data[folder], pr_key_y, pr_key_x)
-    series.append({"name": folder, "data": pr_avg})
-util.display_precision_recall_plot(series)
+    breakeven_points[folder] = []
+    for sub in sub_folders:
+        pr_avg = util.average(data[folder][sub['name']], pr_key_y, pr_key_x)
+        breakeven = util.find_breakeven(pr_avg)
+        breakeven_points[folder].append({"x": sub['value'], "y": breakeven[1]})
+print breakeven_points
+#series.append({"name": folder, "data": pr_avg})
+#
 
-series = []
+#Summary figure for MSE loss
+loss_points = {}
 for folder in folders:
-    loss_avg = util.average(data[folder], 'events', lc_key_x)
-    series.append({"name": folder, "data": loss_avg, "y_key": lc_key_y})
-util.display_loss_curve_plot(series)
+    loss_points[folder] = []
+    for sub in sub_folders:
+        loss_avg = util.average(data[folder][sub['name']], 'events', lc_key_x)
+        last_loss = loss_avg[-1][lc_key_y]
+        loss_points[folder].append({"x": sub['value'], "y": last_loss})
+
+
+pr_series = [{"name": folder, "data": breakeven_points[folder]} for i, folder in enumerate(folders)]
+lc_series = [{"name": folder, "data": loss_points[folder]} for folder in folders]
+#series.append({"name": folder, "data": loss_avg, "y_key": lc_key_y})
+util.display_noise_summary(pr_series, x_label="Label noise %", y_label="precision recall breakeven")
+util.display_noise_summary(lc_series, x_label="Label noise %", y_label="MSE loss")

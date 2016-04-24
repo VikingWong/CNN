@@ -42,7 +42,8 @@ for t in range(len(all_tests)):
 series = []
 for folder in folders:
     pr_avg = util.average(data[folder], pr_key_y, pr_key_x)
-    series.append({"name": folder, "data": pr_avg})
+    breakeven_points = util.find_breakeven(pr_avg)
+    series.append({"name": folder, "data": pr_avg, "breakeven": breakeven_points})
 util.display_precision_recall_plot(series)
 
 series = []
