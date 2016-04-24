@@ -5,10 +5,12 @@ sys.path.append(os.path.abspath("./"))
 import util
 
 '''
-This tool creates a two figures. The first figure plots the precision and recall data. THe other plots the MSE loss.
-These plots show comparisons between different folders of results. IE, baseline and test results.
+This tool creates a figure showing, breakeven and final loss over several levels of noise.
+Compact representation of experiments conducted for several levels of noise.
 '''
 
+#TODO: Find breakeven in precision and recall.
+#TODO: Read and average all folders, and map to percentage
 sub_folder = ''
 path = '/home/olav/Documents/Results/E6'
 folders = [ 'baseline', 'confident bootstrapping']

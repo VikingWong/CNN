@@ -13,6 +13,15 @@ import tools.util as Image
 from interface.server import send_result_image
 from interface.command import get_command
 
+'''
+This tool creates a model from saved params, and stitch together predictions, to qualitatively show performance of model.
+There are also options to upload image to GUI. The best tradeoff between precision and recall should be specified as
+a parameter and the actual aerial image is set by supplying the path in console by the -data property.
+
+The tool creates, and saves the prediction stitch image, as well as a hit and miss image. This image show, where the
+prediction are correct (green), where they are missing (red) and where they should not be according to the label (blue).
+'''
+
 def store_image(image, job_id, store_gui, name="image"):
     out = Image.resize(image, 0.5)
 
@@ -27,6 +36,7 @@ def store_image(image, job_id, store_gui, name="image"):
 print_section('TOOLS: Visualize result from model')
 print("-data: Path to image in dataset you want visualization of | -store_gui: Upload images to exp with supplied id | \
       -tradeoff: Threshold value associated with precision recall breakeven |-storeimage: Include aerial image")
+
 is_image_path, image_path = get_command('-data', default='/home/olav/Pictures/Mass_roads/test/data/10378780_15.tiff')
 
 store_data_image, temp = get_command('-storeimage')

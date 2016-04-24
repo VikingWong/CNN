@@ -5,6 +5,12 @@ from PIL import Image, ImageFilter
 sys.path.append(os.path.abspath("./"))
 from storage import ParamStorage
 
+'''
+This tool loads the model weight configuration stored in ./results/params.pkl and visualize the weights in the first layer.
+The weight configuration of each kernel is converted to a RGB image. The tool assume there are only 64 kernels in the
+first layer.
+'''
+
 def make_visual(layer_weights):
     max_scale = layer_weights.max(axis=-1).max(axis=-1)[...,
                                                         np.newaxis, np.newaxis]
@@ -13,9 +19,6 @@ def make_visual(layer_weights):
     return (255 * (layer_weights - min_scale) /
             (max_scale - min_scale)).astype(np.uint8)
 
-#TODO: Visualize first layer. Read paper.
-#First undestanding. take snapshots of filters, average input of image to see what the neuron reponds to.
-#Second understanding. Take weights, and just visualize the filter.
 
 
 store = ParamStorage()

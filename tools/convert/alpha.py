@@ -5,6 +5,16 @@ sys.path.append(os.path.abspath("./"))
 
 import augmenter.util as loader
 
+'''
+This tool converts RGB dataset to RGBA dataset. Useful with a alpha channel for augmenter, because extracting patches
+should not include things outside border. IE, when rotating an aerial image, A good deal of the pixels at the edge
+is set to black if RGB. With RGBA aerial images, the same area is set as transparent by the alpha channel. PIL image
+module quirk essentially. The Massachusetts dataset also contains white regions in many of the aerial images. These
+pure white regions are detected and set as transparent in the alpha channel. The patch dataset creator can then
+inspect the alpha channel, and remove any patches with transparency (because of border, white region etc). Avoids a lot
+of patches not containing any useful information.
+'''
+
 #If areas of the dataset is contains artificial white areas. It is beneficial to convert them into RGBA.
 #When rotating and sampling , the sample can be checked for alpha values of 0. If one exists the image can be removed.
 #This effectively reduce the amount of eligble samples, but will help the model avoid learning useless things like,

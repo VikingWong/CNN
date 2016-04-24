@@ -9,7 +9,19 @@ from storage import ParamStorage
 from config import filename_params, dataset_params, dataset_path
 from dataset_create import CurriculumDataset
 
-
+'''
+This tool pre-generate a patch dataset. The tool is especially necessary for curriculum learning. The reason for not
+doing this every time the network is trained, is that a previously trained model needs to be loaded in order to do
+difficulty estimation. There are several properties that can be set, when using command line.
+-baseline: No difficulty estimation
+-stages: Array with floats, setting difficulty threshold per stage. Please refrain from using space inside array.
+-tradeoff: Previously trained curriculum teacher's best precision and recall tradeoff. (threshold value)
+-dataset: Path to dataset. IE
+-initsamples: Samples per image for first stage
+-currsamples: Samples per image for remaining stages
+-teacher: Curriculum teacher model
+-save: Path to where pre-generated patch dataset should be stored.
+'''
 print_section("TOOLS: Creating curriculum learning dataset")
 
 # Baseline will create a curriculum with no example ordering, but same amount of examples.
@@ -34,7 +46,7 @@ is_init_size, init_stage_sample = get_command('-initsamples', default=dataset_pa
 init_stage_sample = int(init_stage_sample)
 
 # Stage 1 - N sample size
-is_curr_size, curr_stage_sample = get_command('-currsamples', default=dataset_params.samples_per_image)
+is_curr_size, curr_stage_sample = get_command('-currsamples', default=str(init_stage_sample))
 curr_stage_sample = int(curr_stage_sample)
 
 #Teacher params location. Config used if not supplied
