@@ -13,7 +13,7 @@ import tools.util as Image
 from interface.server import send_result_image
 from interface.command import get_command
 
-def store_image(image, job_id, store_gui):
+def store_image(image, job_id, store_gui, name="image"):
     out = Image.resize(image, 0.5)
 
     if store_gui:
@@ -21,29 +21,32 @@ def store_image(image, job_id, store_gui):
         out.save(buf, format='JPEG')
         send_result_image(job_id, buf.getvalue())
 
-    out.save('./tools/visualize/pred.jpg')
-    out.show()
+    image.save('./tools/visualize/'+ name +'.jpg')
+    image.show()
 
 print_section('TOOLS: Visualize result from model')
-print("-data: Path to image you want predictions for")
+print("-data: Path to image in dataset you want visualization of | -store_gui: Upload images to exp with supplied id | \
+      -tradeoff: Threshold value associated with precision recall breakeven |-storeimage: Include aerial image")
 is_image_path, image_path = get_command('-data', default='/home/olav/Pictures/Mass_roads/test/data/10378780_15.tiff')
 
 store_data_image, temp = get_command('-storeimage')
 
-store_gui, job_id = get_command('-store', default="None")
+store_gui, job_id = get_command('-store_gui', default="None")
 
 is_tradeoff, bto = get_command('-tradeoff', default="0.5")
 bto = float(bto)
+
+is_model, model_path = get_command('-model', default="./results/params.pkl")
 store = ParamStorage()
-data = store.load_params(path="./results/params.pkl")
+data = store.load_params(path=model_path)
 
 batch_size = data['optimization'].batch_size
 
 v = Visualizer(data['model'], data['params'], data['dataset'])
 image_prediction, image_hit, image_data = v.visualize(image_path, batch_size, best_trade_off=bto)
 
-store_image(image_prediction, job_id, store_gui)
-store_image(image_hit, job_id, store_gui)
+store_image(image_prediction, job_id, store_gui, name="pred")
+store_image(image_hit, job_id, store_gui, name="hit")
 
 if store_data_image:
-    store_image(image_data, job_id, store_gui)
+    store_image(image_data, job_id, store_gui, name="image")

@@ -10,7 +10,7 @@ from config import filename_params, dataset_params, dataset_path
 from dataset_create import CurriculumDataset
 
 
-print_section("Creating curriculum learning dataset")
+print_section("TOOLS: Creating curriculum learning dataset")
 
 # Baseline will create a curriculum with no example ordering, but same amount of examples.
 # Avoids results from curriculum learning to be caused by the model just having seen more examples.

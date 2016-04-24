@@ -12,7 +12,7 @@ from interface.server import send_precision_recall_data
 from interface.command import get_command
 
 print_section("TOOLS: Measure precision and recall of model")
-print("-data: path to dataset | -store: job id to store curve in GUI")
+print("-data: path to dataset | -store: job_gui id to store curve in GUI | -store_path: store results locally")
 
 is_dataset_path, dataset_path = get_command('-data', default='/home/olav/Pictures/Mass_roads_alpha')
 
