@@ -36,8 +36,8 @@ class CurriculumDataset(object):
             reduce_training=self.dataset_config.reduce_training,
             reduce_testing=self.dataset_config.reduce_testing,
             reduce_validation=self.dataset_config.reduce_validation,
-            only_mixed=True,
-            mix_ratio=0.5
+            only_mixed=self.dataset_config.only_mixed_labels,
+            mix_ratio=self.dataset_config.mix_ratio
         )
         self.creator.load_dataset()
 
@@ -85,7 +85,7 @@ class CurriculumDataset(object):
         data, labels = self.creator.sample_data(
             self.creator.train,
             samples,
-            mixed_labels=True,
+            mixed_labels=self.dataset_config.only_mixed_labels,
             curriculum=self.evaluate,
             curriculum_threshold=threshold,
             rotation=self.rotate,

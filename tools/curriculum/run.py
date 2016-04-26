@@ -21,6 +21,8 @@ difficulty estimation. There are several properties that can be set, when using 
 -currsamples: Samples per image for remaining stages
 -teacher: Curriculum teacher model
 -save: Path to where pre-generated patch dataset should be stored.
+
+REMEMBER: The patch creator is initialized using the config.py file.
 '''
 print_section("TOOLS: Creating curriculum learning dataset")
 

@@ -11,7 +11,7 @@ def display_precision_recall_plot(series):
     plt.ylabel('Precision')
     plt.grid(True)
     for serie in series:
-        ax.plot([p['recall'] for p in serie['data']], [p['precision'] for p in serie['data']], label=serie['name'])
+        ax.plot([p['recall'] for p in serie['data']], [p['precision'] for p in serie['data']], label=serie['name'].capitalize())
         if serie['breakeven'] is not None:
             print(serie['breakeven'])
             ax.plot(serie['breakeven'][-1], serie['breakeven'][-1] , 'bo', ms=3.5, mfc="black")
@@ -26,7 +26,7 @@ def display_loss_curve_plot(series):
     plt.ylabel('MSE')
     plt.grid(True)
     for serie in series:
-        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]], label=serie['name'])
+        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]], label=serie['name'].capitalize())
     ax.legend(loc='upper right', shadow=True)
     plt.show()
 
@@ -79,11 +79,10 @@ def average(series, series_key, x_align_key):
 
 def find_breakeven(pr):
     temp = sorted(pr, key=lambda p: abs(p['precision'] - p['recall']))
-    temp2 = temp[0: 10 :]
+    temp2 = temp[0: 14 :]
     points = sorted(temp2, key=lambda p: p['recall'])
     x = np.array([v['recall'] for v in points])
     y = np.array([v['precision'] for v in points])
-    y2 = np.array([v for v in x])
     #print(x)
     #print(y2)
     poly_coeff = np.polynomial.polynomial.polyfit(x, y, 2)

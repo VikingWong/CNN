@@ -13,8 +13,8 @@ in sub_folders variable.
 
 #TODO: Read and average all folders, and map to percentage
 
-path = '/home/olav/Documents/Results/E5-norway_boot_100'
-folders = [ 'baseline', 'bootstrapping', 'confident bootstrapping']
+path = '/home/olav/Documents/Results/E3-mass-boot-100'
+folders = [ 'baseline', 'bootstrapping']
 sub_folders = [{'name': '0', 'value': 0.0}, {'name': '1', 'value': 0.1},{'name': '2', 'value': 0.2},
                {'name': '3', 'value': 0.3}, {'name': '4', 'value': 0.4}]
 pr_key_x = 'threshold'

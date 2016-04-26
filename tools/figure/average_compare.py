@@ -10,8 +10,8 @@ These plots show comparisons between different folders of results. IE, baseline 
 '''
 
 sub_folder = ''
-path = '/home/olav/Documents/Results/E6'
-folders = [ 'baseline', 'confident bootstrapping']
+path = '/home/olav/Documents/Results/E7_inexperienced_teacher'
+folders = [ 'baseline0', 'curriculum0']
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
@@ -43,6 +43,7 @@ series = []
 for folder in folders:
     pr_avg = util.average(data[folder], pr_key_y, pr_key_x)
     breakeven_points = util.find_breakeven(pr_avg)
+    print(folder, breakeven_points)
     series.append({"name": folder, "data": pr_avg, "breakeven": breakeven_points})
 util.display_precision_recall_plot(series)
 

@@ -31,8 +31,10 @@ store_gui, job_id = get_command('-store_gui', default='-1')
 
 is_store_path, store_path = get_command('-store_path', default='./pr_data.json')
 
+is_model, model_path = get_command('-model', default='./results/params.pkl')
+
 store = ParamStorage()
-data = store.load_params(path="./results/params.pkl")
+data = store.load_params(path=model_path)
 batch_size = data['optimization'].batch_size
 
 measurer = PrecisionRecallCurve(dataset_path, data['params'], data['model'], data['dataset'])
