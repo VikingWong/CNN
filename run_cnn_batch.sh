@@ -4,12 +4,6 @@ a=0
 
 while [ $a -lt 10 ]
 do
-   python ./cnn.py "-batch" $a "-curriculum" "/media/olav/Data storage/dataset/Mass_inexperienced_100"
-   a=`expr $a + 1`
-done
-
-while [ $a -lt 20 ]
-do
-   python ./cnn.py "-batch" $a "-curriculum" "/media/olav/Data storage/dataset/Mass_inexperienced_100-baseline"
+   python ./cnn.py "-batch" $a "-curriculum" "/media/olav/Data storage/dataset/E6-mass-curriculum-1600"
    a=`expr $a + 1`
 done

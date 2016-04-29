@@ -1,6 +1,6 @@
 import pickle
 from util import Params
-import json
+import json, os
 from config import model_params, optimization_params, dataset_params, number_of_epochs, filename_params
 
 class ParamStorage(object):
@@ -21,7 +21,7 @@ class ParamStorage(object):
         f.close()
         return params
 
-    def store_params(self, params, path=None):
+    def store_params(self, params, path=None, id=''):
         #TODO: Check if params exist and if overwriting a file
         if not path:
             path = self.path
@@ -34,7 +34,10 @@ class ParamStorage(object):
             'epochs': number_of_epochs
         }
         print(path)
-        f = open(path, 'wb')
+        #ID, on wrong place
+        file_path = os.path.splitext(path)[0]
+        extension = os.path.splitext(path)[1]
+        f = open(file_path + id + extension, 'wb')
         pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         f.close()
 

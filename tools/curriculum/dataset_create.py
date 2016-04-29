@@ -80,6 +80,7 @@ class CurriculumDataset(object):
          to the real dataset distribution of data.
         :return:
         '''
+        print("SAMPLES ", samples)
         stage_path = os.path.join(self.store_path, "train", name)
         os.makedirs(stage_path)
         data, labels = self.creator.sample_data(

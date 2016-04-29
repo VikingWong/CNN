@@ -26,8 +26,32 @@ def display_loss_curve_plot(series):
     plt.ylabel('MSE')
     plt.grid(True)
     for serie in series:
-        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]], label=serie['name'].capitalize())
+        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
+                label=serie['name'].capitalize())
     ax.legend(loc='upper right', shadow=True)
+    plt.show()
+
+def display_two_axis_plot(series, axis2_serie):
+    fig, ax = plt.subplots()
+    color_cycle = ax._get_lines.color_cycle
+    plt.grid(True)
+    ax2 = ax.twinx()
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel('MSE')
+    ax2.set_ylabel('Precision and recall breakeven')
+    for serie in series:
+        ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
+                label=serie['name'].capitalize(),
+                color=next(color_cycle))
+
+    for serie in axis2_serie:
+        color = next(color_cycle) #Color used for both legend fix and plot color
+        ax2.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
+                 marker='o',
+                 label=serie['name'].capitalize(),
+                 color=color)
+        ax.plot(0, 0, label = serie['name'].capitalize(), color=color, marker='o') #Adds legend to ax1, fix
+    ax.legend(loc='lower right', shadow=True)
     plt.show()
 
 def display_noise_summary(series, x_label, y_label):
@@ -38,7 +62,8 @@ def display_noise_summary(series, x_label, y_label):
     plt.grid(True)
     marker = ['s', 'v', 'o', '^', '<', '>']
     for i, serie in enumerate(series):
-        ax.plot([p["x"] for p in serie['data']], [p["y"] for p in serie['data']], label=serie['name'].capitalize(), marker=marker[i%len(marker)], ms=8.0)
+        ax.plot([p["x"] for p in serie['data']], [p["y"] for p in serie['data']], label=serie['name'].capitalize(),
+                marker=marker[i%len(marker)], ms=8.0)
     ax.legend(loc='upper right', shadow=True)
     plt.show()
 
@@ -77,9 +102,9 @@ def average(series, series_key, x_align_key):
     return combined
 
 
-def find_breakeven(pr):
+def find_breakeven(pr, samples=14):
     temp = sorted(pr, key=lambda p: abs(p['precision'] - p['recall']))
-    temp2 = temp[0: 14 :]
+    temp2 = temp[0: samples :]
     points = sorted(temp2, key=lambda p: p['recall'])
     x = np.array([v['recall'] for v in points])
     y = np.array([v['precision'] for v in points])

@@ -148,14 +148,17 @@ class ConvModel(AbstractModel):
             )
 
             layer_input = layer.output
-            dim_x = int(math.floor((inp_shape[2] - self.conv[i]["filter"][0] +1) / (self.conv[i]["stride"][0] * self.conv[i]["pool"][0])))
-            dim_y = int(math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1])))
+            dim_x = self.get_output_length(inp_shape[2], self.conv[i]["filter"][0],  self.conv[i]["pool"][0], self.conv[i]["stride"][0], 0 )
+            dim_y = self.get_output_length(inp_shape[3], self.conv[i]["filter"][1],  self.conv[i]["pool"][1], self.conv[i]["stride"][1], 0 )
+            #dim_x = int(math.floor((inp_shape[2] - self.conv[i]["filter"][0] +1) / (self.conv[i]["stride"][0] * self.conv[i]["pool"][0])))
+            #dim_y = int(math.floor((inp_shape[3] - self.conv[i]["filter"][1] +1) / (self.conv[i]["stride"][1] * self.conv[i]["pool"][1])))
+            print(dim_x, dim_y)
 
             inp_shape = (batch_size, self.nr_kernels[i], dim_x, dim_y)
             self.layer.append(layer)
 
         hidden_input = self.layer[-1].output.flatten(2)
-
+        print(self.nr_kernels[-1], inp_shape[2], inp_shape[3])
         # construct a fully-connected sigmoidal layer
         hidden_layer = HiddenLayer(
             self.rng,
@@ -191,3 +194,12 @@ class ConvModel(AbstractModel):
             self.params += layer.params
 
         print('Model created!')
+
+    def get_output_length(self, input_length, filter_size, pool_size, stride, pad):
+        output_length = input_length - filter_size + 1
+        output_length = (output_length + stride - 1) // stride
+        print(output_length)
+        #Pooling with no overlap - and ignore border which exclude pooling regions outside input border.
+        output_length = int(np.floor(output_length / pool_size))
+        print(output_length)
+        return output_length

@@ -4,12 +4,14 @@ from PIL import Image, ImageFilter
 
 sys.path.append(os.path.abspath("./"))
 from storage import ParamStorage
-
+from interface import command
 '''
 This tool loads the model weight configuration stored in ./results/params.pkl and visualize the weights in the first layer.
 The weight configuration of each kernel is converted to a RGB image. The tool assume there are only 64 kernels in the
 first layer.
 '''
+
+is_model, model_path = command.get_command('-model', default='./results/params.pkl')
 
 def make_visual(layer_weights):
     max_scale = layer_weights.max(axis=-1).max(axis=-1)[...,
@@ -22,7 +24,7 @@ def make_visual(layer_weights):
 
 
 store = ParamStorage()
-data = store.load_params(path="./results/params.pkl")
+data = store.load_params(path=model_path)
 
 
 first_layer = np.array(

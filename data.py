@@ -212,11 +212,13 @@ class AerialCurriculumDataset(AbstractDataset):
             shuffle_counter = 0
             shuffled_index = range(elements)
             random.shuffle(shuffled_index)
+            #print (len(shuffled_index))
             for c in range(len(self.all_training)):
                 nr_chunk_examples =  self.all_training[c][0].shape[0]
                 for x in range(nr_chunk_examples    ):
                     if shuffle_counter < elements:
                         i = shuffled_index.pop()
+                        #print(c, x, i)
                         self.all_training[c][0][x] = data[i]
                         self.all_training[c][1][x] = labels[i]
                     else:

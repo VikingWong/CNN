@@ -2,7 +2,7 @@ import theano
 from theano import tensor as T
 from theano.tensor.nnet import conv
 from theano.sandbox.cuda import dnn
-from theano.tensor.signal import downsample
+from theano.tensor.signal import pool
 import numpy as np
 from elements.util import BaseLayer
 
@@ -37,7 +37,7 @@ class ConvPoolLayer(BaseLayer):
 
         self.set_weight(W, -W_bound, W_bound, filter_shape)
         self.set_bias(b, filter_shape[0])
-
+        print(strides)
         if strides[0] == 1 and strides[1] == 1:
             #Strides make the system run impossibly slow because of legacy OP.
             print("No stride, use default conv2d")
@@ -47,17 +47,22 @@ class ConvPoolLayer(BaseLayer):
             filter_shape=filter_shape,
             image_shape=image_shape,
             )
+
         else:
             #When using stride/subsample the system require a GPU and CUDA. Using GPU OP directly.
             #he memory layout to use is bc01, that is batch, channel, first dim, second dim in that order.
-            print("Special convolution, stride support")
+            print("DNN convolution and pooling, stride support")
             conv_out = dnn.dnn_conv(input, self.W, subsample=strides)
+            #pooled_out = dnn.dnn_pool(conv_out, poolsize, stride=poolsize)
 
-        pooled_out = downsample.max_pool_2d(
+        pooled_out = pool.pool_2d(
             input=conv_out,
             ds=poolsize,
-            ignore_border=True
+            st=poolsize,
+            ignore_border=True,
+            mode='max'
         )
+
         out = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
         droppedOutput = self.dropout(out, dropout_rate)
 

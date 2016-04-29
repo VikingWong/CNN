@@ -177,7 +177,7 @@ class Evaluator(object):
 
                 if(epoch % 20 == 0):
                     print('---- Storing temp model')
-                    storage.store_params(self.model.params)
+                    storage.store_params(self.model.params, id=str(epoch))
 
                 if(curriculum and epoch % curriculum_adjustment == 0 and epoch >= curriculum_start):
                     print("---- Mixing examples from next stage with training data")
