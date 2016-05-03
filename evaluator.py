@@ -168,6 +168,7 @@ class Evaluator(object):
                 if(epoch % learning_adjustment == 0):
                         learning_rate *= learning_decrease
                         nr_learning_adjustments += 1
+                        #Temp
                         learning_adjustment = max(10, int(learning_adjustment/2))
                         print('---- New learning rate {}'.format(learning_rate))
 

@@ -199,7 +199,11 @@ class ConvModel(AbstractModel):
         output_length = input_length - filter_size + 1
         output_length = (output_length + stride - 1) // stride
         print(output_length)
-        #Pooling with no overlap - and ignore border which exclude pooling regions outside input border.
-        output_length = int(np.floor(output_length / pool_size))
+        overlap = False
+        if not overlap:
+            #Pooling with no overlap - and ignore border which exclude pooling regions outside input border.
+            output_length = int(np.floor(output_length / pool_size))
+        else:
+            output_length = output_length - pool_size + 1
         print(output_length)
         return output_length

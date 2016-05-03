@@ -3,9 +3,9 @@ import os, sys, random
 
 #If the stage switching replace training set, by picking index with replacement. The pool of indices does not diminish,
 #the simple dataset will then be replaced by the exponential of iterations of non-replaced examples
-iterations = 1
-data = np.ones(5000000)
-prev_data = np.zeros(10000000)
+iterations = 20
+data = np.ones(80000)
+prev_data = np.zeros(400000)
 elements = prev_data.shape[0]
 for j in range(iterations):
     for i in range(data.shape[0]):

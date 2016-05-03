@@ -196,6 +196,8 @@ class AerialCurriculumDataset(AbstractDataset):
     def mix_in_next_stage(self):
         self.stage += 1
         if self.nr_of_stages <= self.stage:
+            #print("temporary looping through stages")
+            #self.stage = 1
             print("No more stages available")
             return
 

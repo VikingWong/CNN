@@ -10,8 +10,8 @@ These plots show comparisons between different folders of results. IE, baseline 
 '''
 
 sub_folder = ''
-path = '/home/olav/Documents/Results/E7_inexperienced_teacher'
-folders = ['baseline - gradual', 'curriculum - gradual', 'curriculum - first stage only']
+path = '/home/olav/Documents/Results/models/za: 15:32:55 29-04-2016'
+folders = ['']
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
