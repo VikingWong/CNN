@@ -80,7 +80,7 @@ can be used to stop a running job, and other things. The purpose of this system 
   ```bash
   $ python setup.py develop
   ```
-7. Create a .theanorc.txt file in your home directory and add
+7. Create a .theanorc file in your home directory and add
   ```txt
     [global]
     floatX = float32
