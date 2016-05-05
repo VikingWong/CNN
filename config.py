@@ -4,8 +4,8 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 85
-dataset_path =  '/media/olav/Data storage/dataset/E6-mass-curriculum-1600'
+number_of_epochs = 95
+dataset_path =  '/media/olav/Data storage/dataset/E6-norwegian-curriculum-1600'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
