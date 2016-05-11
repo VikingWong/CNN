@@ -7,3 +7,7 @@ secret.py
 /tools/visualize/hit.jpg
 /tools/visualize/pred.jpg
 /tools/visualize/image.jpg
+/tools/visualize/label.jpg
+/tools/figure/pr.png
+/tools/figure/lc.png
+/tools/figure/summary.png

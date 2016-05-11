@@ -37,9 +37,10 @@ class Visualizer(object):
         file_ext = os.path.basename(image_path).split('.')[-1]
         label_ext = os.listdir(dir + "/labels/")[0].split('.')[-1]
         label_path = dir + "/labels/" + os.path.basename(image_path).split('.')[-2] + "." + label_ext
-
-        hit_image = self._create_hit_image(image,  Image.open(image_path, 'r'),  Image.open(label_path, 'r'), best_trade_off)
-        return image, hit_image, Image.open(image_path, 'r')
+        label_image = Image.open(label_path, 'r')
+        raw_image =  Image.open(image_path, 'r')
+        hit_image = self._create_hit_image(image, raw_image, label_image , best_trade_off)
+        return image, hit_image, raw_image, label_image
 
 
     def _create_hit_image(self, prediction_image, input_image, label_image, best_trade_off):

@@ -13,6 +13,9 @@ import tools.util as Image
 from interface.server import send_result_image
 from interface.command import get_command
 
+#Read the number of stored weights
+#print(data['params'][8].get_value().shape)
+#raise Exception
 '''
 This tool creates a model from saved params, and stitch together predictions, to qualitatively show performance of model.
 There are also options to upload image to GUI. The best tradeoff between precision and recall should be specified as
@@ -23,7 +26,7 @@ prediction are correct (green), where they are missing (red) and where they shou
 '''
 
 def store_image(image, job_id, store_gui, name="image"):
-    out = Image.resize(image, 0.5)
+    out = Image.resize(image, 1.0)
 
     if store_gui:
         buf= StringIO.StringIO()
@@ -53,8 +56,10 @@ data = store.load_params(path=model_path)
 batch_size = data['optimization'].batch_size
 
 v = Visualizer(data['model'], data['params'], data['dataset'])
-image_prediction, image_hit, image_data = v.visualize(image_path, batch_size, best_trade_off=bto)
+image_prediction, image_hit, image_data, label_image = v.visualize(image_path, batch_size, best_trade_off=bto)
 
+#Do not store label image on web gui. Only locally
+store_image(label_image, None, False, name="label")
 store_image(image_prediction, job_id, store_gui, name="pred")
 store_image(image_hit, job_id, store_gui, name="hit")
 

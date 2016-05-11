@@ -1,47 +1,51 @@
-import numpy as np
 import sys, os
-import theano.tensor as T
-import theano
+
 sys.path.append(os.path.abspath("./"))
-from elements.custom import OutputLayer
+
+import tools.figure.util as util
 
 
-def loss_bootstrapping(output, y, factor=1.0, size=256):
-        #Customized categorical cross entropy.
-        #Based on the multibox impl. More tuned to paper.
-        p = output
-        hard = T.gt(p, 0.5)
-        #hard = p
-        inter1 = ((factor * y) + ((1.0- factor) * hard)) * T.log(p)
-        inter2 = ((factor * (1.0 - y)) + ((1.0- factor) * (1.0 - hard))) * T.log(1.0 - p)
-        loss = (
-            - T.sum( ((factor * y) + ((1.0- factor) * hard)) * T.log(p) ) -
-            T.sum( ((factor * (1.0 - y)) + ((1.0- factor) * (1.0 - hard))) * T.log(1.0 - p) )
-        )
-        return loss/size, hard, p, loss, y, inter1, inter2
-
-index = T.lscalar()  # index to a [mini]batch
-x = T.matrix('x')   # the data is presented as rasterized images
-y = T.imatrix('y') #label data
-
-pred_arr = [[0.39, 0.11]]
-label_arr = [[1, 0]]
-s = 2
-bo = loss_bootstrapping(x, y, size=s, factor=0)
-
-#pred = np.ones((1, 256), dtype=theano.config.floatX)
-#label = np.ones((1, 256), dtype=theano.config.floatX)
-pred = np.array(pred_arr, dtype=theano.config.floatX)
-label = np.array(label_arr, dtype=theano.config.floatX)
-shared_x = theano.shared(pred, borrow=True)
-shared_y = theano.shared(label, borrow=True)
-casted = T.cast(shared_y, 'int32')
-func = theano.function([], bo, givens={x: shared_x, y: casted})
+sub_folder = ''
+path = '/home/olav/Documents/Results/E7_inexperienced_teacher'
+folders = ['baseline - gradual', 'curriculum - gradual' ]
+pr_key_x = 'threshold'
+pr_key_y = 'curve'
+lc_key_x = 'epoch'
+lc_key_y = 'test_loss'
 
 
-loss, gt, output,loss2, y, i1, i2 =func()
-print(np.array(output))
-print(gt)
-print(y)
-print(loss)
-print(i1, i2)
+print("Creating comparison figures")
+all_tests = []
+data = {}
+nr_tests = 0
+for folder in folders:
+    paths = os.listdir(os.path.join(path, folder, sub_folder))
+    nr_tests += len(paths)
+    print("Folder", folder, "length", len(paths))
+    all_tests.append(paths)
+    data[folder] = []
+
+for t in range(len(all_tests)):
+    for data_path in all_tests[t]:
+        json_data = util.open_json_result(os.path.join(path, folders[t], sub_folder, data_path))
+
+        if type(json_data) is list:
+            d = json_data[0]
+        else:
+            d = json_data
+        data[folders[t]].append(d)
+
+for folder in folders:
+        print
+        print folder
+        for d in data[folder]:
+                final_test_loss = d['events'][-1][lc_key_y]
+                print(final_test_loss)
+
+for folder in folders:
+        print
+        print folder
+        for d in data[folder]:
+                #Verify visually
+                breakeven_points = util.find_breakeven(d['curve'])
+                print(breakeven_points[-1])

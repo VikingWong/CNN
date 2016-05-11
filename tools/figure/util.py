@@ -1,7 +1,11 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
 import json
+font = {'size'   : 15}
+
+matplotlib.rc('font', **font)
 
 def display_precision_recall_plot(series):
 
@@ -16,6 +20,8 @@ def display_precision_recall_plot(series):
             print(serie['breakeven'])
             ax.plot(serie['breakeven'][-1], serie['breakeven'][-1] , 'bo', ms=3.5, mfc="black")
     ax.legend(loc='lower left', shadow=True)
+    fig.tight_layout()
+    fig.savefig('pr.png')
     plt.show()
 
 
@@ -29,6 +35,8 @@ def display_loss_curve_plot(series):
         ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
                 label=serie['name'].capitalize())
     ax.legend(loc='upper right', shadow=True)
+    fig.tight_layout()
+    fig.savefig('pr.png')
     plt.show()
 
 def display_two_axis_plot(series, axis2_serie):
@@ -52,6 +60,7 @@ def display_two_axis_plot(series, axis2_serie):
                  color=color)
         ax.plot(0, 0, label = serie['name'].capitalize(), color=color, marker='o') #Adds legend to ax1, fix
     ax.legend(loc='lower right', shadow=True)
+    fig.tight_layout()
     plt.show()
 
 def display_noise_summary(series, x_label, y_label):
@@ -65,6 +74,8 @@ def display_noise_summary(series, x_label, y_label):
         ax.plot([p["x"] for p in serie['data']], [p["y"] for p in serie['data']], label=serie['name'].capitalize(),
                 marker=marker[i%len(marker)], ms=8.0)
     ax.legend(loc='upper right', shadow=True)
+    fig.tight_layout()
+    fig.savefig('summary.png')
     plt.show()
 
 def average(series, series_key, x_align_key):
@@ -103,13 +114,12 @@ def average(series, series_key, x_align_key):
 
 
 def find_breakeven(pr, samples=14):
-    temp = sorted(pr, key=lambda p: abs(p['precision'] - p['recall']))
+    #Recall levels that are 0 get a penalty in the sorter
+    temp = sorted(pr, key=lambda p: abs(p['precision'] - p['recall'] + int(not bool(p['recall']))))
     temp2 = temp[0: samples :]
     points = sorted(temp2, key=lambda p: p['recall'])
     x = np.array([v['recall'] for v in points])
     y = np.array([v['precision'] for v in points])
-    #print(x)
-    #print(y2)
     poly_coeff = np.polynomial.polynomial.polyfit(x, y, 2)
     roots = np.polynomial.polynomial.polyroots(poly_coeff - [0, 1, 0])
     return roots

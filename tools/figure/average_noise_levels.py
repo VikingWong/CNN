@@ -11,9 +11,7 @@ Assume folders, contains sub-folders, with experimental results. Enter mapping b
 in sub_folders variable.
 '''
 
-#TODO: Read and average all folders, and map to percentage
-
-path = '/home/olav/Documents/Results/E3-mass-boot-100'
+path = '/home/olav/Documents/Results/E1-mass-boot-100'
 folders = [ 'baseline', 'bootstrapping']
 sub_folders = [{'name': '0', 'value': 0.0}, {'name': '1', 'value': 0.1},{'name': '2', 'value': 0.2},
                {'name': '3', 'value': 0.3}, {'name': '4', 'value': 0.4}]
@@ -48,7 +46,7 @@ for folder in folders:
     breakeven_points[folder] = []
     for sub in sub_folders:
         pr_avg = util.average(data[folder][sub['name']], pr_key_y, pr_key_x)
-        breakeven = util.find_breakeven(pr_avg)
+        breakeven = util.find_breakeven(pr_avg, samples=4)
         breakeven_points[folder].append({"x": sub['value'], "y": breakeven[1]})
 print breakeven_points
 #series.append({"name": folder, "data": pr_avg})

@@ -8,8 +8,8 @@ import util
 This tool creates a loss figure containing, training, test and validation error.
 '''
 
-path = '/home/olav/Documents/Results/E6_road_detection_performance'
-folder = 'baseline'
+path = '/home/olav/Documents/Results/E7_road_detection_performance'
+folder = 'Network M1'
 lc_key_x = 'epoch'
 
 print("Creating averaged loss figures")
