@@ -92,7 +92,6 @@ class OutputLayer(BaseLayer):
         return loss/self.size
 
     def loss_stochastic_union_bootstrapping(self, y, factor=1):
-        #TODO: test
         #Stochastic union bootstrapping. If factor over threshold, the union of confident prediction and label is returned
         random_nr = self.srng.uniform((1,))
         ny = T.switch(T.gt(random_nr[0], factor), T.or_(T.gt(self.output, 0.8), y), y)

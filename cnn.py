@@ -53,8 +53,8 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     network_store_path = filename_params.network_save_name
     result_path = filename_params.results + "/results.json"
     if is_batch_run:
-        network_store_path = filename_params.results + "/batch" + batch_index +  "-2.pkl"
-        result_path =filename_params.results + "/batch" + batch_index +  "-2.json"
+        network_store_path = filename_params.results + "/batch" + batch_index +  ".pkl"
+        result_path =filename_params.results + "/batch" + batch_index +  ".json"
 
     storage = ParamStorage(path=network_store_path)
     storage.store_params(model.params)

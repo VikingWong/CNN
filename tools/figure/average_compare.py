@@ -9,9 +9,9 @@ This tool creates a two figures. The first figure plots the precision and recall
 These plots show comparisons between different folders of results. IE, baseline and test results.
 '''
 
-sub_folder = '4'
-path = '/home/olav/Documents/Results/E1-mass-boot-100'
-folders = ['baseline', 'bootstrapping']
+sub_folder = '2'
+path = '/home/olav/Documents/Results/E8'
+folders = ['baseline', 'bootstrapping', 'confident bootstrapping']
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
@@ -42,7 +42,7 @@ for t in range(len(all_tests)):
 series = []
 for folder in folders:
     pr_avg = util.average(data[folder], pr_key_y, pr_key_x)
-    breakeven_points = util.find_breakeven(pr_avg, samples=4)
+    breakeven_points = util.find_breakeven(pr_avg, samples=30)
     print(folder, breakeven_points)
     series.append({"name": folder, "data": pr_avg, "breakeven": breakeven_points})
 util.display_precision_recall_plot(series)
@@ -50,5 +50,6 @@ util.display_precision_recall_plot(series)
 series = []
 for folder in folders:
     loss_avg = util.average(data[folder], 'events', lc_key_x)
+    print(folder, loss_avg[-1]['test_loss'])
     series.append({"name": folder, "data": loss_avg, "y_key": lc_key_y})
 util.display_loss_curve_plot(series)

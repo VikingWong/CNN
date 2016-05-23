@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
 import json
+from scipy import stats
 font = {'size'   : 15}
-
 matplotlib.rc('font', **font)
 
 def display_precision_recall_plot(series):
@@ -29,14 +29,14 @@ def display_loss_curve_plot(series):
     fig, ax = plt.subplots()
     #plt.suptitle('Loss curve')
     plt.xlabel('Epoch')
-    plt.ylabel('MSE')
+    plt.ylabel('MSE test loss')
     plt.grid(True)
     for serie in series:
         ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
                 label=serie['name'].capitalize())
     ax.legend(loc='upper right', shadow=True)
     fig.tight_layout()
-    fig.savefig('pr.png')
+    fig.savefig('lc.png')
     plt.show()
 
 def display_two_axis_plot(series, axis2_serie):
@@ -45,8 +45,8 @@ def display_two_axis_plot(series, axis2_serie):
     plt.grid(True)
     ax2 = ax.twinx()
     ax.set_xlabel('Epoch')
-    ax.set_ylabel('MSE')
-    ax2.set_ylabel('Precision and recall breakeven')
+    ax.set_ylabel('MSE test loss')
+    ax2.set_ylabel('Precision and and recall breakeven')
     for serie in series:
         ax.plot([p['epoch'] for p in serie['data'][1:]], [p[serie["y_key"]] for p in serie['data'][1:]],
                 label=serie['name'].capitalize(),
@@ -63,9 +63,11 @@ def display_two_axis_plot(series, axis2_serie):
     fig.tight_layout()
     plt.show()
 
-def display_noise_summary(series, x_label, y_label):
+def display_noise_summary(series, x_label, y_label, yaxis=None):
     fig, ax = plt.subplots()
     #plt.suptitle('Loss curve')
+    if yaxis:
+        plt.axis(ymin = yaxis[0], ymax=yaxis[1])
     plt.xlabel(x_label.capitalize())
     plt.ylabel(y_label.capitalize())
     plt.grid(True)

@@ -25,10 +25,12 @@ image processing operation, dilation. The slack variable is set to 3 pixels.
 print_section("TOOLS: Measure precision and recall of model")
 print("-data: path to dataset | -store: job_gui id to store curve in GUI | -store_path: store results locally")
 
+#====== Arguments ===============================================
 is_dataset_path, dataset_path = get_command('-data', default='/home/olav/Pictures/Mass_roads_alpha')
 store_gui, job_id = get_command('-store_gui', default='-1')
 is_store_path, store_path = get_command('-store_path', default='./pr_data.json')
 is_model, model_path = get_command('-model', default='./results/params.pkl')
+#==============================================================
 
 store = ParamStorage()
 data = store.load_params(path=model_path)

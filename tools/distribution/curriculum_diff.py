@@ -1,27 +1,30 @@
 import numpy as np
 import sys, os
+import matplotlib
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath("./"))
 from interface.command import get_command
 from printing import print_section, print_action
+
 from storage import ParamStorage
 from config import filename_params, dataset_params, pr_path, dataset_path
 from augmenter.aerial import Creator
 from data import AerialCurriculumDataset
 import tools.util as util
 
+
+
 '''
 Create histograms of difference between prediction and label for dataset.
 Allow finetuning of curriculum strategy.
 '''
 print_section('Generating plot of diff distribution between label and prediction')
-
-is_threshold, threshold = get_command('-threshold', default="1.0")
-threshold = float(threshold)
-
+#====== Arguments ===============================================
 is_samples, samples = get_command('-samples', default="100")
 samples = int(samples)
+
+is_teacher_location, teacher_location = get_command('-teacher', default=filename_params.curriculum_teacher)
 
 verify, stage = get_command('-verify', default="0")
 stage = "stage" + stage
@@ -33,9 +36,12 @@ tradeoff = float(tradeoff)
 is_alt_dataset, alt_dataset = get_command('-dataset')
 if is_alt_dataset:
     dataset_path = alt_dataset
+#==============================================================
+
+
 
 store = ParamStorage()
-teacher = store.load_params(path=filename_params.curriculum_teacher)
+teacher = store.load_params(path=teacher_location)
 evaluate = util.create_simple_predictor(teacher['model'], teacher['params'])
 
 if not verify:
@@ -111,26 +117,23 @@ if not verify:
     del creator
 del evaluate
 
+font = {'size'   : 15}
+matplotlib.rc('font', **font)
 
-#TODO: Normalized histogram underway
-plt.figure(1)
-plt.subplot(311)
-#n, bins, patches = plt.hist(road_arr, 60, normed=True, color='green')
+#Road difficulty distribution
 results, edges = np.histogram(road_arr, 100, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='green')
+plt.show()
 
-plt.subplot(312)
-#n, bins, patches = plt.hist(non_road_arr, 60, normed=True, color='red')
+#Non-road difficulty distribution
 results, edges = np.histogram(non_road_arr, 100, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='red')
+plt.show()
 
-plt.subplot(313)
-#n, bins, patches = plt.hist(all_arr, 60, normed=True, color='blue')
+#Combined road and non-road difficulty distribution
 results, edges = np.histogram(all_arr, 100, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='blue')
-#plt.subplot(414)
-#n, bins, patches = plt.hist(pred_arr, 60, normed=True, color='grey')
 plt.show()

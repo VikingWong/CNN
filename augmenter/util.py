@@ -79,32 +79,59 @@ def get_road_position(image):
     return np.where(arr == 255)
 
 def add_artificial_road_noise(image, threshold):
+    '''
+    Adds artifical omission noise to label image, until threshold is reached.
+    Experimental random_noise, which adds unstructured noise to label image. Not realistic noise.
+    :param image: label image, bw
+    :param threshold: Percentage of roads to be removed
+    :return:
+    '''
     label = image.copy()
-    nr_road = get_sum_road(label)
+    random_noise = True
+    if random_noise:
+        nr_labels = image.size[0] * image.size[1]
+
+        pixels = label.load()
+        original_pixels = image.load()
+    else:
+        dr = ImageDraw.Draw(label)
+        nr_labels = np.sum(np.array(image) == 255)
+        shape_max = int(image.size[0] / 10)
+        shape_min = int(image.size[0]/20)
+        locations = get_road_position(label)
+
     #If there are no road class there is no use in removing some.
-
-    if nr_road == 0:
+    if nr_labels == 0:
         return label, 0
-
-    dr = ImageDraw.Draw(label)
-    shape_max = int(image.size[0] / 10)
-    shape_min = int(image.size[0]/20)
-    locations = get_road_position(label)
-    location_x = label.size[0]
-    location_y = label.size[1]
 
     removed_threshold = np.clip(threshold, 0.0, 1.0)
     p_roads_removed = 0.0
+    #t = 0
     while p_roads_removed < removed_threshold:
-        i = random.randint(0, locations[0].shape[0] -1 )
-        y = locations[0][i]
-        x = locations[1][i]
-        w = int(random.randint(shape_min, shape_max)/2)
-        h = int(random.randint(shape_min, shape_max)/2)
-        cor = (x-w, y-h, x+w, y+h)
-        dr.ellipse(cor, fill="black")
-        nr_artificial_road = get_sum_road(label)
-        p_roads_removed = 1.0 - (nr_artificial_road/ float(nr_road))
+        if random_noise:
+            #Randomly distribution noise
+            for i in range(1000):
+                y = random.randint(0, image.size[0]-1)
+                x = random.randint(0, image.size[1]-1)
+                pixels[x, y] = int(not bool(original_pixels[x, y])) * 255
+        else:
+            #Road pixels are removed systematically. Simulates omission noise
+            i = random.randint(0, locations[0].shape[0] -1 )
+            y = locations[0][i]
+            x = locations[1][i]
+            w = int(random.randint(shape_min, shape_max)/2)
+            h = int(random.randint(shape_min, shape_max)/2)
 
-
+            #if t%2 == 0:
+            cor = (x-w, y-h, x+w, y+h)
+            dr.ellipse(cor, fill="black")
+            #Failed attempt at registration noise
+            #else:
+            #    m = int(random.randint(-10, 10))
+            #    n = int(random.randint(-10, 10))
+            #    cropped = label.crop((x,y, x+w,y+h))
+             #   label.paste(cropped, (x-m, y-n, x+w-m, y+h-n) )
+        current_number_of_roads = get_sum_road(image)
+        p_roads_removed = current_number_of_roads / float(nr_labels)
+        #t = t+1
     return label, p_roads_removed

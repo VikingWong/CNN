@@ -29,7 +29,7 @@ for data_path in paths:
 loss_avg = util.average(data, 'events', lc_key_x)
 series = [
     {"name": "Training loss", "data": loss_avg, "y_key":  "training_loss"},
-    {"name": "Validation loss", "data": loss_avg, "y_key":  "validation_loss"},
+    #{"name": "Validation loss", "data": loss_avg, "y_key":  "validation_loss"},
     {"name": "Test loss", "data": loss_avg, "y_key":  "test_loss"}
 ]
 util.display_loss_curve_plot(series)

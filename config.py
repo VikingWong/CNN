@@ -4,8 +4,8 @@ import secret
 #Create secret python file and variable token
 token = secret.token
 verbose = True
-number_of_epochs = 95
-dataset_path =  '/media/olav/Data storage/dataset/E6-norwegian-curriculum-1600'
+number_of_epochs = 100
+dataset_path =  '/home/olav/Pictures/Mass_roads_alpha'
 pr_path =       '/home/olav/Pictures/Mass_roads_alpha'
 filename_params = Params({
         "results"               : "./results",
@@ -22,7 +22,7 @@ visual_params = Params({
 
 optimization_params = Params({
         "backpropagation"                   : "sgd_nesterov",
-        "batch_size"                        : 128,
+        "batch_size"                        : 64,
         "l2_reg"                            : 0.0001,
         "momentum"                          : 0.93,
         "initial_patience"                  : 500000,
@@ -34,34 +34,34 @@ optimization_params = Params({
         "learning_decrease"                 : 0.90,
 
         "factor_rate"                       : 1.0,
-        "factor_adjustment"                 : 50,
+        "factor_adjustment"                 : 60,
         "factor_decrease"                   : 0.95,
-        "factor_minimum"                    : 0.65,
+        "factor_minimum"                    : 0.8,
 
-        "curriculum_enable"                 : True,
+        "curriculum_enable"                 : False,
         "curriculum_start"                  : 30,
         "curriculum_adjustment"             : 15
     })
 #Reduce, is needed especially for testing and validation. For large samples_per_image, testing validation might not fit on GPU
 #Dataset_std can by calculated by dataset_std tool inside tools directory.
 dataset_params = Params({
-    "loader"                : "AerialCurriculumDataset",
+    "loader"                : "AerialDataset",
     "with_replacement"      : True, #True: random indexes in training set replaced 62% average. False: Entire training set replaced.
-    "samples_per_image"     : 400,
+    "samples_per_image"     : 200,
     #"dataset_std"           : 0.18945282966287444, #Norwegian dataset
     "dataset_std"           : 0.18893923860059578, #Mass
     "valid_std"             : 0.19088566314428751, #Not used
     "test_std"              : 0.18411163301559019, #Not used
     "reduce_training"       : 1.0,
-    "reduce_testing"        : 0.25,
-    "reduce_validation"     : 0.5,
+    "reduce_testing"        : 0.5,
+    "reduce_validation"     : 1.0,
     "use_rotation"          : True,
     "use_preprocessing"     : True,
     "input_dim"             : 64,
     "output_dim"            : 16,
     "chunk_size"            : 1024,
 
-    "use_label_noise"       : False,
+    "use_label_noise"       : True,
     "label_noise"           : 0.0,
 
     "only_mixed_labels"     : True,
@@ -69,8 +69,8 @@ dataset_params = Params({
 })
 
 model_params = Params({
-    "loss"              : "bootstrapping_confident",
-    "nr_kernels"        : [120, 112, 80 ],
+    "loss"              : "bootstrapping",
+    "nr_kernels"        : [64, 112, 80 ],
     "random_seed"       : 23455,
     "input_data_dim"    : (3, 64, 64),
     "output_label_dim"  : (16, 16),
