@@ -5,6 +5,11 @@ from config import model_params, optimization_params, dataset_params, filename_p
 from printing import print_error
 import base64
 
+'''
+Server.py contains many methods which interact with monitoring system interface. Send async http messages.
+Contains several states, which indicate whether the experiment has been stopped or debugged by user. All gui-cnn
+communication happens through these methods.
+'''
 
 base_url = visual_params.endpoint
 stop = False

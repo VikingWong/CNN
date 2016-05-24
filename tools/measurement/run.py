@@ -38,13 +38,13 @@ batch_size = data['optimization'].batch_size
 
 measurer = PrecisionRecallCurve(dataset_path, data['params'], data['model'], data['dataset'])
 datapoints = measurer.get_curves_datapoints(batch_size)
-#datapoints.sort(key=lambda p: p['recall'])
 
 if store_gui:
     send_precision_recall_data(datapoints, None, job_id=job_id)
 else:
     with open(store_path, 'w') as outfile:
         json.dump([{"curve": datapoints, "events": []}], outfile)
+
 
 plt.suptitle('Precision and recall')
 plt.xlabel('Recall')

@@ -5,7 +5,10 @@ from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
 import time
 
 class BaseLayer(object):
-
+    '''
+    All network layers inherit from this class. Contains methods for initing suitable random weights and conducting
+    dropout.
+    '''
     def __init__(self, rng, input, dropout_rate):
         self.input = input
         self.rng = rng

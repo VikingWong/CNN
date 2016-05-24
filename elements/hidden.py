@@ -4,6 +4,10 @@ import numpy as np
 from elements.util import BaseLayer
 
 class HiddenLayer(BaseLayer):
+    '''
+    Fully connected hidden layer. Weights and input summed. Result put through an activation function, which results
+    in the layer output. Dropout can also be applied depending on the drop variable.
+    '''
     def __init__(self, rng, input, n_in, n_out, drop, W=None, b=None, activation=T.tanh, verbose=True, dropout_rate=1.0):
         super(HiddenLayer, self).__init__(rng, input, dropout_rate)
         self._verbose_print(verbose,activation, n_in, n_out, dropout_rate)

@@ -39,6 +39,9 @@ class Creator(object):
 
 
     def dynamically_create(self, samples_per_image, enable_label_noise=False, label_noise=0.0, only_mixed=False):
+        '''
+        Samples patch datasets at runtime. Creates a validation, test, and training set.
+        '''
         self.load_dataset()
 
         print('{}# test img, {}# train img, {}# valid img'.format(
@@ -64,6 +67,8 @@ class Creator(object):
         '''
         Use paths to open data image and corresponding label image. Can apply random rotation, and then
         samples samples_per_images amount of images which is returned in data and label array.
+        In addition, the sampling considers the balance between road and non-road pixels, if mixed_labels are set to
+        True, label noise is added to label images if enabled, and curriculum enables sampling for a staged dataset.
         '''
         nr_class = 0
         nr_total = 1
@@ -255,7 +260,7 @@ class Creator(object):
 
 class Dataset(object):
     '''
-    Helper object, that uses os methods to check validity of a datasets test, valid or train dataset.
+    Helper object, that uses os methods to check validity of test, valid or train dataset.
     Collect all image files and base path.
     '''
     def __init__(self, name, base, folder, reduce):

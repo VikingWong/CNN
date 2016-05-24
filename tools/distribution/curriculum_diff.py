@@ -119,21 +119,30 @@ del evaluate
 
 font = {'size'   : 15}
 matplotlib.rc('font', **font)
+plt.ylabel('% of examples')
+plt.xlabel('Example difficulty estimate')
 
 #Road difficulty distribution
-results, edges = np.histogram(road_arr, 100, normed=True)
+results, edges = np.histogram(road_arr, 50, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='green')
+plt.savefig('1.png')
 plt.show()
 
+plt.ylabel('% of examples')
+plt.xlabel('Example difficulty estimate')
 #Non-road difficulty distribution
-results, edges = np.histogram(non_road_arr, 100, normed=True)
+results, edges = np.histogram(non_road_arr, 50, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='red')
+plt.savefig('2.png')
 plt.show()
 
+plt.ylabel('% of examples')
+plt.xlabel('Example difficulty estimate')
 #Combined road and non-road difficulty distribution
-results, edges = np.histogram(all_arr, 100, normed=True)
+results, edges = np.histogram(all_arr, 50, normed=True)
 binWidth = edges[1] - edges[0]
 plt.bar(edges[:-1], results*binWidth, binWidth, color='blue')
+plt.savefig('3.png')
 plt.show()

@@ -16,10 +16,10 @@ class ConvPoolLayer(BaseLayer):
         :param filter_shape:  (number of filters, num input feature maps, filter height, filter width)
         :param image_shape: (batch size, num input feature maps, image height, image width)
         :param poolsize: the downsampling (pooling) factor (#rows, #cols)
-        :param activation:
-        :param W:
-        :param b:
-        :param verbose:
+        :param activation: Choice of activation function
+        :param W: Supplied layer weights. Useful if loading form params.pkl.
+        :param b: Supplied biases. If loading model from params.pkl
+        :param verbose: Print layer arch. in console.
         :return:
         '''
         super(ConvPoolLayer, self).__init__(rng, input, dropout_rate)

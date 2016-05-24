@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath("./"))
 import tools.figure.util as util
 
 p_value_threshold = 0.1
-sub_folder = '4'
+sub_folder = '0'
 path = '/home/olav/Documents/Results/E1-mass-boot-100'
 folders = ['baseline', 'bootstrapping' ]
 pr_key_x = 'threshold'
@@ -65,22 +65,26 @@ for folder in folders:
             print(breakeven_points[-1])
 
 print("Loss samples t test")
-s = np.random.normal(np.mean(lc[folders[0]]), np.std(lc[folders[1]]), 10)
-print(scipy.stats.shapiro(s))
+#Random samples from normal
+s = np.random.normal(np.mean(lc[folders[0]]), np.std(lc[folders[1]]), 100)
+print("Random samples", scipy.stats.shapiro(s))
 fig = qqplot(s, scipy.stats.norm, fit=True, line='45')
-#plt.show()
+plt.show()
+
 #First folder figures
 fig = qqplot(np.array(lc[folders[0]]), scipy.stats.norm, fit=True, line='45')
-#plt.show()
-scipy.stats.probplot(lc[folders[0]], dist="norm", plot=plt)
-print(scipy.stats.shapiro(np.array(lc[folders[0]])))
-#plt.show()
+plt.show()
+#scipy.stats.probplot(lc[folders[0]], dist="norm", plot=plt)
+plt.show()
+print(folders[0], scipy.stats.shapiro(np.array(lc[folders[0]])))
+
 #Second folder figures
 fig = qqplot(np.array(lc[folders[1]]), scipy.stats.norm, fit=True, line='45')
+plt.show()
+#scipy.stats.probplot(lc[folders[1]], dist="norm", plot=plt)
 #plt.show()
-scipy.stats.probplot(lc[folders[1]], dist="norm", plot=plt)
-print(scipy.stats.shapiro(np.array(lc[folders[1]])))
-#plt.show()
+print(folders[1], scipy.stats.shapiro(np.array(lc[folders[1]])))
+
 tstat, pval = perform_welchs_test(lc[folders[0]], lc[folders[1]])
 print("t-statistics = {}".format(tstat))
 print("p-value = {}".format(pval) )

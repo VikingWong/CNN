@@ -4,6 +4,10 @@ import json, os
 from config import model_params, optimization_params, dataset_params, number_of_epochs, filename_params
 
 class ParamStorage(object):
+    '''
+    Class for opening and storing network models, and results. When storing a network, the weights, biasas and
+    hyperparameters are included.
+    '''
 
     def __init__(self, path=None):
         if not path:

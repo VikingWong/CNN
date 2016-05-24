@@ -4,6 +4,10 @@ import numpy as np
 from elements.util import BaseLayer
 
 class OutputLayer(BaseLayer):
+    '''
+    Output layer for convolutional neural network. Support many different loss functions, which can be set in
+    config.
+    '''
     def __init__(self, rng, input, n_in, n_out, W=None, b=None, batch_size=32, loss='crossentropy', verbose=True):
         super(OutputLayer, self).__init__(rng, input, 0.0)
         self._verbose_print(verbose, n_in, n_out, loss, batch_size)

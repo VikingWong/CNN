@@ -4,6 +4,10 @@ from PIL import Image, ImageDraw
 from printing import print_error
 
 def normalize(data, std):
+    '''
+    Data patch is constrast normalized by this method. The second argument std should be the standard deviation of
+    the patch dataset.
+    '''
     m = np.mean(data)
     data = (data - m) / std
     return data
@@ -65,14 +69,22 @@ def create_image_label(image, dim_data, dim_label):
         return label
 
 def create_threshold_image(image, threshold):
+    '''
+    threshold value define the binary split. Resulting binary image only contains 0 and 1, while image contains
+    values between 0 and 1.
+    '''
     binary_arr = np.ones(image.shape)
     low_values_indices = image <= threshold  # Where values are low
     binary_arr[low_values_indices] = 0  # All low values set to 0
     return binary_arr
 
-def get_sum_road(image):
-    arr = np.array(image)
-    return np.sum(arr == 255)
+def get_sum_road(altered_image, original_image):
+    '''
+    Number of changes between the original image and the altered image
+    '''
+    arr = np.array(original_image)
+    arr2 = np.array(altered_image)
+    return np.sum(arr != arr2)
 
 def get_road_position(image):
     arr = np.array(image)
@@ -131,7 +143,7 @@ def add_artificial_road_noise(image, threshold):
             #    n = int(random.randint(-10, 10))
             #    cropped = label.crop((x,y, x+w,y+h))
              #   label.paste(cropped, (x-m, y-n, x+w-m, y+h-n) )
-        current_number_of_roads = get_sum_road(image)
-        p_roads_removed = current_number_of_roads / float(nr_labels)
+        nr_of_changes = get_sum_road(label, image)
+        p_roads_removed = nr_of_changes/ float(nr_labels)
         #t = t+1
     return label, p_roads_removed
