@@ -75,7 +75,7 @@ def display_noise_summary(series, x_label, y_label, yaxis=None):
     for i, serie in enumerate(series):
         ax.plot([p["x"] for p in serie['data']], [p["y"] for p in serie['data']], label=serie['name'].capitalize(),
                 marker=marker[i%len(marker)], ms=8.0)
-    ax.legend(loc='upper right', shadow=True)
+    ax.legend(loc='upper left', shadow=True)
     fig.tight_layout()
     fig.savefig('summary.png')
     plt.show()

@@ -17,7 +17,6 @@ can be used to stop a running job, and other things. The purpose of this system 
 
 ## Installation
 ### Ubuntu
-**Preliminary guide. Check if this works for ubuntu**
 
 1. Install all dependencies
 

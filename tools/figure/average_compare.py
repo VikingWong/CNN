@@ -9,7 +9,7 @@ This tool creates a two figures. The first figure plots the precision and recall
 These plots show comparisons between different folders of results. IE, baseline and test results.
 '''
 
-sub_folder = '2'
+sub_folder = '4'
 path = '/home/olav/Documents/Results/E8'
 folders = ['baseline', 'bootstrapping', 'confident bootstrapping']
 pr_key_x = 'threshold'
