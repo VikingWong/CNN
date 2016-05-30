@@ -6,8 +6,14 @@ from theano.tensor.signal import pool
 import numpy as np
 from elements.util import BaseLayer
 
-#TODO: uses deprecated conv and downsample methods. Bleeding edge Theano have convOp and pool2d something.
 class ConvPoolLayer(BaseLayer):
+    '''
+    This class initialize a convolutional layer. Parameters supplied in the init decide the number of
+    kernels, the kernel sizing, the activation function. The layer can also initialize from existing weights
+    and biases (Stored models and so forth). The layer support dropout, strides, and max pooling.
+    The pooling step is not treated as a separate layer, but belongs to a convolutional layer. To deactivate pooling
+    the poolsize should be set (1,1).
+    '''
     def __init__(self, rng, input, filter_shape, image_shape, drop, poolsize=(2,2), strides=(1, 1),
                  activation=T.tanh, W = None, b = None, verbose = True, dropout_rate=1.0):
         '''

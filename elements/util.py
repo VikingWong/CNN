@@ -6,7 +6,7 @@ import time
 
 class BaseLayer(object):
     '''
-    All network layers inherit from this class. Contains methods for initing suitable random weights and conducting
+    All network layers inherit from this class. Contains methods for initializing suitable random weights and conducting
     dropout.
     '''
     def __init__(self, rng, input, dropout_rate):

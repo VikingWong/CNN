@@ -17,11 +17,11 @@ from interface.command import get_command
 #print(data['params'][8].get_value().shape)
 #raise Exception
 '''
-This tool creates a model from saved params, and stitch together predictions, to qualitatively show performance of model.
-There are also options to upload image to GUI. The best tradeoff between precision and recall should be specified as
-a parameter and the actual aerial image is set by supplying the path in console by the -data property.
+This tool creates a model from saved params, and stitch together predictions, to qualitatively show performance of a model.
+There are also options to upload the images to the GUI. The best tradeoff between precision and recall should be specified as
+a parameter and the actual aerial image is set by supplying the path in console via the -data property.
 
-The tool creates, and saves the prediction stitch image, as well as a hit and miss image. This image show, where the
+The tool creates and saves the prediction stitch image, as well as a hit and miss image. This image show, where the
 prediction are correct (green), where they are missing (red) and where they should not be according to the label (blue).
 '''
 

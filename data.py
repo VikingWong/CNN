@@ -9,7 +9,9 @@ from printing import print_section, print_error
 from augmenter.aerial import Creator
 
 class DataLoader:
-
+    '''
+    Loads a class based on value in config.
+    '''
     @staticmethod
     def create():
         '''
@@ -21,6 +23,11 @@ class DataLoader:
 
 
 class AbstractDataset(object):
+    '''
+    All dataloader should inherit from this class. Implements chunking of the dataset. For instance, subsets of examples
+     are loaded onto GPU iteratively during an epoch. This also includes a chunk switching method.
+    '''
+
     __metaclass__ = ABCMeta
     def __init__(self):
         self.set = {
@@ -179,7 +186,9 @@ class AbstractDataset(object):
 
 class AerialCurriculumDataset(AbstractDataset):
     '''
-    Data loader for pre-generated dataset for curriculum learning.
+    Data loader for pre-generated dataset. IE, curriculum learning and datasets too big to fit in main memory.
+    The class includes  a method for stage switching and mixing. this method switches the training set and
+    control the behavior of the switch.
     '''
 
     def load_set(self, path, set, stage=None):
@@ -277,7 +286,11 @@ class AerialCurriculumDataset(AbstractDataset):
 
 
 class AerialDataset(AbstractDataset):
-
+    '''
+    Dataset loader. This class does not load a pre-generated patch dataset. Instead, it creates patch datasets from
+    the aerial image dataset via the Creator class. This class samples a certain number of patches from each aerial
+    image.
+    '''
     def load(self, dataset_path, params, batch_size=1):
         print_section('Creating aerial image dataset')
 

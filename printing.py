@@ -1,4 +1,7 @@
 # ======================PRINTING UTILITIES============================
+'''
+Utilities to print formatted text in console. IE, text that has a certain color, section headers and more.
+'''
 class Color:
    PURPLE = '\033[95m'
    CYAN = '\033[96m'

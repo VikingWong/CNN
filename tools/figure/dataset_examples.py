@@ -7,6 +7,12 @@ sys.path.append(os.path.abspath("./"))
 from augmenter.aerial import Creator
 import augmenter.util
 
+'''
+Creates, displays and saves a grid of patch examples. Illustrates what a typical patch dataset looks like.
+dataset_dir sets the dataset. X_grid, y_grid and padding are properties that controls the grid layout. The
+dim_data and dim_label is the patch example sizing. Input has a width and height of dim_data and label has a
+width and height of dim_label.
+'''
 dataset_dir = "/home/olav/Pictures/Norwegian_roads_dataset_vbase"
 x_grid = 5
 y_grid = 4

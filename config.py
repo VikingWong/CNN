@@ -1,6 +1,10 @@
 from util import Params
 import secret
 
+'''
+This file contains the configurable hyperparameters of the CNN. For instance the backprogagation method,
+the number of convolutional layers and their architecutre, curriculum learning behavior etc.
+'''
 #Create secret python file and variable token
 token = secret.token
 verbose = True

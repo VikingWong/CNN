@@ -5,7 +5,8 @@ sys.path.append(os.path.abspath("./"))
 import util
 
 '''
-This tool creates a loss figure containing, training, test and validation error.
+This tool creates a loss figure containing, training, test and validation error. It averages experiment runs before
+constructing a figure.
 '''
 
 path = '/home/olav/Documents/Results/E7_road_detection_performance'

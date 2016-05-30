@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath("./"))
 import util
 
 '''
-This tool creates a figure showing, breakeven and final loss over several levels of noise.
+This tool creates a figure showing breakeven and final loss over several levels of noise.
 Compact representation of experiments conducted for several levels of noise.
 Assume folders, contains sub-folders, with experimental results. Enter mapping between subfolder and noise percentage
 in sub_folders variable.

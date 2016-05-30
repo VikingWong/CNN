@@ -8,7 +8,7 @@ from interface import command
 '''
 This tool loads the model weight configuration stored in ./results/params.pkl and visualize the weights in the first layer.
 The weight configuration of each kernel is converted to a RGB image. The tool assume there are only 64 kernels in the
-first layer.
+first layer. A stored model can also be supplied (-model).
 '''
 
 is_model, model_path = command.get_command('-model', default='./results/params.pkl')

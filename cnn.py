@@ -46,7 +46,7 @@ def run_cnn(model_params, optimization_params, dataset_path, dataset_params, fil
     dataset = DataLoader.create()
     dataset.load(dataset_path, dataset_params, optimization_params.batch_size) #Input stage
     model = ConvModel(model_params, verbose=True) #Create network stage
-    #TODO: FIX: Correct datasetpath not saved propertly
+
     evaluator = Evaluator(model, dataset, optimization_params, dataset_path)
     evaluator.run(epochs=epochs,  verbose=verbose, init=weights)
     report = evaluator.get_result()

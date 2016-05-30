@@ -2,6 +2,10 @@ import theano
 import numpy as np
 from util import Params
 
+'''
+Wrapper methods for theano functions.
+'''
+
 def create_theano_func(name, data, x,y, drop, input, output, batch_size, updates=None, dropping=False, prefix=''):
     '''
     Wrapper for creating a theano function.

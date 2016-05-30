@@ -13,7 +13,12 @@ from wrapper import create_theano_func, create_profiler_func
 from storage import ParamStorage
 
 class Evaluator(object):
-
+    '''
+    The evaluator class contains the main training loop. It receives the model and dataset and conducts the optimization.
+    The number of epochs are supplied in run method, while the main loop draws parameters directly from the loaded
+    config.py. The learning rate, bootstrapping factor, curriculum switch and early stopping are set the loop inside
+    the _train method.
+    '''
 
     def __init__(self, model, dataset, params, path):
         self.data = dataset

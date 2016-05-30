@@ -1,6 +1,11 @@
 import numpy as np
 import os, sys, random
+import matplotlib
 
+'''
+Sampling indices with replacement. Useful for calc the estimated percentage of examples that are replaced when
+a stage switch occurs.
+'''
 #If the stage switching replace training set, by picking index with replacement. The pool of indices does not diminish,
 #the simple dataset will then be replaced by the exponential of iterations of non-replaced examples
 iterations = 20

@@ -13,17 +13,18 @@ from interface.command import get_command
 
 '''
 This tool creates the datapoints necessary for a precision and recall curve figure. The tool samples a patch dataset
-from the test and validation set, and creates predictions using a trained model (-model). These predictions are thresholded
-at several values. The binarized predictions and the label are then used to calculate the precision as well as the recall.
-These values including the threshold amount constitute a data point. Supplying a experiment id (-store_gui), will
-store the datapoints in the web GUI.
+from the test and validation set (-data), and creates predictions using a trained model (-model). These predictions are
+thresholded at several values. The binarized predictions and the label are then used to calculate the precision as well
+as the recall. These values including the threshold amount, constitute a data point. Supplying a experiment id (-store_gui),
+will store the datapoints in the web GUI.
 
 It's worth noting that the measurements are relaxed. Relaxed precision and relaxed recall. This is implemented by the
 image processing operation, dilation. The slack variable is set to 3 pixels.
 '''
 
 print_section("TOOLS: Measure precision and recall of model")
-print("-data: path to dataset | -store: job_gui id to store curve in GUI | -store_path: store results locally")
+print("-data: path to dataset | -store: job_gui id to store curve in GUI "\
+      "| -store_path: store results locally | -model: stored model to use")
 
 #====== Arguments ===============================================
 is_dataset_path, dataset_path = get_command('-data', default='/home/olav/Pictures/Mass_roads_alpha')

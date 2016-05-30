@@ -7,10 +7,18 @@ sys.path.append(os.path.abspath("./"))
 
 import tools.figure.util as util
 
-p_value_threshold = 0.1
-sub_folder = '0'
-path = '/home/olav/Documents/Results/E1-mass-boot-100'
-folders = ['baseline', 'bootstrapping' ]
+'''
+This tool presents useful statistics about the populations that should be compared. IE, baseline and curriculum
+experiment runs. The folder variable should contain two subfolder of the path. If sub_folder is set it uses the
+sub_folder inside each folder. This is useful for increasing noise experiments. The tool displays normal Q-Q plots
+of each population. In addition it displays a comparison Q-Q plot of samples taken directly from a normal distribution.
+The Welch's t-test computes p-values which reject null hypothesis if below p_value_threshold. In addition the Shapiro
+Wilk normality test is computed for every population.
+'''
+p_value_threshold = 0.05
+sub_folder = '2'
+path = '/home/olav/Documents/Results/E8'
+folders = ['baseline', 'bootstrapping' ] #Only two folder should be added to folders array.
 pr_key_x = 'threshold'
 pr_key_y = 'curve'
 lc_key_x = 'epoch'
@@ -74,15 +82,11 @@ plt.show()
 #First folder figures
 fig = qqplot(np.array(lc[folders[0]]), scipy.stats.norm, fit=True, line='45')
 plt.show()
-#scipy.stats.probplot(lc[folders[0]], dist="norm", plot=plt)
-plt.show()
 print(folders[0], scipy.stats.shapiro(np.array(lc[folders[0]])))
 
 #Second folder figures
 fig = qqplot(np.array(lc[folders[1]]), scipy.stats.norm, fit=True, line='45')
 plt.show()
-#scipy.stats.probplot(lc[folders[1]], dist="norm", plot=plt)
-#plt.show()
 print(folders[1], scipy.stats.shapiro(np.array(lc[folders[1]])))
 
 tstat, pval = perform_welchs_test(lc[folders[0]], lc[folders[1]])

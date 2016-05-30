@@ -99,7 +99,7 @@ def add_artificial_road_noise(image, threshold):
     :return:
     '''
     label = image.copy()
-    random_noise = True
+    random_noise = False
     if random_noise:
         nr_labels = image.size[0] * image.size[1]
 

@@ -7,6 +7,10 @@ import math
 from collections import deque
 
 class AbstractModel(object):
+    '''
+    Different architectures inherit from AbstractModel. Contains methods needed by the Evaluator class.
+    The abstract build method should be implemented by subclasses.
+    '''
     __metaclass__ = ABCMeta
 
     def __init__(self, params, verbose):
@@ -91,11 +95,14 @@ class ShallowModel(AbstractModel):
         print('Model created!')
 
 
-#TODO: print number of parameters
 class ConvModel(AbstractModel):
-
-    def leaky_ReLU(self, x):
-        return T.nnet.relu(x, alpha=0.01)
+    '''
+    The ConvModel builds the architecture based on the values found in the config file, or stored params.pkl file.
+    The buld method dynamically creates the convolutional layers from the config specification. However the
+    fully connected layers are static. The final hidden layer is fully connected as well as the output layer.
+    the specification of the config. If there are init params, the layers are initialized from these values. Otherwise,
+    each layer's weights and biases are initialized by random values.
+    '''
 
     def __init__(self, params, verbose=True):
         super(ConvModel, self).__init__(params, verbose)
@@ -139,7 +146,7 @@ class ConvModel(AbstractModel):
                 filter_shape=filter,
                 strides=self.conv[i]["stride"],
                 poolsize=self.conv[i]["pool"],
-                activation=self.leaky_ReLU,
+                activation=T.nnet.relu(x),
                 W=self._weight(init_params, init_idx-1),
                 b=self._weight(init_params, init_idx),
                 drop=drop,
@@ -165,7 +172,7 @@ class ConvModel(AbstractModel):
             input=hidden_input,
             n_in=self.nr_kernels[-1] * inp_shape[2] * inp_shape[3],
             n_out=self.hidden,
-            activation=self.leaky_ReLU,
+            activation=T.nnet.relu(x),
             W=self._weight(init_params, 2),
             b=self._weight(init_params, 3),
             drop=drop,
